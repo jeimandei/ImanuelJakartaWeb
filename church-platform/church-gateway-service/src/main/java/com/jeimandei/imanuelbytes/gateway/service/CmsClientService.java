@@ -102,6 +102,53 @@ public class CmsClientService {
 
     // ─── CMS Pages ────────────────────────────────────────────────────────────
 
+    public CmsPageDto getCmsPageById(Long id, String jwt) {
+        try {
+            String url = serviceUrlConfig.cmsUrl("/api/cms/pages/" + id);
+            HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
+            ResponseEntity<CmsPageDto> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity, CmsPageDto.class);
+            return response.getBody();
+        } catch (RestClientException e) {
+            log.error("Failed to fetch CMS page {}: {}", id, e.getMessage());
+            return null;
+        }
+    }
+
+    public CmsPageDto createCmsPage(Map<String, Object> request, String jwt) {
+        String url = serviceUrlConfig.cmsUrl("/api/cms/pages");
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, createAuthHeaders(jwt));
+        ResponseEntity<CmsPageDto> response = restTemplate.exchange(
+                url, HttpMethod.POST, entity, CmsPageDto.class);
+        return response.getBody();
+    }
+
+    public CmsPageDto updateCmsPage(Long id, Map<String, Object> request, String jwt) {
+        String url = serviceUrlConfig.cmsUrl("/api/cms/pages/" + id);
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, createAuthHeaders(jwt));
+        ResponseEntity<CmsPageDto> response = restTemplate.exchange(
+                url, HttpMethod.PUT, entity, CmsPageDto.class);
+        return response.getBody();
+    }
+
+    public void publishCmsPage(Long id, String jwt) {
+        String url = serviceUrlConfig.cmsUrl("/api/cms/pages/" + id + "/publish");
+        HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
+        restTemplate.exchange(url, HttpMethod.PUT, entity, Void.class);
+    }
+
+    public void unpublishCmsPage(Long id, String jwt) {
+        String url = serviceUrlConfig.cmsUrl("/api/cms/pages/" + id + "/unpublish");
+        HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
+        restTemplate.exchange(url, HttpMethod.PUT, entity, Void.class);
+    }
+
+    public void deleteCmsPage(Long id, String jwt) {
+        String url = serviceUrlConfig.cmsUrl("/api/cms/pages/" + id);
+        HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
+        restTemplate.exchange(url, HttpMethod.DELETE, entity, Void.class);
+    }
+
     public CmsPageDto getPublishedPageBySlug(String slug) {
         try {
             String url = serviceUrlConfig.cmsUrl("/api/cms/pages/slug/" + slug + "/published");

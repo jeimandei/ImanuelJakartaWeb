@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/admin/users")
@@ -42,6 +44,26 @@ public class AdminUserController {
         model.addAttribute("search", search);
         model.addAttribute("currentPage", page);
         return "admin/users/list";
+    }
+
+    @GetMapping("/new")
+    public String createForm() {
+        return "admin/users/create";
+    }
+
+    @PostMapping
+    public String createUser(@RequestParam Map<String, String> params,
+                             RedirectAttributes redirectAttributes) {
+        String jwt = SecurityUtils.getJwt();
+        try {
+            Map<String, Object> request = new HashMap<>(params);
+            userClientService.createUser(request, jwt);
+            redirectAttributes.addFlashAttribute("successMessage", "User created successfully.");
+        } catch (Exception e) {
+            log.error("Failed to create user: {}", e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to create user: " + e.getMessage());
+        }
+        return "redirect:/admin/users";
     }
 
     @PostMapping("/{id}/status")

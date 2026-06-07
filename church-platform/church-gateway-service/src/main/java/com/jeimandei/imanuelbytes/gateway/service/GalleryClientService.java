@@ -6,6 +6,7 @@ import com.jeimandei.imanuelbytes.gateway.dto.PageResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -16,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class GalleryClientService {
@@ -77,5 +79,20 @@ public class GalleryClientService {
             log.error("Failed to fetch gallery for album {}: {}", albumName, e.getMessage());
             return PageResponse.empty();
         }
+    }
+
+    public GalleryItemDto createGalleryItem(Map<String, Object> request, String jwt) {
+        String url = serviceUrlConfig.mediaUrl("/api/gallery");
+        HttpHeaders headers = createAuthHeaders(jwt);
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, headers);
+        ResponseEntity<GalleryItemDto> response = restTemplate.exchange(
+                url, HttpMethod.POST, entity, GalleryItemDto.class);
+        return response.getBody();
+    }
+
+    public void deleteGalleryItem(Long id, String jwt) {
+        String url = serviceUrlConfig.mediaUrl("/api/gallery/" + id);
+        HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
+        restTemplate.exchange(url, HttpMethod.DELETE, entity, Void.class);
     }
 }
