@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Give - Faithful Stewardship')}"></head>
+<body>
+
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+<div th:replace="~{fragments/alerts :: alerts}"></div>
+
+<!-- Page Header -->
+<section style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); color:white; padding:80px 0;">
+    <div class="container text-center">
+        <i class="fas fa-donate fa-3x mb-3" style="opacity:0.8;"></i>
+        <h1 class="display-5 fw-bold mb-2">Faithful Stewardship</h1>
+        <p class="lead mb-0" style="opacity:0.85;">Honouring God with what He has entrusted to us</p>
+    </div>
+</section>
+
+<!-- Why We Give -->
+<section class="py-5">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-md-6">
+                <div class="section-header text-start mb-4">
+                    <h2>Why We Give</h2>
+                    <div class="divider" style="margin:0.8rem 0;"></div>
+                </div>
+                <div class="alert border-0 mb-4 p-4 rounded-3"
+                     style="background:rgba(26,58,107,0.08); border-left:4px solid var(--accent) !important; border-left-width:4px;">
+                    <p class="fst-italic mb-1 fw-medium" style="color:var(--primary);">
+                        "On the first day of every week, each one of you should set aside a sum of money in
+                        keeping with your income, saving it up, so that when I come no collections will have to be made."
+                    </p>
+                    <small class="text-muted">— 1 Corinthians 16:2</small>
+                </div>
+                <p class="text-muted mb-3">
+                    Giving is an act of worship and an expression of trust in God as our ultimate provider.
+                    At Imanuel Jakarta Church, we believe that everything we have belongs to God, and that generous
+                    giving is one of the most powerful ways we can participate in His Kingdom work.
+                </p>
+                <p class="text-muted mb-0">
+                    Your tithes and offerings fund our local ministries, support missionaries, and help us
+                    serve the city of Jakarta and communities in need across Indonesia.
+                </p>
+            </div>
+            <div class="col-md-6">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="card text-center p-4 h-100">
+                            <i class="fas fa-church fa-2x mb-2" style="color:var(--accent);"></i>
+                            <h6 class="fw-bold" style="color:var(--primary);">Local Ministries</h6>
+                            <p class="text-muted small mb-0">Supporting programs and staff who serve our congregation</p>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card text-center p-4 h-100">
+                            <i class="fas fa-globe-asia fa-2x mb-2" style="color:var(--accent);"></i>
+                            <h6 class="fw-bold" style="color:var(--primary);">Missions</h6>
+                            <p class="text-muted small mb-0">Partnering with missionaries locally and internationally</p>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card text-center p-4 h-100">
+                            <i class="fas fa-hands-helping fa-2x mb-2" style="color:var(--accent);"></i>
+                            <h6 class="fw-bold" style="color:var(--primary);">Community Outreach</h6>
+                            <p class="text-muted small mb-0">Serving those in need in Jakarta and beyond</p>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card text-center p-4 h-100">
+                            <i class="fas fa-tools fa-2x mb-2" style="color:var(--accent);"></i>
+                            <h6 class="fw-bold" style="color:var(--primary);">Facilities</h6>
+                            <p class="text-muted small mb-0">Maintaining our building as a welcoming place to gather</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How to Give -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="section-header mb-5">
+            <h2>How to Give</h2>
+            <div class="divider"></div>
+            <p>Choose the giving method that works best for you</p>
+        </div>
+
+        <div class="row g-4">
+
+            <!-- Bank Transfer -->
+            <div class="col-md-6">
+                <div class="card form-card p-4 h-100">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="ministry-icon me-3 mb-0 flex-shrink-0" style="width:55px; height:55px; font-size:1.4rem;">
+                            <i class="fas fa-university"></i>
+                        </div>
+                        <h5 class="fw-bold mb-0" style="color:var(--primary);">Bank Transfer</h5>
+                    </div>
+
+                    <div class="p-4 rounded-3" style="background:var(--light-bg); border:1px solid #dee2e6;">
+                        <h6 class="fw-bold mb-3" style="color:var(--primary);">Bank Account Details</h6>
+                        <table class="table table-sm mb-0">
+                            <tbody>
+                                <tr>
+                                    <td class="text-muted fw-medium" style="width:45%;">Bank</td>
+                                    <td class="fw-bold">Bank BCA</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted fw-medium">Account Name</td>
+                                    <td class="fw-bold">GKJ Imanuel Jakarta</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted fw-medium">Account Number</td>
+                                    <td class="fw-bold font-monospace">123-456-7890</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted fw-medium">Branch</td>
+                                    <td class="fw-bold">Jakarta Pusat</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="alert alert-info border-0 mt-3 mb-0 small"
+                         style="background:rgba(26,58,107,0.08);">
+                        <i class="fas fa-info-circle me-2" style="color:var(--primary);"></i>
+                        Please use your full name as the transfer description so we can acknowledge your gift.
+                    </div>
+                </div>
+            </div>
+
+            <!-- QRIS -->
+            <div class="col-md-6">
+                <div class="card form-card p-4 h-100">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="ministry-icon me-3 mb-0 flex-shrink-0" style="width:55px; height:55px; font-size:1.4rem; background:var(--accent);">
+                            <i class="fas fa-qrcode" style="color:var(--primary-dark);"></i>
+                        </div>
+                        <h5 class="fw-bold mb-0" style="color:var(--primary);">QRIS / Digital Payment</h5>
+                    </div>
+
+                    <div class="text-center">
+                        <!-- QRIS Placeholder -->
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-3 mb-3"
+                             style="width:200px; height:200px; background:#f0f0f0; border:2px dashed #ccc;">
+                            <div class="text-center text-muted">
+                                <i class="fas fa-qrcode fa-3x mb-2 opacity-50"></i>
+                                <p class="small mb-0 fw-medium">QRIS Coming Soon</p>
+                            </div>
+                        </div>
+                        <p class="text-muted small">
+                            Scan with any Indonesian mobile banking or e-wallet app (GoPay, OVO, Dana, LinkAja, etc.)
+                        </p>
+                        <div class="d-flex gap-2 justify-content-center flex-wrap">
+                            <span class="badge bg-secondary">GoPay</span>
+                            <span class="badge bg-secondary">OVO</span>
+                            <span class="badge bg-secondary">Dana</span>
+                            <span class="badge bg-secondary">LinkAja</span>
+                            <span class="badge bg-secondary">ShopeePay</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cash Offering -->
+            <div class="col-md-6">
+                <div class="card p-4 h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="ministry-icon me-3 mb-0 flex-shrink-0" style="width:55px; height:55px; font-size:1.4rem; background:#28a745;">
+                            <i class="fas fa-hand-holding-usd"></i>
+                        </div>
+                        <h5 class="fw-bold mb-0" style="color:var(--primary);">Sunday Offering</h5>
+                    </div>
+                    <p class="text-muted small mb-0">
+                        Offering baskets are passed during our Sunday worship services at 08:00 and 10:30 WIB.
+                        Cash offerings in sealed envelopes are also accepted at the church office.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Contact Treasurer -->
+            <div class="col-md-6">
+                <div class="card p-4 h-100" style="border-left:4px solid var(--accent);">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="ministry-icon me-3 mb-0 flex-shrink-0"
+                             style="width:55px; height:55px; font-size:1.4rem; background:#6c757d;">
+                            <i class="fas fa-question-circle"></i>
+                        </div>
+                        <h5 class="fw-bold mb-0" style="color:var(--primary);">Questions?</h5>
+                    </div>
+                    <p class="text-muted small mb-3">
+                        For questions about giving, tithing, designated gifts, or to request a giving statement,
+                        please contact our church treasurer directly.
+                    </p>
+                    <a th:href="@{/contact}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-envelope me-2"></i>Contact the Treasurer
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- Closing Scripture -->
+<section class="py-5" style="background:var(--primary); color:white;">
+    <div class="container text-center" style="max-width:700px;">
+        <i class="fas fa-quote-left fa-2x mb-4" style="color:var(--accent); opacity:0.6;"></i>
+        <p class="lead fw-medium mb-3" style="opacity:0.9;">
+            "Each of you should give what you have decided in your heart to give, not reluctantly or
+            under compulsion, for God loves a cheerful giver."
+        </p>
+        <p style="color:var(--accent); font-weight:600;">2 Corinthians 9:7</p>
+        <a th:href="@{/contact}" class="btn btn-gold btn-lg px-4 mt-2">
+            <i class="fas fa-envelope me-2"></i>Get in Touch
+        </a>
+    </div>
+</section>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/custom.js}"></script>
+</body>
+</html>

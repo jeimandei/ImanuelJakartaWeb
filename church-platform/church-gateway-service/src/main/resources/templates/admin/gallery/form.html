@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head th:replace="~{fragments/head :: head('Gallery Form - Admin')}"></head>
+<body>
+<div class="d-flex">
+
+    <nav class="admin-sidebar d-none d-md-flex flex-column py-3">
+        <div class="admin-sidebar-header mb-3">
+            <div class="brand"><i class="fas fa-church me-2"></i>Church Admin</div>
+        </div>
+        <ul class="nav flex-column">
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin}"><i class="fas fa-tachometer-alt"></i>Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/users}"><i class="fas fa-users"></i>Users</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/cms}"><i class="fas fa-file-alt"></i>CMS Pages</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/events}"><i class="fas fa-calendar-alt"></i>Events</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/sermons}"><i class="fas fa-microphone"></i>Sermons</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/livestreams}"><i class="fas fa-broadcast-tower"></i>Livestreams</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/announcements}"><i class="fas fa-bullhorn"></i>Announcements</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/news}"><i class="fas fa-newspaper"></i>News</a></li>
+            <li class="nav-item"><a class="nav-link active" th:href="@{/admin/gallery}"><i class="fas fa-images"></i>Gallery</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/prayer-requests}"><i class="fas fa-hands"></i>Prayer Requests</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/contacts}"><i class="fas fa-envelope"></i>Contacts</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/settings}"><i class="fas fa-cog"></i>Settings</a></li>
+        </ul>
+    </nav>
+
+    <div class="admin-content flex-grow-1">
+        <div class="admin-topbar">
+            <h5 class="mb-0 fw-bold" style="color:var(--primary);">
+                <i class="fas fa-images me-2" style="color:var(--accent);"></i>
+                <span th:text="${galleryForm?.id != null ? 'Edit Photo' : 'Add Photo'}">Add Photo</span>
+            </h5>
+            <div class="d-flex align-items-center gap-3">
+                <span class="text-muted small"><i class="fas fa-user me-1"></i><span sec:authentication="name">Admin</span></span>
+                <form th:action="@{/logout}" method="post" class="mb-0">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button class="btn btn-sm btn-outline-danger" type="submit">Logout</button>
+                </form>
+            </div>
+        </div>
+
+        <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+        <div class="p-4">
+            <div class="row g-4">
+                <div class="col-lg-7">
+                    <div class="card">
+                        <div class="card-body p-4">
+                            <form th:action="@{/admin/gallery/create}" method="post" th:object="${galleryForm}">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                                <div class="row g-3">
+                                    <!-- Title -->
+                                    <div class="col-12">
+                                        <label class="form-label fw-medium">Title <span class="text-danger">*</span></label>
+                                        <input type="text" th:field="*{title}" class="form-control"
+                                               th:classappend="${#fields.hasErrors('title') ? 'is-invalid' : ''}"
+                                               placeholder="Photo title" required/>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
+                                    </div>
+
+                                    <!-- Image URL -->
+                                    <div class="col-12">
+                                        <label class="form-label fw-medium">Image URL <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-image"></i></span>
+                                            <input type="url" th:field="*{imageUrl}" class="form-control"
+                                                   th:classappend="${#fields.hasErrors('imageUrl') ? 'is-invalid' : ''}"
+                                                   placeholder="https://example.com/photo.jpg"
+                                                   id="imageUrlInput"
+                                                   oninput="updateImagePreview(this.value)"
+                                                   required/>
+                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('imageUrl')}" th:errors="*{imageUrl}"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Description -->
+                                    <div class="col-12">
+                                        <label class="form-label fw-medium">Description</label>
+                                        <textarea th:field="*{description}" class="form-control" rows="2"
+                                                  placeholder="Photo description (optional)..."></textarea>
+                                    </div>
+
+                                    <!-- Album Name -->
+                                    <div class="col-md-8">
+                                        <label class="form-label fw-medium">Album Name</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-folder"></i></span>
+                                            <input type="text" th:field="*{albumName}" class="form-control"
+                                                   placeholder="e.g. Sunday Services, Youth Camp 2024"/>
+                                        </div>
+                                    </div>
+
+                                    <!-- Display Order -->
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-medium">Display Order</label>
+                                        <input type="number" th:field="*{displayOrder}" class="form-control"
+                                               min="0" placeholder="0"/>
+                                        <div class="form-text">Lower numbers appear first</div>
+                                    </div>
+
+                                    <!-- Active -->
+                                    <div class="col-12">
+                                        <div class="form-check form-switch">
+                                            <input type="checkbox" th:field="*{active}" class="form-check-input"
+                                                   id="active" style="width:2.5rem; height:1.25rem;"/>
+                                            <label for="active" class="form-check-label fw-medium ms-2">
+                                                Show in gallery (active)
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Buttons -->
+                                    <div class="col-12 d-flex gap-2 pt-2">
+                                        <button type="submit" class="btn btn-primary px-4">
+                                            <i class="fas fa-save me-2"></i>Save Photo
+                                        </button>
+                                        <a th:href="@{/admin/gallery}" class="btn btn-outline-secondary px-4">Cancel</a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Image Preview -->
+                <div class="col-lg-5">
+                    <div class="card">
+                        <div class="card-header bg-white border-bottom py-3 px-4">
+                            <h6 class="mb-0 fw-bold" style="color:var(--primary);">
+                                <i class="fas fa-eye me-2" style="color:var(--accent);"></i>Image Preview
+                            </h6>
+                        </div>
+                        <div class="card-body p-3 text-center">
+                            <img th:if="${galleryForm?.imageUrl != null and !galleryForm.imageUrl.empty}"
+                                 th:src="${galleryForm.imageUrl}"
+                                 id="imagePreview"
+                                 class="img-fluid rounded-3"
+                                 style="max-height:300px; object-fit:contain;"
+                                 alt="Preview"/>
+                            <div th:if="${galleryForm == null or galleryForm.imageUrl == null or galleryForm.imageUrl.empty}"
+                                 id="previewPlaceholder"
+                                 class="d-flex flex-column align-items-center justify-content-center text-muted rounded-3"
+                                 style="height:200px; background:#f8f9fa; border:2px dashed #dee2e6;">
+                                <i class="fas fa-image fa-3x mb-2 opacity-50"></i>
+                                <p class="small mb-0">Enter an image URL to preview</p>
+                            </div>
+                            <img th:if="${galleryForm == null or galleryForm.imageUrl == null or galleryForm.imageUrl.empty}"
+                                 id="imagePreview" class="img-fluid rounded-3"
+                                 style="max-height:300px; object-fit:contain; display:none;"
+                                 alt="Preview"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/custom.js}"></script>
+<script>
+function updateImagePreview(url) {
+    const preview = document.getElementById('imagePreview');
+    const placeholder = document.getElementById('previewPlaceholder');
+    if (url && url.startsWith('http')) {
+        preview.src = url;
+        preview.style.display = 'block';
+        if (placeholder) placeholder.style.display = 'none';
+    } else {
+        preview.style.display = 'none';
+        if (placeholder) placeholder.style.display = 'flex';
+    }
+}
+</script>
+</body>
+</html>

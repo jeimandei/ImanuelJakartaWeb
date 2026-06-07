@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Our Leadership')}"></head>
+<body>
+
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+<div th:replace="~{fragments/alerts :: alerts}"></div>
+
+<!-- Page Header -->
+<section style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); color:white; padding:80px 0;">
+    <div class="container text-center">
+        <i class="fas fa-users fa-3x mb-3" style="opacity:0.8;"></i>
+        <h1 class="display-5 fw-bold mb-2">Our Leadership</h1>
+        <p class="lead mb-0" style="opacity:0.85;">Shepherds entrusted to guide and serve our congregation</p>
+    </div>
+</section>
+
+<!-- Senior Pastor -->
+<section class="py-5">
+    <div class="container">
+        <div class="section-header mb-5">
+            <h2>Senior Pastor</h2>
+            <div class="divider"></div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card p-5 text-center">
+                    <div class="rounded-circle mx-auto mb-4 d-flex align-items-center justify-content-center"
+                         style="width:150px; height:150px; background: linear-gradient(135deg, var(--primary), var(--primary-light));">
+                        <i class="fas fa-user fa-3x text-white opacity-50"></i>
+                    </div>
+                    <h3 class="fw-bold mb-1" style="color:var(--primary);">Rev. Dr. Imanuel Santoso</h3>
+                    <p class="text-muted mb-1 fw-medium">Senior Pastor</p>
+                    <span class="badge px-3 py-2 mb-4" style="background:var(--accent); color:var(--primary-dark);">
+                        Senior Pastor
+                    </span>
+                    <p class="text-muted mb-3" style="line-height:1.8;">
+                        Rev. Dr. Imanuel Santoso has served as the Senior Pastor of GKJ Imanuel Jakarta
+                        for over fifteen years. He holds a Doctor of Ministry from a leading theological
+                        seminary and is passionate about biblical preaching, pastoral care, and equipping
+                        the congregation to live as faithful disciples in every sphere of life.
+                    </p>
+                    <p class="text-muted mb-0" style="line-height:1.8;">
+                        He and his wife, Maria, have three children and are deeply committed to building
+                        a church that reflects the love, justice, and truth of the Gospel.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Associate Pastors -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="section-header mb-5">
+            <h2>Associate Pastors</h2>
+            <div class="divider"></div>
+            <p>Dedicated servants who lead key areas of our church family</p>
+        </div>
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-4">
+                <div class="card text-center p-4 h-100">
+                    <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
+                         style="width:110px; height:110px; background:var(--primary-light);">
+                        <i class="fas fa-user fa-2x text-white opacity-50"></i>
+                    </div>
+                    <h5 class="fw-bold mb-1" style="color:var(--primary);">Rev. Sarah Wijaya</h5>
+                    <p class="text-muted small fw-medium mb-2">Associate Pastor</p>
+                    <span class="badge mb-3 px-3" style="background:rgba(26,58,107,0.12); color:var(--primary);">
+                        Discipleship &amp; Women's Ministry
+                    </span>
+                    <p class="text-muted small mb-0">
+                        Leading our discipleship programs, small group network, and women's ministry.
+                        Passionate about helping every believer grow in their walk with God.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center p-4 h-100">
+                    <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
+                         style="width:110px; height:110px; background:var(--primary-light);">
+                        <i class="fas fa-user fa-2x text-white opacity-50"></i>
+                    </div>
+                    <h5 class="fw-bold mb-1" style="color:var(--primary);">Rev. Daniel Hartono</h5>
+                    <p class="text-muted small fw-medium mb-2">Associate Pastor</p>
+                    <span class="badge mb-3 px-3" style="background:rgba(26,58,107,0.12); color:var(--primary);">
+                        Youth &amp; Outreach
+                    </span>
+                    <p class="text-muted small mb-0">
+                        Overseeing our youth ministry, young adults, and community outreach initiatives.
+                        Driven by a heart for the next generation and for social justice.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center p-4 h-100">
+                    <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
+                         style="width:110px; height:110px; background:var(--accent);">
+                        <i class="fas fa-user fa-2x" style="color:var(--primary-dark); opacity:0.5;"></i>
+                    </div>
+                    <h5 class="fw-bold mb-1" style="color:var(--primary);">Ev. Grace Kusuma</h5>
+                    <p class="text-muted small fw-medium mb-2">Evangelist</p>
+                    <span class="badge mb-3 px-3" style="background:rgba(26,58,107,0.12); color:var(--primary);">
+                        Evangelism &amp; Missions
+                    </span>
+                    <p class="text-muted small mb-0">
+                        Equipping the congregation for personal evangelism and coordinating our
+                        partnerships with missionaries serving both locally and internationally.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Ministry Leaders -->
+<section class="py-5">
+    <div class="container">
+        <div class="section-header mb-5">
+            <h2>Ministry Leaders</h2>
+            <div class="divider"></div>
+            <p>Department heads who serve faithfully behind the scenes and on the front lines</p>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-3 col-sm-6">
+                <div class="card text-center p-3 h-100">
+                    <div class="ministry-icon mx-auto mb-3" style="width:60px; height:60px; font-size:1.4rem; background:#d9534f;">
+                        <i class="fas fa-music"></i>
+                    </div>
+                    <h6 class="fw-bold mb-0" style="color:var(--primary);">Bro. Kevin Tanaka</h6>
+                    <small class="text-muted">Worship Director</small>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="card text-center p-3 h-100">
+                    <div class="ministry-icon mx-auto mb-3" style="width:60px; height:60px; font-size:1.4rem; background:#f0ad4e;">
+                        <i class="fas fa-child"></i>
+                    </div>
+                    <h6 class="fw-bold mb-0" style="color:var(--primary);">Sis. Linda Pratama</h6>
+                    <small class="text-muted">Children's Ministry Director</small>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="card text-center p-3 h-100">
+                    <div class="ministry-icon mx-auto mb-3" style="width:60px; height:60px; font-size:1.4rem; background:#5bc0de;">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <h6 class="fw-bold mb-0" style="color:var(--primary);">Bro. Jason Wibowo</h6>
+                    <small class="text-muted">Youth Leader</small>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="card text-center p-3 h-100">
+                    <div class="ministry-icon mx-auto mb-3" style="width:60px; height:60px; font-size:1.4rem; background:var(--primary);">
+                        <i class="fas fa-hands"></i>
+                    </div>
+                    <h6 class="fw-bold mb-0" style="color:var(--primary);">Sis. Ruth Handayani</h6>
+                    <small class="text-muted">Prayer Ministry Coordinator</small>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="card text-center p-3 h-100">
+                    <div class="ministry-icon mx-auto mb-3" style="width:60px; height:60px; font-size:1.4rem; background:#5cb85c;">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <h6 class="fw-bold mb-0" style="color:var(--primary);">Bro. Samuel Kurniawan</h6>
+                    <small class="text-muted">Cell Group Coordinator</small>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="card text-center p-3 h-100">
+                    <div class="ministry-icon mx-auto mb-3" style="width:60px; height:60px; font-size:1.4rem; background:#e91e8c;">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h6 class="fw-bold mb-0" style="color:var(--primary);">Sis. Maria Lestari</h6>
+                    <small class="text-muted">Women's Ministry Leader</small>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="card text-center p-3 h-100">
+                    <div class="ministry-icon mx-auto mb-3" style="width:60px; height:60px; font-size:1.4rem; background:#337ab7;">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h6 class="fw-bold mb-0" style="color:var(--primary);">Bro. David Susanto</h6>
+                    <small class="text-muted">Men's Ministry Leader</small>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="card text-center p-3 h-100">
+                    <div class="ministry-icon mx-auto mb-3" style="width:60px; height:60px; font-size:1.4rem; background:#6c757d;">
+                        <i class="fas fa-laptop"></i>
+                    </div>
+                    <h6 class="fw-bold mb-0" style="color:var(--primary);">Bro. Timothy Gunawan</h6>
+                    <small class="text-muted">Media &amp; Communications</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Elder Board -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="section-header mb-4">
+            <h2>Church Elders</h2>
+            <div class="divider"></div>
+            <p>Providing godly oversight, wisdom, and accountability for our congregation</p>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card p-4">
+                    <p class="text-muted mb-3">
+                        Our Board of Elders is comprised of spiritually mature men and women who provide
+                        wisdom, governance, and pastoral accountability for our church. The elders meet monthly
+                        to pray for the congregation, discern God's direction, and ensure faithful stewardship
+                        of the church's ministry and resources.
+                    </p>
+                    <p class="text-muted mb-4">
+                        A full listing of our current elders is available from the church office. We invite
+                        you to pray for our leadership as they faithfully serve the congregation.
+                    </p>
+                    <a th:href="@{/contact}" class="btn btn-outline-primary">
+                        <i class="fas fa-envelope me-2"></i>Contact the Church Office
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/custom.js}"></script>
+</body>
+</html>
