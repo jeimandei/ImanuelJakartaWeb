@@ -43,7 +43,8 @@ public class AdminLivestreamController {
     }
 
     @GetMapping("/create")
-    public String createForm() {
+    public String createForm(Model model) {
+        model.addAttribute("livestreamForm", new HashMap<String, Object>());
         return "admin/livestreams/form";
     }
 

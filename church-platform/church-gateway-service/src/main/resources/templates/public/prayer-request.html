@@ -44,7 +44,7 @@
                             <i class="fas fa-pen me-2" style="color:var(--accent);"></i>Your Prayer Request
                         </h5>
 
-                        <form th:action="@{/prayer-request}" method="post" th:object="${prayerForm}">
+                        <form th:action="@{/prayer-request}" method="post" th:object="${prayerRequestForm}">
                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
                             <!-- Name -->

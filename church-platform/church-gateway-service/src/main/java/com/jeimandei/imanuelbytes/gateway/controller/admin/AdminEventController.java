@@ -44,7 +44,7 @@ public class AdminEventController {
 
     @GetMapping("/create")
     public String createForm(Model model) {
-        model.addAttribute("form", new HashMap<String, Object>());
+        model.addAttribute("eventForm", new HashMap<String, Object>());
         return "admin/events/form";
     }
 

@@ -43,11 +43,12 @@ public class AdminGalleryController {
     }
 
     @GetMapping("/new")
-    public String createForm() {
+    public String createForm(Model model) {
+        model.addAttribute("galleryForm", new HashMap<String, Object>());
         return "admin/gallery/form";
     }
 
-    @PostMapping
+    @PostMapping({"/create", ""})
     public String createGalleryItem(@RequestParam Map<String, String> params,
                                     RedirectAttributes redirectAttributes) {
         String jwt = SecurityUtils.getJwt();

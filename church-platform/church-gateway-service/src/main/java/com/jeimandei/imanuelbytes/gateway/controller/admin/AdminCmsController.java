@@ -51,7 +51,7 @@ public class AdminCmsController {
         return "admin/cms/form";
     }
 
-    @PostMapping
+    @PostMapping({"/create", ""})
     public String createPage(@RequestParam Map<String, String> params,
                              RedirectAttributes redirectAttributes) {
         String jwt = SecurityUtils.getJwt();

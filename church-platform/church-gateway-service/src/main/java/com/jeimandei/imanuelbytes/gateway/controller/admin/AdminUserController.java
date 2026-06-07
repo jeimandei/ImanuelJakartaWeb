@@ -47,7 +47,8 @@ public class AdminUserController {
     }
 
     @GetMapping("/new")
-    public String createForm() {
+    public String createForm(Model model) {
+        model.addAttribute("userForm", new HashMap<String, Object>());
         return "admin/users/create";
     }
 

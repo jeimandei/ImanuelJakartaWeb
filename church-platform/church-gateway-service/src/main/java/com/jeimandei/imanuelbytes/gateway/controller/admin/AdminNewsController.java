@@ -43,7 +43,8 @@ public class AdminNewsController {
     }
 
     @GetMapping("/create")
-    public String createForm() {
+    public String createForm(Model model) {
+        model.addAttribute("newsForm", new HashMap<String, Object>());
         return "admin/news/form";
     }
 

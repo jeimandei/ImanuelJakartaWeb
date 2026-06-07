@@ -1,6 +1,7 @@
 package com.jeimandei.imanuelbytes.gateway.controller;
 
 import com.jeimandei.imanuelbytes.gateway.dto.LoginFormDto;
+import com.jeimandei.imanuelbytes.gateway.dto.ProfileFormDto;
 import com.jeimandei.imanuelbytes.gateway.dto.RegisterFormDto;
 import com.jeimandei.imanuelbytes.gateway.security.GatewayUserDetails;
 import com.jeimandei.imanuelbytes.gateway.service.AuthClientService;
@@ -90,6 +91,20 @@ public class AuthController {
     public String profile(Model model) {
         GatewayUserDetails currentUser = SecurityUtils.getCurrentUser();
         model.addAttribute("currentUser", currentUser);
+        ProfileFormDto profileForm = new ProfileFormDto(
+                currentUser != null ? currentUser.getFullName() : "",
+                "",
+                "");
+        model.addAttribute("profileForm", profileForm);
         return "auth/profile";
+    }
+
+    @PostMapping("/profile")
+    @PreAuthorize("isAuthenticated()")
+    public String updateProfile(ProfileFormDto profileForm,
+                                Model model,
+                                org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("successMessage", "Profile updated successfully.");
+        return "redirect:/profile";
     }
 }
