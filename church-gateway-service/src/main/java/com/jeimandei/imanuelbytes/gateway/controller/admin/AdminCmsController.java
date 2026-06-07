@@ -58,6 +58,7 @@ public class AdminCmsController {
         try {
             Map<String, Object> request = new HashMap<>(params);
             cmsClientService.createCmsPage(request, jwt);
+            log.info("CMS page created successfully");
             redirectAttributes.addFlashAttribute("successMessage", "CMS page created successfully.");
         } catch (Exception e) {
             log.error("Failed to create CMS page: {}", e.getMessage());
@@ -85,6 +86,7 @@ public class AdminCmsController {
         try {
             Map<String, Object> request = new HashMap<>(params);
             cmsClientService.updateCmsPage(id, request, jwt);
+            log.info("CMS page {} updated successfully", id);
             redirectAttributes.addFlashAttribute("successMessage", "CMS page updated successfully.");
         } catch (Exception e) {
             log.error("Failed to update CMS page {}: {}", id, e.getMessage());
@@ -98,6 +100,7 @@ public class AdminCmsController {
         String jwt = SecurityUtils.getJwt();
         try {
             cmsClientService.publishCmsPage(id, jwt);
+            log.info("CMS page {} published successfully", id);
             redirectAttributes.addFlashAttribute("successMessage", "Page published successfully.");
         } catch (Exception e) {
             log.error("Failed to publish CMS page {}: {}", id, e.getMessage());
@@ -111,6 +114,7 @@ public class AdminCmsController {
         String jwt = SecurityUtils.getJwt();
         try {
             cmsClientService.unpublishCmsPage(id, jwt);
+            log.info("CMS page {} unpublished", id);
             redirectAttributes.addFlashAttribute("successMessage", "Page unpublished.");
         } catch (Exception e) {
             log.error("Failed to unpublish CMS page {}: {}", id, e.getMessage());
@@ -125,6 +129,7 @@ public class AdminCmsController {
         String jwt = SecurityUtils.getJwt();
         try {
             cmsClientService.deleteCmsPage(id, jwt);
+            log.info("CMS page {} deleted successfully", id);
             redirectAttributes.addFlashAttribute("successMessage", "Page deleted successfully.");
         } catch (Exception e) {
             log.error("Failed to delete CMS page {}: {}", id, e.getMessage());

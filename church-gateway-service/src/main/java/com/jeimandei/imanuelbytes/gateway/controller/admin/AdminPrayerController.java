@@ -46,6 +46,7 @@ public class AdminPrayerController {
         String jwt = SecurityUtils.getJwt();
         try {
             interactionClientService.updatePrayerRequestStatus(id, status, jwt);
+            log.info("Prayer request {} status updated to {}", id, status);
             redirectAttributes.addFlashAttribute("successMessage", "Prayer request status updated.");
         } catch (Exception e) {
             log.error("Failed to update prayer request {} status: {}", id, e.getMessage());

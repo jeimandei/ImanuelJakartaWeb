@@ -28,6 +28,7 @@ public class VolunteerServiceImpl implements VolunteerService {
 
     @Override
     public VolunteerApplicationDto submitApplication(CreateVolunteerApplicationRequest request) {
+        log.debug("Submitting volunteer application: name='{}', ministry='{}'", request.getFullName(), request.getMinistry());
         VolunteerApplication application = new VolunteerApplication();
         application.setFullName(request.getFullName());
         application.setEmail(request.getEmail());
@@ -36,12 +37,14 @@ public class VolunteerServiceImpl implements VolunteerService {
         application.setMessage(request.getMessage());
         application.setStatus(RequestStatus.NEW);
         VolunteerApplication saved = volunteerApplicationRepository.save(application);
+        log.info("Volunteer application submitted: id={}, ministry='{}'", saved.getId(), saved.getMinistry());
         return toDto(saved);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<VolunteerApplicationDto> getAllApplications(Pageable pageable) {
+        log.debug("Listing all volunteer applications: page={}, size={}", pageable.getPageNumber(), pageable.getPageSize());
         return volunteerApplicationRepository.findAllByOrderByCreatedAtDesc(pageable)
                 .map(this::toDto);
     }
@@ -49,16 +52,22 @@ public class VolunteerServiceImpl implements VolunteerService {
     @Override
     @Transactional(readOnly = true)
     public Page<VolunteerApplicationDto> getByMinistry(String ministry, Pageable pageable) {
+        log.debug("Listing volunteer applications for ministry='{}': page={}, size={}", ministry, pageable.getPageNumber(), pageable.getPageSize());
         return volunteerApplicationRepository.findByMinistryOrderByCreatedAtDesc(ministry, pageable)
                 .map(this::toDto);
     }
 
     @Override
     public VolunteerApplicationDto updateStatus(Long id, RequestStatus status) {
+        log.debug("Updating volunteer application status: id={}, newStatus={}", id, status);
         VolunteerApplication application = volunteerApplicationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("VolunteerApplication", id));
+                .orElseThrow(() -> {
+                    log.warn("Volunteer application not found for status update: id={}", id);
+                    return new ResourceNotFoundException("VolunteerApplication", id);
+                });
         application.setStatus(status);
         VolunteerApplication saved = volunteerApplicationRepository.save(application);
+        log.info("Volunteer application status updated: id={}, status={}", saved.getId(), saved.getStatus());
         return toDto(saved);
     }
 

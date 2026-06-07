@@ -28,6 +28,7 @@ public class TestimonyServiceImpl implements TestimonyService {
 
     @Override
     public TestimonyDto submitTestimony(SubmitTestimonyRequest request) {
+        log.debug("Submitting testimony from name='{}'", request.getName());
         TestimonySubmission submission = new TestimonySubmission();
         submission.setName(request.getName());
         submission.setEmail(request.getEmail());
@@ -35,12 +36,14 @@ public class TestimonyServiceImpl implements TestimonyService {
         submission.setStatus(RequestStatus.NEW);
         submission.setApproved(false);
         TestimonySubmission saved = testimonyRepository.save(submission);
+        log.info("Testimony submitted: id={}", saved.getId());
         return toDto(saved);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<TestimonyDto> getApprovedTestimonies(Pageable pageable) {
+        log.debug("Listing approved testimonies: page={}, size={}", pageable.getPageNumber(), pageable.getPageSize());
         return testimonyRepository.findByApprovedTrueOrderByCreatedAtDesc(pageable)
                 .map(this::toDto);
     }
@@ -48,26 +51,37 @@ public class TestimonyServiceImpl implements TestimonyService {
     @Override
     @Transactional(readOnly = true)
     public Page<TestimonyDto> getAllTestimonies(Pageable pageable) {
+        log.debug("Listing all testimonies: page={}, size={}", pageable.getPageNumber(), pageable.getPageSize());
         return testimonyRepository.findAllByOrderByCreatedAtDesc(pageable)
                 .map(this::toDto);
     }
 
     @Override
     public TestimonyDto approveTestimony(Long id) {
+        log.debug("Approving testimony id={}", id);
         TestimonySubmission submission = testimonyRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("TestimonySubmission", id));
+                .orElseThrow(() -> {
+                    log.warn("Testimony not found for approval: id={}", id);
+                    return new ResourceNotFoundException("TestimonySubmission", id);
+                });
         submission.setApproved(true);
         submission.setStatus(RequestStatus.REVIEWED);
         TestimonySubmission saved = testimonyRepository.save(submission);
+        log.info("Testimony approved: id={}", saved.getId());
         return toDto(saved);
     }
 
     @Override
     public TestimonyDto updateStatus(Long id, RequestStatus status) {
+        log.debug("Updating testimony status: id={}, newStatus={}", id, status);
         TestimonySubmission submission = testimonyRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("TestimonySubmission", id));
+                .orElseThrow(() -> {
+                    log.warn("Testimony not found for status update: id={}", id);
+                    return new ResourceNotFoundException("TestimonySubmission", id);
+                });
         submission.setStatus(status);
         TestimonySubmission saved = testimonyRepository.save(submission);
+        log.info("Testimony status updated: id={}, status={}", saved.getId(), saved.getStatus());
         return toDto(saved);
     }
 

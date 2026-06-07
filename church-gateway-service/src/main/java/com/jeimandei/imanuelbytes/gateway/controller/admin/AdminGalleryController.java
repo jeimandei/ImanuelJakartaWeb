@@ -67,6 +67,7 @@ public class AdminGalleryController {
                 }
             }
             galleryClientService.createGalleryItem(request, jwt);
+            log.info("Gallery item created successfully");
             redirectAttributes.addFlashAttribute("successMessage", "Gallery item added successfully.");
         } catch (Exception e) {
             log.error("Failed to create gallery item: {}", e.getMessage());
@@ -80,6 +81,7 @@ public class AdminGalleryController {
         String jwt = SecurityUtils.getJwt();
         try {
             galleryClientService.deleteGalleryItem(id, jwt);
+            log.info("Gallery item {} deleted successfully", id);
             redirectAttributes.addFlashAttribute("successMessage", "Gallery item deleted successfully.");
         } catch (Exception e) {
             log.error("Failed to delete gallery item {}: {}", id, e.getMessage());

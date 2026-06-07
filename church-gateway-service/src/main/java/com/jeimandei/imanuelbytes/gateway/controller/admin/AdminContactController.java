@@ -46,6 +46,7 @@ public class AdminContactController {
         String jwt = SecurityUtils.getJwt();
         try {
             interactionClientService.updateContactMessageStatus(id, status, jwt);
+            log.info("Contact message {} status updated to {}", id, status);
             redirectAttributes.addFlashAttribute("successMessage", "Contact message status updated.");
         } catch (Exception e) {
             log.error("Failed to update contact message {} status: {}", id, e.getMessage());
