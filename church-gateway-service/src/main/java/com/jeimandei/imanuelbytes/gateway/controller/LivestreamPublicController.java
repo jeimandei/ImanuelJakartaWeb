@@ -23,8 +23,9 @@ public class LivestreamPublicController {
     @GetMapping
     public String livestream(Model model) {
         try {
-            model.addAttribute("activeLivestream",
-                    livestreamClientService.getActiveLivestream().orElse(null));
+            var active = livestreamClientService.getActiveLivestream().orElse(null);
+            model.addAttribute("activeLivestream", active);
+            log.debug("Active livestream loaded: {}", active != null ? "found" : "not found");
         } catch (Exception e) {
             log.error("Failed to load active livestream: {}", e.getMessage());
         }

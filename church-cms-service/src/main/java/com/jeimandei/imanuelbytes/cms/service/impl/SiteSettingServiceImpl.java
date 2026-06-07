@@ -6,6 +6,8 @@ import com.jeimandei.imanuelbytes.cms.entity.SiteSetting;
 import com.jeimandei.imanuelbytes.cms.repository.SiteSettingRepository;
 import com.jeimandei.imanuelbytes.cms.service.SiteSettingService;
 import com.jeimandei.imanuelbytes.common.exception.ResourceNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +17,8 @@ import java.util.List;
 @Service
 @Transactional
 public class SiteSettingServiceImpl implements SiteSettingService {
+
+    private static final Logger log = LoggerFactory.getLogger(SiteSettingServiceImpl.class);
 
     private final SiteSettingRepository siteSettingRepository;
 
@@ -32,18 +36,28 @@ public class SiteSettingServiceImpl implements SiteSettingService {
     @Override
     @Transactional(readOnly = true)
     public SiteSettingDto getSettingByKey(String key) {
+        log.debug("Fetching site setting by key='{}'", key);
         return siteSettingRepository.findBySettingKey(key)
                 .map(this::toDto)
-                .orElseThrow(() -> new ResourceNotFoundException("SiteSetting", "key", key));
+                .orElseThrow(() -> {
+                    log.warn("Site setting not found for key='{}'", key);
+                    return new ResourceNotFoundException("SiteSetting", "key", key);
+                });
     }
 
     @Override
     public SiteSettingDto updateSetting(String key, UpdateSiteSettingRequest request) {
+        log.debug("Updating site setting key='{}'", key);
         SiteSetting setting = siteSettingRepository.findBySettingKey(key)
-                .orElseThrow(() -> new ResourceNotFoundException("SiteSetting", "key", key));
+                .orElseThrow(() -> {
+                    log.warn("Site setting not found for key='{}'", key);
+                    return new ResourceNotFoundException("SiteSetting", "key", key);
+                });
         setting.setSettingValue(request.getSettingValue());
         setting.setUpdatedAt(LocalDateTime.now());
-        return toDto(siteSettingRepository.save(setting));
+        SiteSettingDto updated = toDto(siteSettingRepository.save(setting));
+        log.info("Updated site setting key='{}'", key);
+        return updated;
     }
 
     @Override

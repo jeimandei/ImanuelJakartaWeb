@@ -26,7 +26,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RestController;
+
 
 /**
  * REST controller for user management endpoints.
@@ -38,6 +41,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
+
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
     private final UserService userService;
 
@@ -71,11 +76,14 @@ public class UserController {
         Page<UserDto> result;
 
         if (query != null && !query.isBlank()) {
+            log.debug("Searching users with query='{}', page={}, size={}", query, page, size);
             result = userService.searchUsers(query.trim(), pageable);
         } else {
+            log.debug("Listing all users, page={}, size={}", page, size);
             result = userService.getAllUsers(pageable);
         }
 
+        log.info("Retrieved {} users (total={})", result.getNumberOfElements(), result.getTotalElements());
         return ResponseEntity.ok(
                 ApiResponse.success("Users retrieved successfully", PageResponse.from(result)));
     }
@@ -86,7 +94,9 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<UserDto>> getUserById(@PathVariable Long id) {
+        log.debug("Fetching user by id={}", id);
         UserDto user = userService.getUserById(id);
+        log.info("Retrieved user id={}, username={}", user.getId(), user.getUsername());
         return ResponseEntity.ok(ApiResponse.success("User retrieved successfully", user));
     }
 
@@ -96,7 +106,9 @@ public class UserController {
 
     @GetMapping("/username/{username}")
     public ResponseEntity<ApiResponse<UserDto>> getUserByUsername(@PathVariable String username) {
+        log.debug("Fetching user by username='{}'", username);
         UserDto user = userService.getUserByUsername(username);
+        log.info("Retrieved user id={} for username='{}'", user.getId(), username);
         return ResponseEntity.ok(ApiResponse.success("User retrieved successfully", user));
     }
 
@@ -108,7 +120,9 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<UserDto>> createUser(
             @Valid @RequestBody CreateUserRequest request) {
+        log.debug("Creating user with username='{}'", request.getUsername());
         UserDto created = userService.createUser(request);
+        log.info("Created user id={}, username='{}'", created.getId(), created.getUsername());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("User created successfully", created));
     }
@@ -121,7 +135,9 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserDto>> updateUser(
             @PathVariable Long id,
             @Valid @RequestBody UpdateUserRequest request) {
+        log.debug("Updating user id={}", id);
         UserDto updated = userService.updateUser(id, request);
+        log.info("Updated user id={}", updated.getId());
         return ResponseEntity.ok(ApiResponse.success("User updated successfully", updated));
     }
 
@@ -134,7 +150,9 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserDto>> updateUserStatus(
             @PathVariable Long id,
             @Valid @RequestBody UpdateUserStatusRequest request) {
+        log.debug("Updating status for user id={}, newStatus={}", id, request.getStatus());
         UserDto updated = userService.updateUserStatus(id, request);
+        log.info("Updated status for user id={} to {}", updated.getId(), updated.getStatus());
         return ResponseEntity.ok(ApiResponse.success("User status updated successfully", updated));
     }
 
@@ -147,7 +165,9 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserDto>> assignRoles(
             @PathVariable Long id,
             @Valid @RequestBody AssignRolesRequest request) {
+        log.debug("Assigning roles to user id={}, roles={}", id, request.getRoles());
         UserDto updated = userService.assignRoles(id, request);
+        log.info("Assigned roles to user id={}: {}", updated.getId(), request.getRoles());
         return ResponseEntity.ok(ApiResponse.success("Roles assigned successfully", updated));
     }
 
@@ -161,7 +181,9 @@ public class UserController {
             @Valid @RequestBody ChangePasswordRequest request,
             Authentication authentication) {
         String currentUsername = authentication.getName();
+        log.debug("Changing password for user id={}, requestedBy='{}'", id, currentUsername);
         userService.changePassword(id, request, currentUsername);
+        log.info("Password changed for user id={}", id);
         return ResponseEntity.ok(ApiResponse.success("Password changed successfully"));
     }
 
@@ -172,7 +194,9 @@ public class UserController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long id) {
+        log.debug("Deleting (deactivating) user id={}", id);
         userService.deleteUser(id);
+        log.info("Deactivated user id={}", id);
         return ResponseEntity.ok(ApiResponse.success("User deactivated successfully"));
     }
 

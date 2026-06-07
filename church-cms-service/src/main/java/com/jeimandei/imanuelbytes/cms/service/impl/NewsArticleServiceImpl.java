@@ -10,6 +10,8 @@ import com.jeimandei.imanuelbytes.cms.service.NewsArticleService;
 import com.jeimandei.imanuelbytes.common.exception.ResourceNotFoundException;
 import com.jeimandei.imanuelbytes.common.exception.ValidationException;
 import com.jeimandei.imanuelbytes.common.util.SlugUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,8 @@ import java.time.LocalDateTime;
 @Service
 @Transactional
 public class NewsArticleServiceImpl implements NewsArticleService {
+
+    private static final Logger log = LoggerFactory.getLogger(NewsArticleServiceImpl.class);
 
     private final NewsArticleRepository newsArticleRepository;
     private final NewsArticleMapper newsArticleMapper;
@@ -54,9 +58,13 @@ public class NewsArticleServiceImpl implements NewsArticleService {
     @Override
     @Transactional(readOnly = true)
     public NewsArticleDto getArticleBySlug(String slug) {
+        log.debug("Fetching news article by slug='{}'", slug);
         return newsArticleRepository.findBySlug(slug)
                 .map(newsArticleMapper::toDto)
-                .orElseThrow(() -> new ResourceNotFoundException("NewsArticle", "slug", slug));
+                .orElseThrow(() -> {
+                    log.warn("News article not found for slug='{}'", slug);
+                    return new ResourceNotFoundException("NewsArticle", "slug", slug);
+                });
     }
 
     @Override
@@ -64,7 +72,9 @@ public class NewsArticleServiceImpl implements NewsArticleService {
         String slug = (request.getSlug() != null && !request.getSlug().isBlank())
                 ? SlugUtils.toSlug(request.getSlug())
                 : SlugUtils.toSlug(request.getTitle());
+        log.debug("Creating news article with title='{}', slug='{}', authorId={}", request.getTitle(), slug, authorId);
         if (newsArticleRepository.existsBySlug(slug)) {
+            log.warn("News article slug conflict: slug='{}' already exists", slug);
             throw new ValidationException("slug", "An article with this slug already exists: " + slug, true);
         }
         NewsArticle article = newsArticleMapper.toEntity(request);
@@ -73,31 +83,48 @@ public class NewsArticleServiceImpl implements NewsArticleService {
         if (article.getStatus() == null) {
             article.setStatus(ContentStatus.DRAFT);
         }
-        return newsArticleMapper.toDto(newsArticleRepository.save(article));
+        NewsArticleDto created = newsArticleMapper.toDto(newsArticleRepository.save(article));
+        log.info("Created news article id={}, slug='{}'", created.getId(), created.getSlug());
+        return created;
     }
 
     @Override
     public NewsArticleDto updateArticle(Long id, CreateNewsArticleRequest request) {
+        log.debug("Updating news article id={}", id);
         NewsArticle article = newsArticleRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("NewsArticle", "id", id));
+                .orElseThrow(() -> {
+                    log.warn("News article not found for id={}", id);
+                    return new ResourceNotFoundException("NewsArticle", "id", id);
+                });
         newsArticleMapper.updateEntity(article, request);
-        return newsArticleMapper.toDto(newsArticleRepository.save(article));
+        NewsArticleDto updated = newsArticleMapper.toDto(newsArticleRepository.save(article));
+        log.info("Updated news article id={}", updated.getId());
+        return updated;
     }
 
     @Override
     public NewsArticleDto publishArticle(Long id) {
+        log.debug("Publishing news article id={}", id);
         NewsArticle article = newsArticleRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("NewsArticle", "id", id));
+                .orElseThrow(() -> {
+                    log.warn("News article not found for id={}", id);
+                    return new ResourceNotFoundException("NewsArticle", "id", id);
+                });
         article.setStatus(ContentStatus.PUBLISHED);
         article.setPublishedAt(LocalDateTime.now());
-        return newsArticleMapper.toDto(newsArticleRepository.save(article));
+        NewsArticleDto published = newsArticleMapper.toDto(newsArticleRepository.save(article));
+        log.info("Published news article id={}, slug='{}'", published.getId(), published.getSlug());
+        return published;
     }
 
     @Override
     public void deleteArticle(Long id) {
+        log.debug("Deleting news article id={}", id);
         if (!newsArticleRepository.existsById(id)) {
+            log.warn("News article not found for id={}", id);
             throw new ResourceNotFoundException("NewsArticle", "id", id);
         }
         newsArticleRepository.deleteById(id);
+        log.info("Deleted news article id={}", id);
     }
 }

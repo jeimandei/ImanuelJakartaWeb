@@ -37,6 +37,7 @@ public class GalleryPublicController {
             } else {
                 model.addAttribute("galleryItems", galleryClientService.getGalleryItems(page, 12));
             }
+            log.debug("Gallery loaded (album={}, page={})", album, page);
         } catch (Exception e) {
             log.error("Failed to load gallery items: {}", e.getMessage());
         }

@@ -8,6 +8,8 @@ import com.jeimandei.imanuelbytes.interaction.entity.PrayerRequest;
 import com.jeimandei.imanuelbytes.interaction.entity.RequestStatus;
 import com.jeimandei.imanuelbytes.interaction.repository.PrayerRequestRepository;
 import com.jeimandei.imanuelbytes.interaction.service.PrayerRequestService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;

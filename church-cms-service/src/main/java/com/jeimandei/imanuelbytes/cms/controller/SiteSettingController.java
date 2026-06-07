@@ -6,6 +6,8 @@ import com.jeimandei.imanuelbytes.cms.service.SiteSettingService;
 import com.jeimandei.imanuelbytes.common.dto.ApiResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +16,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/settings")
 public class SiteSettingController {
+
+    private static final Logger log = LoggerFactory.getLogger(SiteSettingController.class);
 
     private final SiteSettingService siteSettingService;
 
@@ -36,6 +40,9 @@ public class SiteSettingController {
     @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<SiteSettingDto>> updateSetting(
             @PathVariable String key, @Valid @RequestBody UpdateSiteSettingRequest request) {
-        return ResponseEntity.ok(ApiResponse.success("Setting updated", siteSettingService.updateSetting(key, request)));
+        log.debug("Updating site setting key='{}'", key);
+        SiteSettingDto updated = siteSettingService.updateSetting(key, request);
+        log.info("Updated site setting key='{}'", key);
+        return ResponseEntity.ok(ApiResponse.success("Setting updated", updated));
     }
 }

@@ -12,6 +12,8 @@ import com.jeimandei.imanuelbytes.event.entity.EventStatus;
 import com.jeimandei.imanuelbytes.event.mapper.EventMapper;
 import com.jeimandei.imanuelbytes.event.repository.EventRepository;
 import com.jeimandei.imanuelbytes.event.service.EventService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,8 @@ import java.util.List;
 @Service
 @Transactional
 public class EventServiceImpl implements EventService {
+
+    private static final Logger log = LoggerFactory.getLogger(EventServiceImpl.class);
 
     private final EventRepository eventRepository;
     private final EventMapper eventMapper;
@@ -89,8 +93,12 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional(readOnly = true)
     public EventDto getEventBySlug(String slug) {
+        log.debug("Fetching event by slug='{}'", slug);
         Event event = eventRepository.findBySlug(slug)
-                .orElseThrow(() -> new ResourceNotFoundException("Event", "slug", slug));
+                .orElseThrow(() -> {
+                    log.warn("Event not found for slug='{}'", slug);
+                    return new ResourceNotFoundException("Event", "slug", slug);
+                });
         return eventMapper.toDtoWithUpcoming(event);
     }
 
@@ -102,8 +110,10 @@ public class EventServiceImpl implements EventService {
     public EventDto createEvent(CreateEventRequest request) {
         // Resolve slug: use supplied value or generate from title
         String slug = resolveSlug(request.getSlug(), request.getTitle());
+        log.debug("Creating event with title='{}', slug='{}'", request.getTitle(), slug);
 
         if (eventRepository.existsBySlug(slug)) {
+            log.warn("Event slug conflict: slug='{}' already exists", slug);
             throw new ValidationException("slug", "An event with slug '" + slug + "' already exists", true);
         }
 
@@ -115,53 +125,65 @@ public class EventServiceImpl implements EventService {
         }
 
         Event saved = eventRepository.save(event);
+        log.info("Created event id={}, slug='{}'", saved.getId(), saved.getSlug());
         return eventMapper.toDtoWithUpcoming(saved);
     }
 
     @Override
     public EventDto updateEvent(Long id, UpdateEventRequest request) {
+        log.debug("Updating event id={}", id);
         Event event = findEventOrThrow(id);
 
         // If slug is being changed, validate uniqueness
         if (request.getSlug() != null
                 && !request.getSlug().equals(event.getSlug())
                 && eventRepository.existsBySlug(request.getSlug())) {
+            log.warn("Event slug conflict on update: slug='{}' already exists", request.getSlug());
             throw new ValidationException("slug", "An event with slug '" + request.getSlug() + "' already exists", true);
         }
 
         eventMapper.updateEntity(event, request);
         Event saved = eventRepository.save(event);
+        log.info("Updated event id={}", saved.getId());
         return eventMapper.toDtoWithUpcoming(saved);
     }
 
     @Override
     public void deleteEvent(Long id) {
+        log.debug("Deleting event id={}", id);
         Event event = findEventOrThrow(id);
         event.setStatus(EventStatus.CANCELLED);
         eventRepository.save(event);
+        log.info("Deleted (cancelled) event id={}", id);
     }
 
     @Override
     public EventDto toggleFeatured(Long id) {
+        log.debug("Toggling featured state for event id={}", id);
         Event event = findEventOrThrow(id);
         event.setFeatured(!event.isFeatured());
         Event saved = eventRepository.save(event);
+        log.info("Event id={} featured set to {}", saved.getId(), saved.isFeatured());
         return eventMapper.toDtoWithUpcoming(saved);
     }
 
     @Override
     public EventDto publishEvent(Long id) {
+        log.debug("Publishing event id={}", id);
         Event event = findEventOrThrow(id);
         event.setStatus(EventStatus.PUBLISHED);
         Event saved = eventRepository.save(event);
+        log.info("Published event id={}, slug='{}'", saved.getId(), saved.getSlug());
         return eventMapper.toDtoWithUpcoming(saved);
     }
 
     @Override
     public EventDto cancelEvent(Long id) {
+        log.debug("Cancelling event id={}", id);
         Event event = findEventOrThrow(id);
         event.setStatus(EventStatus.CANCELLED);
         Event saved = eventRepository.save(event);
+        log.info("Cancelled event id={}", saved.getId());
         return eventMapper.toDtoWithUpcoming(saved);
     }
 

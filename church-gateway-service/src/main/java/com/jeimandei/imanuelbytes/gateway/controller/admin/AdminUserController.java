@@ -60,6 +60,7 @@ public class AdminUserController {
         try {
             Map<String, Object> request = new HashMap<>(params);
             userClientService.createUser(request, jwt);
+            log.info("User created successfully");
             redirectAttributes.addFlashAttribute("successMessage", "User created successfully.");
         } catch (Exception e) {
             log.error("Failed to create user: {}", e.getMessage());
@@ -103,6 +104,7 @@ public class AdminUserController {
         String jwt = SecurityUtils.getJwt();
         try {
             userClientService.updateUserStatus(id, status, jwt);
+            log.info("User {} status updated to {}", id, status);
             redirectAttributes.addFlashAttribute("successMessage", "User status updated successfully.");
         } catch (Exception e) {
             log.error("Failed to update status for user {}: {}", id, e.getMessage());
@@ -118,6 +120,7 @@ public class AdminUserController {
         String jwt = SecurityUtils.getJwt();
         try {
             userClientService.assignRoles(id, roles, jwt);
+            log.info("Roles assigned to user {}: {}", id, roles);
             redirectAttributes.addFlashAttribute("successMessage", "User roles updated successfully.");
         } catch (Exception e) {
             log.error("Failed to assign roles for user {}: {}", id, e.getMessage());
@@ -131,6 +134,7 @@ public class AdminUserController {
         String jwt = SecurityUtils.getJwt();
         try {
             userClientService.deleteUser(id, jwt);
+            log.info("User {} deleted successfully", id);
             redirectAttributes.addFlashAttribute("successMessage", "User deleted successfully.");
         } catch (Exception e) {
             log.error("Failed to delete user {}: {}", id, e.getMessage());

@@ -7,6 +7,8 @@ import com.jeimandei.imanuelbytes.interaction.dto.CreateContactMessageRequest;
 import com.jeimandei.imanuelbytes.interaction.dto.UpdateContactStatusRequest;
 import com.jeimandei.imanuelbytes.interaction.service.ContactMessageService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +29,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/contact-messages")
 public class ContactMessageController {
 
+    private static final Logger log = LoggerFactory.getLogger(ContactMessageController.class);
+
     private final ContactMessageService contactMessageService;
 
     public ContactMessageController(ContactMessageService contactMessageService) {
@@ -36,7 +40,9 @@ public class ContactMessageController {
     @PostMapping
     public ResponseEntity<ApiResponse<ContactMessageDto>> submitContactMessage(
             @Valid @RequestBody CreateContactMessageRequest request) {
+        log.debug("Submitting contact message from name='{}', subject='{}'", request.getName(), request.getSubject());
         ContactMessageDto created = contactMessageService.submitContactMessage(request);
+        log.info("Contact message submitted successfully: id={}", created.getId());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Message submitted successfully", created));
     }
@@ -46,6 +52,7 @@ public class ContactMessageController {
     public ResponseEntity<ApiResponse<PageResponse<ContactMessageDto>>> getAllMessages(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
+        log.debug("Listing contact messages: page={}, size={}", page, size);
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<ContactMessageDto> result = contactMessageService.getAllMessages(pageable);
         return ResponseEntity.ok(ApiResponse.success(PageResponse.from(result)));
@@ -54,6 +61,7 @@ public class ContactMessageController {
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<ContactMessageDto>> getMessageById(@PathVariable Long id) {
+        log.debug("Fetching contact message by id={}", id);
         return ResponseEntity.ok(ApiResponse.success(contactMessageService.getMessageById(id)));
     }
 
@@ -62,7 +70,9 @@ public class ContactMessageController {
     public ResponseEntity<ApiResponse<ContactMessageDto>> updateStatus(
             @PathVariable Long id,
             @Valid @RequestBody UpdateContactStatusRequest request) {
+        log.debug("Updating contact message status: id={}, status={}", id, request.getStatus());
         ContactMessageDto updated = contactMessageService.updateStatus(id, request);
+        log.info("Contact message status updated: id={}, status={}", id, updated.getStatus());
         return ResponseEntity.ok(ApiResponse.success("Message status updated", updated));
     }
 

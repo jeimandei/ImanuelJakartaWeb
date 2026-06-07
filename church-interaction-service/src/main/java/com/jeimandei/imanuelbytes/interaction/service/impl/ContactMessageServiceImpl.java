@@ -8,6 +8,8 @@ import com.jeimandei.imanuelbytes.interaction.entity.ContactMessage;
 import com.jeimandei.imanuelbytes.interaction.entity.RequestStatus;
 import com.jeimandei.imanuelbytes.interaction.repository.ContactMessageRepository;
 import com.jeimandei.imanuelbytes.interaction.service.ContactMessageService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;

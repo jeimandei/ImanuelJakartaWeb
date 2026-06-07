@@ -6,6 +6,8 @@ import com.jeimandei.imanuelbytes.interaction.dto.NewsletterSubscriptionDto;
 import com.jeimandei.imanuelbytes.interaction.dto.SubscribeNewsletterRequest;
 import com.jeimandei.imanuelbytes.interaction.service.NewsletterService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +26,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/newsletter")
 public class NewsletterController {
 
+    private static final Logger log = LoggerFactory.getLogger(NewsletterController.class);
+
     private final NewsletterService newsletterService;
 
     public NewsletterController(NewsletterService newsletterService) {
@@ -33,14 +37,18 @@ public class NewsletterController {
     @PostMapping("/subscribe")
     public ResponseEntity<ApiResponse<NewsletterSubscriptionDto>> subscribe(
             @Valid @RequestBody SubscribeNewsletterRequest request) {
+        log.debug("Newsletter subscribe request for email='{}'", request.getEmail());
         NewsletterSubscriptionDto result = newsletterService.subscribe(request);
+        log.info("Newsletter subscription processed: id={}, email='{}'", result.getId(), result.getEmail());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Subscribed successfully", result));
     }
 
     @DeleteMapping("/unsubscribe")
     public ResponseEntity<ApiResponse<Void>> unsubscribe(@RequestParam String email) {
+        log.debug("Newsletter unsubscribe request for email='{}'", email);
         newsletterService.unsubscribe(email);
+        log.info("Newsletter unsubscribed successfully: email='{}'", email);
         return ResponseEntity.ok(ApiResponse.success("Unsubscribed successfully"));
     }
 

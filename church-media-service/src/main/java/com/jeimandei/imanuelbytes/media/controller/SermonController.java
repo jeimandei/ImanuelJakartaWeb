@@ -7,6 +7,8 @@ import com.jeimandei.imanuelbytes.media.dto.SermonDto;
 import com.jeimandei.imanuelbytes.media.dto.UpdateSermonRequest;
 import com.jeimandei.imanuelbytes.media.service.SermonService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +31,8 @@ import java.util.List;
 @RequestMapping("/api/sermons")
 public class SermonController {
 
+    private static final Logger log = LoggerFactory.getLogger(SermonController.class);
+
     private final SermonService sermonService;
 
     public SermonController(SermonService sermonService) {
@@ -43,6 +47,7 @@ public class SermonController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
+        log.debug("Listing sermons: q={}, speaker={}, series={}, page={}, size={}", q, speaker, series, page, size);
         Pageable pageable = PageRequest.of(page, size);
         Page<SermonDto> resultPage;
 
@@ -68,6 +73,7 @@ public class SermonController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<SermonDto>> getSermonById(@PathVariable Long id) {
+        log.debug("Fetching sermon by id={}", id);
         SermonDto sermon = sermonService.getSermonById(id);
         return ResponseEntity.ok(ApiResponse.success(sermon));
     }
@@ -76,7 +82,9 @@ public class SermonController {
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'EDITOR')")
     public ResponseEntity<ApiResponse<SermonDto>> createSermon(
             @Valid @RequestBody CreateSermonRequest request) {
+        log.debug("Creating sermon with title='{}'", request.getTitle());
         SermonDto created = sermonService.createSermon(request);
+        log.info("Sermon created successfully: id={}, title='{}'", created.getId(), created.getTitle());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Sermon created successfully", created));
     }
@@ -86,14 +94,18 @@ public class SermonController {
     public ResponseEntity<ApiResponse<SermonDto>> updateSermon(
             @PathVariable Long id,
             @Valid @RequestBody UpdateSermonRequest request) {
+        log.debug("Updating sermon id={}", id);
         SermonDto updated = sermonService.updateSermon(id, request);
+        log.info("Sermon updated successfully: id={}", id);
         return ResponseEntity.ok(ApiResponse.success("Sermon updated successfully", updated));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<Void>> deleteSermon(@PathVariable Long id) {
+        log.debug("Deleting sermon id={}", id);
         sermonService.deleteSermon(id);
+        log.info("Sermon deleted successfully: id={}", id);
         return ResponseEntity.ok(ApiResponse.success("Sermon deleted successfully"));
     }
 }

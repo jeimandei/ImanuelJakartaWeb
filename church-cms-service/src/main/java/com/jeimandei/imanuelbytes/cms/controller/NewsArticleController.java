@@ -10,12 +10,16 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/news")
 public class NewsArticleController {
+
+    private static final Logger log = LoggerFactory.getLogger(NewsArticleController.class);
 
     private final NewsArticleService newsArticleService;
 
@@ -57,27 +61,38 @@ public class NewsArticleController {
     public ResponseEntity<ApiResponse<NewsArticleDto>> createArticle(
             @Valid @RequestBody CreateNewsArticleRequest request,
             @RequestParam(required = false) Long authorId) {
+        log.debug("Creating news article with title='{}', authorId={}", request.getTitle(), authorId);
+        NewsArticleDto created = newsArticleService.createArticle(request, authorId);
+        log.info("Created news article id={}, slug='{}'", created.getId(), created.getSlug());
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Article created", newsArticleService.createArticle(request, authorId)));
+                .body(ApiResponse.success("Article created", created));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN','EDITOR')")
     public ResponseEntity<ApiResponse<NewsArticleDto>> updateArticle(
             @PathVariable Long id, @Valid @RequestBody CreateNewsArticleRequest request) {
-        return ResponseEntity.ok(ApiResponse.success("Article updated", newsArticleService.updateArticle(id, request)));
+        log.debug("Updating news article id={}", id);
+        NewsArticleDto updated = newsArticleService.updateArticle(id, request);
+        log.info("Updated news article id={}", updated.getId());
+        return ResponseEntity.ok(ApiResponse.success("Article updated", updated));
     }
 
     @PutMapping("/{id}/publish")
     @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN','EDITOR')")
     public ResponseEntity<ApiResponse<NewsArticleDto>> publishArticle(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.success("Article published", newsArticleService.publishArticle(id)));
+        log.debug("Publishing news article id={}", id);
+        NewsArticleDto published = newsArticleService.publishArticle(id);
+        log.info("Published news article id={}, slug='{}'", published.getId(), published.getSlug());
+        return ResponseEntity.ok(ApiResponse.success("Article published", published));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<Void>> deleteArticle(@PathVariable Long id) {
+        log.debug("Deleting news article id={}", id);
         newsArticleService.deleteArticle(id);
+        log.info("Deleted news article id={}", id);
         return ResponseEntity.ok(ApiResponse.success("Article deleted", null));
     }
 }

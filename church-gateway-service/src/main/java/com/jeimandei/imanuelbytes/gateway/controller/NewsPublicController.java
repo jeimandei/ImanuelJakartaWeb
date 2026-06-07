@@ -27,6 +27,7 @@ public class NewsPublicController {
     public String news(@RequestParam(defaultValue = "0") int page, Model model) {
         try {
             model.addAttribute("news", cmsClientService.getPublishedNews(page, 10));
+            log.debug("News list loaded (page={})", page);
         } catch (Exception e) {
             log.error("Failed to load published news: {}", e.getMessage());
         }
@@ -38,6 +39,7 @@ public class NewsPublicController {
     public String newsDetail(@PathVariable String slug, Model model) {
         NewsArticleDto article = cmsClientService.getNewsBySlug(slug);
         model.addAttribute("article", article);
+        log.debug("News article detail loaded for slug={}", slug);
         return "public/news-detail";
     }
 }

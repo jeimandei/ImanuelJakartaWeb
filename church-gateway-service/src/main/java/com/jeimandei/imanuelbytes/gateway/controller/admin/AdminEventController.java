@@ -55,6 +55,7 @@ public class AdminEventController {
         try {
             Map<String, Object> request = new HashMap<>(params);
             eventClientService.createEvent(request, jwt);
+            log.info("Event created successfully");
             redirectAttributes.addFlashAttribute("successMessage", "Event created successfully.");
         } catch (Exception e) {
             log.error("Failed to create event: {}", e.getMessage());
@@ -68,6 +69,7 @@ public class AdminEventController {
         String jwt = SecurityUtils.getJwt();
         try {
             eventClientService.deleteEvent(id, jwt);
+            log.info("Event {} deleted successfully", id);
             redirectAttributes.addFlashAttribute("successMessage", "Event deleted successfully.");
         } catch (Exception e) {
             log.error("Failed to delete event {}: {}", id, e.getMessage());
@@ -84,6 +86,7 @@ public class AdminEventController {
         try {
             Map<String, Object> request = Map.of("featured", featured != null && featured);
             eventClientService.createEvent(request, jwt); // update via patch-like POST; adjust if API differs
+            log.info("Event {} featured status toggled to {}", id, featured != null && featured);
             redirectAttributes.addFlashAttribute("successMessage", "Event featured status updated.");
         } catch (Exception e) {
             log.error("Failed to toggle featured for event {}: {}", id, e.getMessage());

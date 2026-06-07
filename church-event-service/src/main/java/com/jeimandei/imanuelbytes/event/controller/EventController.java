@@ -14,6 +14,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +24,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/events")
 public class EventController {
+
+    private static final Logger log = LoggerFactory.getLogger(EventController.class);
 
     private final EventService eventService;
 
@@ -85,7 +89,9 @@ public class EventController {
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'EDITOR')")
     public ResponseEntity<ApiResponse<EventDto>> createEvent(@Valid @RequestBody CreateEventRequest request) {
+        log.debug("Creating event with title='{}'", request.getTitle());
         EventDto created = eventService.createEvent(request);
+        log.info("Created event id={}, slug='{}'", created.getId(), created.getSlug());
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("Event created successfully", created));
     }
 
@@ -94,31 +100,45 @@ public class EventController {
     public ResponseEntity<ApiResponse<EventDto>> updateEvent(
             @PathVariable Long id,
             @Valid @RequestBody UpdateEventRequest request) {
-        return ResponseEntity.ok(ApiResponse.success("Event updated successfully", eventService.updateEvent(id, request)));
+        log.debug("Updating event id={}", id);
+        EventDto updated = eventService.updateEvent(id, request);
+        log.info("Updated event id={}", updated.getId());
+        return ResponseEntity.ok(ApiResponse.success("Event updated successfully", updated));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<Void>> deleteEvent(@PathVariable Long id) {
+        log.debug("Deleting event id={}", id);
         eventService.deleteEvent(id);
+        log.info("Deleted event id={}", id);
         return ResponseEntity.ok(ApiResponse.success("Event deleted successfully", null));
     }
 
     @PutMapping("/{id}/featured")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'EDITOR')")
     public ResponseEntity<ApiResponse<EventDto>> toggleFeatured(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.success(eventService.toggleFeatured(id)));
+        log.debug("Toggling featured state for event id={}", id);
+        EventDto toggled = eventService.toggleFeatured(id);
+        log.info("Event id={} featured set to {}", toggled.getId(), toggled.isFeatured());
+        return ResponseEntity.ok(ApiResponse.success(toggled));
     }
 
     @PutMapping("/{id}/publish")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'EDITOR')")
     public ResponseEntity<ApiResponse<EventDto>> publishEvent(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.success("Event published", eventService.publishEvent(id)));
+        log.debug("Publishing event id={}", id);
+        EventDto published = eventService.publishEvent(id);
+        log.info("Published event id={}, slug='{}'", published.getId(), published.getSlug());
+        return ResponseEntity.ok(ApiResponse.success("Event published", published));
     }
 
     @PutMapping("/{id}/cancel")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<EventDto>> cancelEvent(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.success("Event cancelled", eventService.cancelEvent(id)));
+        log.debug("Cancelling event id={}", id);
+        EventDto cancelled = eventService.cancelEvent(id);
+        log.info("Cancelled event id={}", cancelled.getId());
+        return ResponseEntity.ok(ApiResponse.success("Event cancelled", cancelled));
     }
 }

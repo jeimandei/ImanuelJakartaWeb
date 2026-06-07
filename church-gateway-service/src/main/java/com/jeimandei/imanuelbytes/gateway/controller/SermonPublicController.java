@@ -31,6 +31,7 @@ public class SermonPublicController {
                           Model model) {
         try {
             model.addAttribute("sermons", sermonClientService.getAllSermons(page, size, null));
+            log.debug("Sermon list loaded (page={}, size={})", page, size);
         } catch (Exception e) {
             log.error("Failed to load sermons list: {}", e.getMessage());
         }
@@ -44,6 +45,7 @@ public class SermonPublicController {
     public String sermonDetail(@PathVariable Long id, Model model) {
         SermonDto sermon = sermonClientService.getSermonById(id);
         model.addAttribute("sermon", sermon);
+        log.debug("Sermon detail loaded for id={}", id);
         return "public/sermon-detail";
     }
 }

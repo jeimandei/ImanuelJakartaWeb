@@ -27,6 +27,7 @@ public class EventPublicController {
     public String events(@RequestParam(defaultValue = "0") int page, Model model) {
         try {
             model.addAttribute("events", eventClientService.getUpcomingEvents());
+            log.debug("Event list loaded (page={})", page);
         } catch (Exception e) {
             log.error("Failed to load upcoming events: {}", e.getMessage());
         }
@@ -38,6 +39,7 @@ public class EventPublicController {
     public String eventDetail(@PathVariable String slug, Model model) {
         EventDto event = eventClientService.getEventBySlug(slug);
         model.addAttribute("event", event);
+        log.debug("Event detail loaded for slug={}", slug);
         return "public/event-detail";
     }
 }

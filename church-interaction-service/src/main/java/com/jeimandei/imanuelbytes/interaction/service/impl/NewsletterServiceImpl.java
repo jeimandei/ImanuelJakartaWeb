@@ -6,6 +6,8 @@ import com.jeimandei.imanuelbytes.interaction.dto.SubscribeNewsletterRequest;
 import com.jeimandei.imanuelbytes.interaction.entity.NewsletterSubscription;
 import com.jeimandei.imanuelbytes.interaction.repository.NewsletterSubscriptionRepository;
 import com.jeimandei.imanuelbytes.interaction.service.NewsletterService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;

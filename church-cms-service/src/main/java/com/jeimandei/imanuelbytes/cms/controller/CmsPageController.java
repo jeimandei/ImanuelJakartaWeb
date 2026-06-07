@@ -12,6 +12,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +21,8 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/cms/pages")
 public class CmsPageController {
+
+    private static final Logger log = LoggerFactory.getLogger(CmsPageController.class);
 
     private final CmsPageService cmsPageService;
 
@@ -54,7 +58,10 @@ public class CmsPageController {
 
     @GetMapping("/slug/{slug}")
     public ResponseEntity<ApiResponse<CmsPageDto>> getPageBySlug(@PathVariable String slug) {
-        return ResponseEntity.ok(ApiResponse.success(cmsPageService.getPageBySlug(slug)));
+        log.debug("Fetching CMS page by slug='{}'", slug);
+        CmsPageDto page = cmsPageService.getPageBySlug(slug);
+        log.info("Retrieved CMS page id={} for slug='{}'", page.getId(), slug);
+        return ResponseEntity.ok(ApiResponse.success(page));
     }
 
     @GetMapping("/slug/{slug}/published")
@@ -68,7 +75,9 @@ public class CmsPageController {
             @Valid @RequestBody CreateCmsPageRequest request,
             Authentication authentication) {
         String username = authentication != null ? authentication.getName() : "system";
+        log.debug("Creating CMS page with slug='{}', author='{}'", request.getSlug(), username);
         CmsPageDto created = cmsPageService.createPage(request, username);
+        log.info("Created CMS page id={}, slug='{}'", created.getId(), created.getSlug());
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("Page created", created));
     }
 
@@ -77,25 +86,36 @@ public class CmsPageController {
     public ResponseEntity<ApiResponse<CmsPageDto>> updatePage(
             @PathVariable Long id,
             @Valid @RequestBody UpdateCmsPageRequest request) {
-        return ResponseEntity.ok(ApiResponse.success("Page updated", cmsPageService.updatePage(id, request)));
+        log.debug("Updating CMS page id={}", id);
+        CmsPageDto updated = cmsPageService.updatePage(id, request);
+        log.info("Updated CMS page id={}", updated.getId());
+        return ResponseEntity.ok(ApiResponse.success("Page updated", updated));
     }
 
     @PutMapping("/{id}/publish")
     @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN','EDITOR')")
     public ResponseEntity<ApiResponse<CmsPageDto>> publishPage(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.success("Page published", cmsPageService.publishPage(id)));
+        log.debug("Publishing CMS page id={}", id);
+        CmsPageDto published = cmsPageService.publishPage(id);
+        log.info("Published CMS page id={}, slug='{}'", published.getId(), published.getSlug());
+        return ResponseEntity.ok(ApiResponse.success("Page published", published));
     }
 
     @PutMapping("/{id}/unpublish")
     @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN','EDITOR')")
     public ResponseEntity<ApiResponse<CmsPageDto>> unpublishPage(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.success("Page unpublished", cmsPageService.unpublishPage(id)));
+        log.debug("Unpublishing CMS page id={}", id);
+        CmsPageDto unpublished = cmsPageService.unpublishPage(id);
+        log.info("Unpublished CMS page id={}", unpublished.getId());
+        return ResponseEntity.ok(ApiResponse.success("Page unpublished", unpublished));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<Void>> deletePage(@PathVariable Long id) {
+        log.debug("Deleting CMS page id={}", id);
         cmsPageService.deletePage(id);
+        log.info("Deleted CMS page id={}", id);
         return ResponseEntity.ok(ApiResponse.success("Page deleted", null));
     }
 }

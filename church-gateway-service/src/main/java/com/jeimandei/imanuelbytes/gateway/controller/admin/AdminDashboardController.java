@@ -59,6 +59,7 @@ public class AdminDashboardController {
             model.addAttribute("prayerRequestsCount", 0);
         }
 
+        log.debug("Admin dashboard loaded");
         return "admin/dashboard";
     }
 }

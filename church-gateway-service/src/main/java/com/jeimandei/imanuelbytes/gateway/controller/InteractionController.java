@@ -45,6 +45,7 @@ public class InteractionController {
         try {
             boolean success = interactionClientService.submitPrayerRequest(form);
             if (success) {
+                log.info("Prayer request submitted successfully");
                 redirectAttributes.addFlashAttribute("successMessage",
                         "Your prayer request has been submitted. We will be praying for you.");
             } else {
@@ -79,6 +80,7 @@ public class InteractionController {
         try {
             boolean success = interactionClientService.submitContactMessage(form);
             if (success) {
+                log.info("Contact message submitted successfully");
                 redirectAttributes.addFlashAttribute("successMessage",
                         "Your message has been sent. We will get back to you soon.");
             } else {
@@ -102,6 +104,7 @@ public class InteractionController {
         try {
             boolean success = interactionClientService.subscribeNewsletter(email, name);
             if (success) {
+                log.info("Newsletter subscription successful for email={}", email);
                 redirectAttributes.addFlashAttribute("successMessage",
                         "You have been subscribed to our newsletter.");
             } else {

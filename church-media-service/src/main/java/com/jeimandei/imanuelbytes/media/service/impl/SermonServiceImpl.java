@@ -8,6 +8,8 @@ import com.jeimandei.imanuelbytes.media.entity.Sermon;
 import com.jeimandei.imanuelbytes.media.mapper.SermonMapper;
 import com.jeimandei.imanuelbytes.media.repository.SermonRepository;
 import com.jeimandei.imanuelbytes.media.service.SermonService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +21,8 @@ import java.util.List;
 @Service
 @Transactional
 public class SermonServiceImpl implements SermonService {
+
+    private static final Logger log = LoggerFactory.getLogger(SermonServiceImpl.class);
 
     private final SermonRepository sermonRepository;
     private final SermonMapper sermonMapper;
@@ -70,38 +74,52 @@ public class SermonServiceImpl implements SermonService {
     @Override
     @Transactional(readOnly = true)
     public SermonDto getSermonById(Long id) {
+        log.debug("Fetching sermon by id={}", id);
         Sermon sermon = sermonRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Sermon", id));
+                .orElseThrow(() -> {
+                    log.warn("Sermon not found: id={}", id);
+                    return new ResourceNotFoundException("Sermon", id);
+                });
         return sermonMapper.toDto(sermon);
     }
 
     @Override
     public SermonDto createSermon(CreateSermonRequest request) {
+        log.debug("Creating sermon with title='{}', speaker='{}'", request.getTitle(), request.getSpeaker());
         Sermon sermon = sermonMapper.toEntity(request);
         String normalizedUrl = normalizeYoutubeUrl(request.getYoutubeUrl());
         sermon.setYoutubeUrl(normalizedUrl);
         Sermon saved = sermonRepository.save(sermon);
+        log.info("Sermon created successfully: id={}, title='{}'", saved.getId(), saved.getTitle());
         return sermonMapper.toDto(saved);
     }
 
     @Override
     public SermonDto updateSermon(Long id, UpdateSermonRequest request) {
+        log.debug("Updating sermon id={}", id);
         Sermon sermon = sermonRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Sermon", id));
+                .orElseThrow(() -> {
+                    log.warn("Sermon not found for update: id={}", id);
+                    return new ResourceNotFoundException("Sermon", id);
+                });
         sermonMapper.updateEntity(sermon, request);
         if (request.getYoutubeUrl() != null) {
             sermon.setYoutubeUrl(normalizeYoutubeUrl(request.getYoutubeUrl()));
         }
         Sermon saved = sermonRepository.save(sermon);
+        log.info("Sermon updated successfully: id={}", saved.getId());
         return sermonMapper.toDto(saved);
     }
 
     @Override
     public void deleteSermon(Long id) {
+        log.debug("Deleting sermon id={}", id);
         if (!sermonRepository.existsById(id)) {
+            log.warn("Sermon not found for deletion: id={}", id);
             throw new ResourceNotFoundException("Sermon", id);
         }
         sermonRepository.deleteById(id);
+        log.info("Sermon deleted successfully: id={}", id);
     }
 
     private String normalizeYoutubeUrl(String url) {
@@ -114,7 +132,9 @@ public class SermonServiceImpl implements SermonService {
             if (ampersandIndex != -1) {
                 videoId = videoId.substring(0, ampersandIndex);
             }
-            return "https://www.youtube.com/embed/" + videoId;
+            String embedUrl = "https://www.youtube.com/embed/" + videoId;
+            log.debug("Normalized YouTube URL: '{}' -> '{}'", url, embedUrl);
+            return embedUrl;
         }
         return url;
     }
