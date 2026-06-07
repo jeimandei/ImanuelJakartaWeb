@@ -7,6 +7,8 @@ import com.jeimandei.imanuelbytes.interaction.entity.RequestStatus;
 import com.jeimandei.imanuelbytes.interaction.entity.VolunteerApplication;
 import com.jeimandei.imanuelbytes.interaction.repository.VolunteerApplicationRepository;
 import com.jeimandei.imanuelbytes.interaction.service.VolunteerService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class VolunteerServiceImpl implements VolunteerService {
+
+    private static final Logger log = LoggerFactory.getLogger(VolunteerServiceImpl.class);
 
     private final VolunteerApplicationRepository volunteerApplicationRepository;
 

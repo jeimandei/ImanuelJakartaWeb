@@ -22,6 +22,8 @@ import java.util.Map;
 @Transactional
 public class PrayerRequestServiceImpl implements PrayerRequestService {
 
+    private static final Logger log = LoggerFactory.getLogger(PrayerRequestServiceImpl.class);
+
     private final PrayerRequestRepository prayerRequestRepository;
 
     public PrayerRequestServiceImpl(PrayerRequestRepository prayerRequestRepository) {
@@ -30,6 +32,7 @@ public class PrayerRequestServiceImpl implements PrayerRequestService {
 
     @Override
     public PrayerRequestDto submitPrayerRequest(CreatePrayerRequestRequest request) {
+        log.debug("Submitting prayer request: name='{}', confidential={}", request.getName(), request.isConfidential());
         PrayerRequest prayerRequest = new PrayerRequest(
                 request.getName(),
                 request.getEmail(),
@@ -38,12 +41,14 @@ public class PrayerRequestServiceImpl implements PrayerRequestService {
                 request.isConfidential()
         );
         PrayerRequest saved = prayerRequestRepository.save(prayerRequest);
+        log.info("Prayer request submitted: id={}, confidential={}", saved.getId(), saved.isConfidential());
         return toDto(saved);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<PrayerRequestDto> getAllPrayerRequests(Pageable pageable) {
+        log.debug("Listing all prayer requests: page={}, size={}", pageable.getPageNumber(), pageable.getPageSize());
         return prayerRequestRepository.findAllByOrderByCreatedAtDesc(pageable)
                 .map(this::toDto);
     }
@@ -51,17 +56,26 @@ public class PrayerRequestServiceImpl implements PrayerRequestService {
     @Override
     @Transactional(readOnly = true)
     public PrayerRequestDto getPrayerRequestById(Long id) {
+        log.debug("Fetching prayer request by id={}", id);
         PrayerRequest prayerRequest = prayerRequestRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("PrayerRequest", id));
+                .orElseThrow(() -> {
+                    log.warn("Prayer request not found: id={}", id);
+                    return new ResourceNotFoundException("PrayerRequest", id);
+                });
         return toDto(prayerRequest);
     }
 
     @Override
     public PrayerRequestDto updateStatus(Long id, UpdatePrayerRequestStatusRequest request) {
+        log.debug("Updating prayer request status: id={}, newStatus={}", id, request.getStatus());
         PrayerRequest prayerRequest = prayerRequestRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("PrayerRequest", id));
+                .orElseThrow(() -> {
+                    log.warn("Prayer request not found for status update: id={}", id);
+                    return new ResourceNotFoundException("PrayerRequest", id);
+                });
         prayerRequest.setStatus(request.getStatus());
         PrayerRequest saved = prayerRequestRepository.save(prayerRequest);
+        log.info("Prayer request status updated: id={}, status={}", saved.getId(), saved.getStatus());
         return toDto(saved);
     }
 

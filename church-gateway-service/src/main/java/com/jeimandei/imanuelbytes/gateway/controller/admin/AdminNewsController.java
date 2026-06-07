@@ -55,6 +55,7 @@ public class AdminNewsController {
         try {
             Map<String, Object> request = new HashMap<>(params);
             cmsClientService.createNewsArticle(request, jwt);
+            log.info("News article created successfully");
             redirectAttributes.addFlashAttribute("successMessage", "News article created successfully.");
         } catch (Exception e) {
             log.error("Failed to create news article: {}", e.getMessage());
@@ -68,6 +69,7 @@ public class AdminNewsController {
         String jwt = SecurityUtils.getJwt();
         try {
             cmsClientService.deleteNewsArticle(id, jwt);
+            log.info("News article {} deleted successfully", id);
             redirectAttributes.addFlashAttribute("successMessage", "News article deleted successfully.");
         } catch (Exception e) {
             log.error("Failed to delete news article {}: {}", id, e.getMessage());

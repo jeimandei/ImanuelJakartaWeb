@@ -19,6 +19,8 @@ import java.util.Optional;
 @Transactional
 public class NewsletterServiceImpl implements NewsletterService {
 
+    private static final Logger log = LoggerFactory.getLogger(NewsletterServiceImpl.class);
+
     private final NewsletterSubscriptionRepository newsletterSubscriptionRepository;
 
     public NewsletterServiceImpl(NewsletterSubscriptionRepository newsletterSubscriptionRepository) {
@@ -27,15 +29,18 @@ public class NewsletterServiceImpl implements NewsletterService {
 
     @Override
     public NewsletterSubscriptionDto subscribe(SubscribeNewsletterRequest request) {
+        log.debug("Processing newsletter subscription for email='{}'", request.getEmail());
         Optional<NewsletterSubscription> existing = newsletterSubscriptionRepository.findByEmail(request.getEmail());
 
         if (existing.isPresent()) {
             NewsletterSubscription subscription = existing.get();
             if (subscription.isActive()) {
                 // Already subscribed and active — return as-is
+                log.debug("Email '{}' is already an active subscriber", request.getEmail());
                 return toDto(subscription);
             }
             // Previously unsubscribed — reactivate
+            log.info("Reactivating newsletter subscription for email='{}'", request.getEmail());
             subscription.setActive(true);
             if (request.getName() != null && !request.getName().isBlank()) {
                 subscription.setName(request.getName());
@@ -45,20 +50,27 @@ public class NewsletterServiceImpl implements NewsletterService {
         }
 
         // New subscriber
+        log.info("Creating new newsletter subscription for email='{}'", request.getEmail());
         NewsletterSubscription subscription = new NewsletterSubscription(
                 request.getEmail(),
                 request.getName()
         );
         NewsletterSubscription saved = newsletterSubscriptionRepository.save(subscription);
+        log.info("Newsletter subscription created: id={}, email='{}'", saved.getId(), saved.getEmail());
         return toDto(saved);
     }
 
     @Override
     public void unsubscribe(String email) {
+        log.debug("Processing newsletter unsubscribe for email='{}'", email);
         NewsletterSubscription subscription = newsletterSubscriptionRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("NewsletterSubscription", "email", email));
+                .orElseThrow(() -> {
+                    log.warn("Newsletter subscription not found for email='{}'", email);
+                    return new ResourceNotFoundException("NewsletterSubscription", "email", email);
+                });
         subscription.setActive(false);
         newsletterSubscriptionRepository.save(subscription);
+        log.info("Newsletter unsubscribed: email='{}'", email);
     }
 
     @Override

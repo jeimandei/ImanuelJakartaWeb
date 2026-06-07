@@ -55,6 +55,7 @@ public class AdminSermonController {
         try {
             Map<String, Object> request = new HashMap<>(params);
             sermonClientService.createSermon(request, jwt);
+            log.info("Sermon created successfully");
             redirectAttributes.addFlashAttribute("successMessage", "Sermon created successfully.");
         } catch (Exception e) {
             log.error("Failed to create sermon: {}", e.getMessage());
@@ -68,6 +69,7 @@ public class AdminSermonController {
         String jwt = SecurityUtils.getJwt();
         try {
             sermonClientService.deleteSermon(id, jwt);
+            log.info("Sermon {} deleted successfully", id);
             redirectAttributes.addFlashAttribute("successMessage", "Sermon deleted successfully.");
         } catch (Exception e) {
             log.error("Failed to delete sermon {}: {}", id, e.getMessage());

@@ -55,6 +55,7 @@ public class AdminAnnouncementController {
         try {
             Map<String, Object> request = new HashMap<>(params);
             cmsClientService.createAnnouncement(request, jwt);
+            log.info("Announcement created successfully");
             redirectAttributes.addFlashAttribute("successMessage", "Announcement created successfully.");
         } catch (Exception e) {
             log.error("Failed to create announcement: {}", e.getMessage());
@@ -68,6 +69,7 @@ public class AdminAnnouncementController {
         String jwt = SecurityUtils.getJwt();
         try {
             cmsClientService.deleteAnnouncement(id, jwt);
+            log.info("Announcement {} deleted successfully", id);
             redirectAttributes.addFlashAttribute("successMessage", "Announcement deleted successfully.");
         } catch (Exception e) {
             log.error("Failed to delete announcement {}: {}", id, e.getMessage());

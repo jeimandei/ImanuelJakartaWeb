@@ -55,6 +55,7 @@ public class AdminLivestreamController {
         try {
             Map<String, Object> request = new HashMap<>(params);
             livestreamClientService.createLivestream(request, jwt);
+            log.info("Livestream created successfully");
             redirectAttributes.addFlashAttribute("successMessage", "Livestream created successfully.");
         } catch (Exception e) {
             log.error("Failed to create livestream: {}", e.getMessage());
@@ -68,6 +69,7 @@ public class AdminLivestreamController {
         String jwt = SecurityUtils.getJwt();
         try {
             livestreamClientService.activateLivestream(id, jwt);
+            log.info("Livestream {} activated", id);
             redirectAttributes.addFlashAttribute("successMessage", "Livestream activated.");
         } catch (Exception e) {
             log.error("Failed to activate livestream {}: {}", id, e.getMessage());
@@ -81,6 +83,7 @@ public class AdminLivestreamController {
         String jwt = SecurityUtils.getJwt();
         try {
             livestreamClientService.deleteLivestream(id, jwt);
+            log.info("Livestream {} deleted successfully", id);
             redirectAttributes.addFlashAttribute("successMessage", "Livestream deleted successfully.");
         } catch (Exception e) {
             log.error("Failed to delete livestream {}: {}", id, e.getMessage());
