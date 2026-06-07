@@ -1,6 +1,10 @@
 # Maven build output
 target/
 
+# Log files
+logs/
+*.log
+
 # IDE files
 .idea/
 *.iml
