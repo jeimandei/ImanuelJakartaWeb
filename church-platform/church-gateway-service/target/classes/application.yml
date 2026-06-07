@@ -1,0 +1,44 @@
+server:
+  port: 8080
+  error:
+    whitelabel:
+      enabled: false
+
+spring:
+  application:
+    name: church-gateway-service
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    cache: false
+  web:
+    resources:
+      static-locations: classpath:/static/
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+services:
+  auth-service:
+    url: http://localhost:8081
+  user-service:
+    url: http://localhost:8082
+  cms-service:
+    url: http://localhost:8083
+  event-service:
+    url: http://localhost:8084
+  media-service:
+    url: http://localhost:8085
+  interaction-service:
+    url: http://localhost:8086
+
+jwt:
+  secret: 3JkWpV9nR7mQfLxTzYsA2bDcEhGiJuKoNvPwSyUaBdFeHjIlMnOqRtVxZy1235467890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
+  expiration: 86400000
+
+logging:
+  level:
+    com.jeimandei: DEBUG
+    org.springframework.security: INFO
+    org.springframework.web.client: DEBUG

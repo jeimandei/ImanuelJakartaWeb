@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('About Us')}"></head>
+<body>
+
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+<div th:replace="~{fragments/alerts :: alerts}"></div>
+
+<!-- Page Header -->
+<section style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); color:white; padding:80px 0;">
+    <div class="container text-center">
+        <i class="fas fa-church fa-3x mb-3" style="opacity:0.8;"></i>
+        <h1 class="display-5 fw-bold mb-2">About Imanuel Jakarta Church</h1>
+        <p class="lead mb-0" style="opacity:0.85;">A community rooted in faith, grounded in love, reaching the world</p>
+    </div>
+</section>
+
+<!-- Our Story -->
+<section class="py-5">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-md-6">
+                <div class="section-header text-start mb-4">
+                    <h2>Our Story</h2>
+                    <div class="divider" style="margin:0.8rem 0;"></div>
+                </div>
+                <p class="text-muted mb-3">
+                    Gereja Kristen Jawa (GKJ) Imanuel Jakarta has its roots in the 1970s, when a small group of
+                    Javanese Christians settled in the capital city of Jakarta and longed for a community of faith
+                    where they could worship together in their mother tongue and cultural traditions.
+                </p>
+                <p class="text-muted mb-3">
+                    From those humble beginnings, the congregation grew steadily over the decades, becoming a
+                    vibrant multi-generational church that now serves hundreds of families across greater Jakarta.
+                    We have expanded our worship services to include both Indonesian and English-language
+                    gatherings, welcoming believers from every background.
+                </p>
+                <p class="text-muted">
+                    Today, Imanuel Jakarta Church continues to be a place of refuge, growth, and mission — a
+                    community that honours its heritage while embracing the future with open arms, guided by the
+                    timeless truth of Scripture and powered by the Holy Spirit.
+                </p>
+            </div>
+            <div class="col-md-6">
+                <div class="rounded-3 d-flex align-items-center justify-content-center"
+                     style="height:350px; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); border-radius:12px;">
+                    <div class="text-center text-white">
+                        <i class="fas fa-church fa-5x mb-3" style="opacity:0.6;"></i>
+                        <p class="fw-semibold" style="opacity:0.8;">GKJ Imanuel Jakarta</p>
+                        <p class="small" style="opacity:0.6;">Est. 1970s</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Vision & Mission -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="section-header mb-5">
+            <h2>Vision &amp; Mission</h2>
+            <div class="divider"></div>
+            <p>The calling that drives everything we do</p>
+        </div>
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-5">
+                <div class="card h-100 text-center p-4">
+                    <div class="ministry-icon mx-auto mb-3">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3" style="color:var(--primary);">Our Vision</h4>
+                    <p class="text-muted">
+                        To be a flourishing community of transformed disciples who reflect the character of
+                        Christ, fill the city of Jakarta with His love, and make His name known to the ends
+                        of the earth.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="card h-100 text-center p-4">
+                    <div class="ministry-icon mx-auto mb-3" style="background:var(--accent);">
+                        <i class="fas fa-bullseye" style="color:var(--primary-dark);"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3" style="color:var(--primary);">Our Mission</h4>
+                    <p class="text-muted">
+                        To worship God wholeheartedly, equip every believer for ministry through the Word,
+                        build authentic community through fellowship, and reach our city and the world
+                        through compassionate service and evangelism.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="row g-4 mt-2 justify-content-center">
+            <div class="col-md-3">
+                <div class="card text-center p-3 h-100">
+                    <i class="fas fa-praying-hands fa-2x mb-2" style="color:var(--accent);"></i>
+                    <h6 class="fw-bold" style="color:var(--primary);">Worship</h6>
+                    <p class="text-muted small mb-0">Honouring God with heart, soul, and mind in every gathering</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center p-3 h-100">
+                    <i class="fas fa-book-open fa-2x mb-2" style="color:var(--accent);"></i>
+                    <h6 class="fw-bold" style="color:var(--primary);">Grow</h6>
+                    <p class="text-muted small mb-0">Deepening faith through Scripture, prayer, and discipleship</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center p-3 h-100">
+                    <i class="fas fa-users fa-2x mb-2" style="color:var(--accent);"></i>
+                    <h6 class="fw-bold" style="color:var(--primary);">Connect</h6>
+                    <p class="text-muted small mb-0">Building genuine relationships through community and care</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center p-3 h-100">
+                    <i class="fas fa-hands-helping fa-2x mb-2" style="color:var(--accent);"></i>
+                    <h6 class="fw-bold" style="color:var(--primary);">Serve</h6>
+                    <p class="text-muted small mb-0">Extending mercy and justice to our city and beyond</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Statement of Faith -->
+<section class="py-5">
+    <div class="container">
+        <div class="section-header mb-5">
+            <h2>Statement of Faith</h2>
+            <div class="divider"></div>
+            <p>What we believe at the core of our community</p>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="d-flex align-items-start p-3 card mb-0">
+                    <div class="me-3 mt-1">
+                        <i class="fas fa-check-circle fa-lg" style="color:var(--accent);"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-1" style="color:var(--primary);">The Holy Bible</h6>
+                        <p class="text-muted small mb-0">We believe the Bible is the inspired, infallible, and authoritative Word of God — the supreme standard for all faith and practice.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex align-items-start p-3 card mb-0">
+                    <div class="me-3 mt-1">
+                        <i class="fas fa-check-circle fa-lg" style="color:var(--accent);"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-1" style="color:var(--primary);">The Holy Trinity</h6>
+                        <p class="text-muted small mb-0">We believe in one God, eternally existing in three persons — Father, Son, and Holy Spirit — equal in essence, nature, and glory.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex align-items-start p-3 card mb-0">
+                    <div class="me-3 mt-1">
+                        <i class="fas fa-check-circle fa-lg" style="color:var(--accent);"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-1" style="color:var(--primary);">Jesus Christ</h6>
+                        <p class="text-muted small mb-0">We believe in the deity of our Lord Jesus Christ, His virgin birth, sinless life, atoning death, bodily resurrection, and His coming again in glory.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex align-items-start p-3 card mb-0">
+                    <div class="me-3 mt-1">
+                        <i class="fas fa-check-circle fa-lg" style="color:var(--accent);"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-1" style="color:var(--primary);">Salvation by Grace</h6>
+                        <p class="text-muted small mb-0">We believe that salvation is a gift of God's grace through faith in Jesus Christ alone — not by human merit or works.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex align-items-start p-3 card mb-0">
+                    <div class="me-3 mt-1">
+                        <i class="fas fa-check-circle fa-lg" style="color:var(--accent);"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-1" style="color:var(--primary);">The Holy Spirit</h6>
+                        <p class="text-muted small mb-0">We believe in the present ministry of the Holy Spirit who indwells, empowers, and equips every believer for godly living and effective service.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex align-items-start p-3 card mb-0">
+                    <div class="me-3 mt-1">
+                        <i class="fas fa-check-circle fa-lg" style="color:var(--accent);"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-1" style="color:var(--primary);">The Church</h6>
+                        <p class="text-muted small mb-0">We believe in the universal Church — the body and bride of Christ — and in the importance of belonging to a local community of faith.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex align-items-start p-3 card mb-0">
+                    <div class="me-3 mt-1">
+                        <i class="fas fa-check-circle fa-lg" style="color:var(--accent);"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-1" style="color:var(--primary);">The Second Coming</h6>
+                        <p class="text-muted small mb-0">We believe in the personal, visible, and glorious return of our Lord Jesus Christ to judge the living and the dead and to consummate His kingdom.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex align-items-start p-3 card mb-0">
+                    <div class="me-3 mt-1">
+                        <i class="fas fa-check-circle fa-lg" style="color:var(--accent);"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-1" style="color:var(--primary);">Eternal Life</h6>
+                        <p class="text-muted small mb-0">We believe in the resurrection of both the saved and the lost — the saved to eternal life with God, and the lost to eternal separation from Him.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Leadership Team -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="section-header mb-5">
+            <h2>Leadership Team</h2>
+            <div class="divider"></div>
+            <p>The shepherds entrusted to guide our congregation</p>
+        </div>
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-3">
+                <div class="card text-center p-4 h-100">
+                    <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
+                         style="width:100px; height:100px; background:var(--primary);">
+                        <i class="fas fa-user fa-2x text-white opacity-50"></i>
+                    </div>
+                    <h5 class="fw-bold mb-1" style="color:var(--primary);">Rev. Dr. Imanuel Santoso</h5>
+                    <p class="text-muted small mb-0">Senior Pastor</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center p-4 h-100">
+                    <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
+                         style="width:100px; height:100px; background:var(--primary-light);">
+                        <i class="fas fa-user fa-2x text-white opacity-50"></i>
+                    </div>
+                    <h5 class="fw-bold mb-1" style="color:var(--primary);">Rev. Sarah Wijaya</h5>
+                    <p class="text-muted small mb-0">Associate Pastor – Discipleship</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center p-4 h-100">
+                    <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
+                         style="width:100px; height:100px; background:var(--primary-light);">
+                        <i class="fas fa-user fa-2x text-white opacity-50"></i>
+                    </div>
+                    <h5 class="fw-bold mb-1" style="color:var(--primary);">Rev. Daniel Hartono</h5>
+                    <p class="text-muted small mb-0">Associate Pastor – Youth &amp; Outreach</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center p-4 h-100">
+                    <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
+                         style="width:100px; height:100px; background:var(--accent);">
+                        <i class="fas fa-user fa-2x" style="color:var(--primary-dark); opacity:0.5;"></i>
+                    </div>
+                    <h5 class="fw-bold mb-1" style="color:var(--primary);">Ev. Grace Kusuma</h5>
+                    <p class="text-muted small mb-0">Evangelist – Women's Ministry</p>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-4">
+            <a th:href="@{/leadership}" class="btn btn-outline-primary px-4">
+                <i class="fas fa-users me-2"></i>View Full Leadership Team
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="py-5" style="background:var(--primary); color:white;">
+    <div class="container text-center">
+        <h2 class="fw-bold mb-3" style="color:white;">Come Experience It for Yourself</h2>
+        <p class="lead mb-4" style="opacity:0.85;">
+            Reading about us is one thing — being part of our community is another. Join us this Sunday.
+        </p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a th:href="@{/services}" class="btn btn-gold btn-lg px-4">
+                <i class="fas fa-calendar me-2"></i>Service Times
+            </a>
+            <a th:href="@{/new-here}" class="btn btn-outline-light btn-lg px-4">
+                <i class="fas fa-door-open me-2"></i>I'm New Here
+            </a>
+        </div>
+    </div>
+</section>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/custom.js}"></script>
+</body>
+</html>

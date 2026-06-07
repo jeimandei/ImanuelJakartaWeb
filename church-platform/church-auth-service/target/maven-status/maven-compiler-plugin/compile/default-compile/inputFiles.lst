@@ -1,0 +1,16 @@
+/home/user/ImanuelJakartaWeb/church-platform/church-auth-service/src/main/java/com/jeimandei/imanuelbytes/auth/service/CustomUserDetailsService.java
+/home/user/ImanuelJakartaWeb/church-platform/church-auth-service/src/main/java/com/jeimandei/imanuelbytes/auth/dto/AuthResponse.java
+/home/user/ImanuelJakartaWeb/church-platform/church-auth-service/src/main/java/com/jeimandei/imanuelbytes/auth/config/SecurityConfig.java
+/home/user/ImanuelJakartaWeb/church-platform/church-auth-service/src/main/java/com/jeimandei/imanuelbytes/auth/controller/AuthController.java
+/home/user/ImanuelJakartaWeb/church-platform/church-auth-service/src/main/java/com/jeimandei/imanuelbytes/auth/ChurchAuthApplication.java
+/home/user/ImanuelJakartaWeb/church-platform/church-auth-service/src/main/java/com/jeimandei/imanuelbytes/auth/entity/User.java
+/home/user/ImanuelJakartaWeb/church-platform/church-auth-service/src/main/java/com/jeimandei/imanuelbytes/auth/config/JwtConfig.java
+/home/user/ImanuelJakartaWeb/church-platform/church-auth-service/src/main/java/com/jeimandei/imanuelbytes/auth/service/AuthService.java
+/home/user/ImanuelJakartaWeb/church-platform/church-auth-service/src/main/java/com/jeimandei/imanuelbytes/auth/entity/Role.java
+/home/user/ImanuelJakartaWeb/church-platform/church-auth-service/src/main/java/com/jeimandei/imanuelbytes/auth/entity/UserStatus.java
+/home/user/ImanuelJakartaWeb/church-platform/church-auth-service/src/main/java/com/jeimandei/imanuelbytes/auth/repository/UserRepository.java
+/home/user/ImanuelJakartaWeb/church-platform/church-auth-service/src/main/java/com/jeimandei/imanuelbytes/auth/dto/LoginRequest.java
+/home/user/ImanuelJakartaWeb/church-platform/church-auth-service/src/main/java/com/jeimandei/imanuelbytes/auth/dto/UserInfoResponse.java
+/home/user/ImanuelJakartaWeb/church-platform/church-auth-service/src/main/java/com/jeimandei/imanuelbytes/auth/service/impl/AuthServiceImpl.java
+/home/user/ImanuelJakartaWeb/church-platform/church-auth-service/src/main/java/com/jeimandei/imanuelbytes/auth/repository/RoleRepository.java
+/home/user/ImanuelJakartaWeb/church-platform/church-auth-service/src/main/java/com/jeimandei/imanuelbytes/auth/dto/RegisterRequest.java

@@ -1,0 +1,14 @@
+/home/user/ImanuelJakartaWeb/church-platform/church-event-service/src/main/java/com/jeimandei/imanuelbytes/event/dto/CreateEventRequest.java
+/home/user/ImanuelJakartaWeb/church-platform/church-event-service/src/main/java/com/jeimandei/imanuelbytes/event/mapper/EventMapper.java
+/home/user/ImanuelJakartaWeb/church-platform/church-event-service/src/main/java/com/jeimandei/imanuelbytes/event/dto/UpdateEventRequest.java
+/home/user/ImanuelJakartaWeb/church-platform/church-event-service/src/main/java/com/jeimandei/imanuelbytes/event/config/SecurityConfig.java
+/home/user/ImanuelJakartaWeb/church-platform/church-event-service/src/main/java/com/jeimandei/imanuelbytes/event/dto/EventDto.java
+/home/user/ImanuelJakartaWeb/church-platform/church-event-service/src/main/java/com/jeimandei/imanuelbytes/event/config/JpaConfig.java
+/home/user/ImanuelJakartaWeb/church-platform/church-event-service/src/main/java/com/jeimandei/imanuelbytes/event/entity/Event.java
+/home/user/ImanuelJakartaWeb/church-platform/church-event-service/src/main/java/com/jeimandei/imanuelbytes/event/service/EventService.java
+/home/user/ImanuelJakartaWeb/church-platform/church-event-service/src/main/java/com/jeimandei/imanuelbytes/event/entity/EventStatus.java
+/home/user/ImanuelJakartaWeb/church-platform/church-event-service/src/main/java/com/jeimandei/imanuelbytes/event/ChurchEventApplication.java
+/home/user/ImanuelJakartaWeb/church-platform/church-event-service/src/main/java/com/jeimandei/imanuelbytes/event/dto/FeaturedEventDto.java
+/home/user/ImanuelJakartaWeb/church-platform/church-event-service/src/main/java/com/jeimandei/imanuelbytes/event/controller/EventController.java
+/home/user/ImanuelJakartaWeb/church-platform/church-event-service/src/main/java/com/jeimandei/imanuelbytes/event/repository/EventRepository.java
+/home/user/ImanuelJakartaWeb/church-platform/church-event-service/src/main/java/com/jeimandei/imanuelbytes/event/service/impl/EventServiceImpl.java
