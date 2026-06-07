@@ -32,6 +32,8 @@ services:
     url: http://localhost:8085
   interaction-service:
     url: http://localhost:8086
+  audit-service:
+    url: http://localhost:8087
 
 jwt:
   secret: 3JkWpV9nR7mQfLxTzYsA2bDcEhGiJuKoNvPwSyUaBdFeHjIlMnOqRtVxZy1235467890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz

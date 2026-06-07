@@ -11,6 +11,7 @@ public class ServiceUrlConfig {
     private ServiceConfig eventService = new ServiceConfig();
     private ServiceConfig mediaService = new ServiceConfig();
     private ServiceConfig interactionService = new ServiceConfig();
+    private ServiceConfig auditService = new ServiceConfig();
 
     public static class ServiceConfig {
         private String url;
@@ -42,6 +43,10 @@ public class ServiceUrlConfig {
         return interactionService.getUrl() + path;
     }
 
+    public String auditUrl(String path) {
+        return auditService.getUrl() + path;
+    }
+
     public ServiceConfig getAuthService() { return authService; }
     public void setAuthService(ServiceConfig authService) { this.authService = authService; }
     public ServiceConfig getUserService() { return userService; }
@@ -54,4 +59,6 @@ public class ServiceUrlConfig {
     public void setMediaService(ServiceConfig mediaService) { this.mediaService = mediaService; }
     public ServiceConfig getInteractionService() { return interactionService; }
     public void setInteractionService(ServiceConfig interactionService) { this.interactionService = interactionService; }
+    public ServiceConfig getAuditService() { return auditService; }
+    public void setAuditService(ServiceConfig auditService) { this.auditService = auditService; }
 }

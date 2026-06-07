@@ -1,5 +1,6 @@
 package com.jeimandei.imanuelbytes.cms.service.impl;
 
+import com.jeimandei.imanuelbytes.cms.audit.AuditClientService;
 import com.jeimandei.imanuelbytes.cms.dto.AnnouncementDto;
 import com.jeimandei.imanuelbytes.cms.dto.CreateAnnouncementRequest;
 import com.jeimandei.imanuelbytes.cms.entity.Announcement;
@@ -25,11 +26,14 @@ public class AnnouncementServiceImpl implements AnnouncementService {
 
     private final AnnouncementRepository announcementRepository;
     private final AnnouncementMapper announcementMapper;
+    private final AuditClientService auditClient;
 
     public AnnouncementServiceImpl(AnnouncementRepository announcementRepository,
-                                    AnnouncementMapper announcementMapper) {
+                                    AnnouncementMapper announcementMapper,
+                                    AuditClientService auditClient) {
         this.announcementRepository = announcementRepository;
         this.announcementMapper = announcementMapper;
+        this.auditClient = auditClient;
     }
 
     @Override
@@ -61,6 +65,12 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         log.debug("Creating announcement with title='{}'", request.getTitle());
         Announcement saved = announcementRepository.save(announcementMapper.toEntity(request));
         log.info("Created announcement id={}, title='{}'", saved.getId(), saved.getTitle());
+        try {
+            auditClient.log(getCurrentActor(), getCurrentActorRole(), "CREATE_ANNOUNCEMENT", "Announcement",
+                    String.valueOf(saved.getId()), saved.getTitle());
+        } catch (Exception e) {
+            log.warn("Audit log failed for CREATE_ANNOUNCEMENT {}: {}", saved.getId(), e.getMessage());
+        }
         return announcementMapper.toDto(saved);
     }
 
@@ -75,6 +85,12 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         announcementMapper.updateEntity(announcement, request);
         AnnouncementDto updated = announcementMapper.toDto(announcementRepository.save(announcement));
         log.info("Updated announcement id={}", updated.getId());
+        try {
+            auditClient.log(getCurrentActor(), getCurrentActorRole(), "UPDATE_ANNOUNCEMENT", "Announcement",
+                    String.valueOf(updated.getId()), updated.getTitle());
+        } catch (Exception e) {
+            log.warn("Audit log failed for UPDATE_ANNOUNCEMENT {}: {}", id, e.getMessage());
+        }
         return updated;
     }
 
@@ -87,5 +103,36 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         }
         announcementRepository.deleteById(id);
         log.info("Deleted announcement id={}", id);
+        try {
+            auditClient.log(getCurrentActor(), getCurrentActorRole(), "DELETE_ANNOUNCEMENT", "Announcement",
+                    String.valueOf(id), String.valueOf(id));
+        } catch (Exception e) {
+            log.warn("Audit log failed for DELETE_ANNOUNCEMENT {}: {}", id, e.getMessage());
+        }
+    }
+
+    private String getCurrentActor() {
+        try {
+            org.springframework.security.core.Authentication auth =
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
+                return auth.getName();
+            }
+        } catch (Exception ignored) {}
+        return "system";
+    }
+
+    private String getCurrentActorRole() {
+        try {
+            org.springframework.security.core.Authentication auth =
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null) {
+                return auth.getAuthorities().stream()
+                    .findFirst()
+                    .map(a -> a.getAuthority())
+                    .orElse("UNKNOWN");
+            }
+        } catch (Exception ignored) {}
+        return "UNKNOWN";
     }
 }

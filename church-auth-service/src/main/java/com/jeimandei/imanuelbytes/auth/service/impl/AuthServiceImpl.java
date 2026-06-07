@@ -1,5 +1,6 @@
 package com.jeimandei.imanuelbytes.auth.service.impl;
 
+import com.jeimandei.imanuelbytes.auth.audit.AuditClientService;
 import com.jeimandei.imanuelbytes.auth.dto.AuthResponse;
 import com.jeimandei.imanuelbytes.auth.dto.LoginRequest;
 import com.jeimandei.imanuelbytes.auth.dto.RegisterRequest;
@@ -50,15 +51,18 @@ public class AuthServiceImpl implements AuthService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final AuditClientService auditClient;
 
     public AuthServiceImpl(UserRepository userRepository,
                            RoleRepository roleRepository,
                            PasswordEncoder passwordEncoder,
-                           JwtService jwtService) {
+                           JwtService jwtService,
+                           AuditClientService auditClient) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.auditClient = auditClient;
     }
 
     // -------------------------------------------------------------------------
@@ -100,6 +104,12 @@ public class AuthServiceImpl implements AuthService {
         user = userRepository.save(user);
 
         log.info("User registered successfully: {}", user.getUsername());
+        try {
+            auditClient.log("system", "SYSTEM", "REGISTER", "User",
+                    String.valueOf(user.getId()), user.getUsername());
+        } catch (Exception e) {
+            log.warn("Audit log failed for REGISTER user {}: {}", user.getUsername(), e.getMessage());
+        }
         return buildAuthResponse(user);
     }
 
@@ -134,6 +144,17 @@ public class AuthServiceImpl implements AuthService {
         user = userRepository.save(user);
 
         log.info("User logged in successfully: {}", user.getUsername());
+        try {
+            List<String> roleNames = user.getRoles().stream()
+                    .map(Role::getRoleName)
+                    .sorted()
+                    .collect(Collectors.toList());
+            String firstRole = roleNames.isEmpty() ? "UNKNOWN" : roleNames.get(0);
+            auditClient.log(user.getUsername(), firstRole, "LOGIN", "User",
+                    String.valueOf(user.getId()), user.getUsername());
+        } catch (Exception e) {
+            log.warn("Audit log failed for LOGIN user {}: {}", user.getUsername(), e.getMessage());
+        }
         return buildAuthResponse(user);
     }
 

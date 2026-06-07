@@ -2,6 +2,7 @@ package com.jeimandei.imanuelbytes.user.service.impl;
 
 import com.jeimandei.imanuelbytes.common.exception.ResourceNotFoundException;
 import com.jeimandei.imanuelbytes.common.exception.ValidationException;
+import com.jeimandei.imanuelbytes.user.audit.AuditClientService;
 import com.jeimandei.imanuelbytes.user.dto.AssignRolesRequest;
 import com.jeimandei.imanuelbytes.user.dto.ChangePasswordRequest;
 import com.jeimandei.imanuelbytes.user.dto.CreateUserRequest;
@@ -43,15 +44,18 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+    private final AuditClientService auditClient;
 
     public UserServiceImpl(UserRepository userRepository,
                            RoleRepository roleRepository,
                            PasswordEncoder passwordEncoder,
-                           UserMapper userMapper) {
+                           UserMapper userMapper,
+                           AuditClientService auditClient) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
+        this.auditClient = auditClient;
     }
 
     // -------------------------------------------------------------------------
@@ -132,6 +136,12 @@ public class UserServiceImpl implements UserService {
 
         User saved = userRepository.save(user);
         log.info("Created new user: id={}, username={}", saved.getId(), saved.getUsername());
+        try {
+            auditClient.log(getCurrentActor(), getCurrentActorRole(), "CREATE_USER", "User",
+                    String.valueOf(saved.getId()), saved.getUsername());
+        } catch (Exception e) {
+            log.warn("Audit log failed for CREATE_USER {}: {}", saved.getUsername(), e.getMessage());
+        }
         return userMapper.userToDto(saved);
     }
 
@@ -153,6 +163,12 @@ public class UserServiceImpl implements UserService {
         user.touchUpdatedAt();
         User saved = userRepository.save(user);
         log.info("Updated user id={}", saved.getId());
+        try {
+            auditClient.log(getCurrentActor(), getCurrentActorRole(), "UPDATE_USER", "User",
+                    String.valueOf(saved.getId()), saved.getUsername());
+        } catch (Exception e) {
+            log.warn("Audit log failed for UPDATE_USER {}: {}", saved.getId(), e.getMessage());
+        }
         return userMapper.userToDto(saved);
     }
 
@@ -164,6 +180,12 @@ public class UserServiceImpl implements UserService {
         user.touchUpdatedAt();
         User saved = userRepository.save(user);
         log.info("Updated status of user id={} to {}", saved.getId(), saved.getStatus());
+        try {
+            auditClient.log(getCurrentActor(), getCurrentActorRole(), "CHANGE_STATUS", "User",
+                    String.valueOf(saved.getId()), saved.getUsername() + " → " + saved.getStatus());
+        } catch (Exception e) {
+            log.warn("Audit log failed for CHANGE_STATUS user {}: {}", saved.getId(), e.getMessage());
+        }
         return userMapper.userToDto(saved);
     }
 
@@ -183,6 +205,12 @@ public class UserServiceImpl implements UserService {
         user.touchUpdatedAt();
         User saved = userRepository.save(user);
         log.info("Assigned {} roles to user id={}", roles.size(), saved.getId());
+        try {
+            auditClient.log(getCurrentActor(), getCurrentActorRole(), "ASSIGN_ROLES", "User",
+                    String.valueOf(saved.getId()), saved.getUsername());
+        } catch (Exception e) {
+            log.warn("Audit log failed for ASSIGN_ROLES user {}: {}", saved.getId(), e.getMessage());
+        }
         return userMapper.userToDto(saved);
     }
 
@@ -210,6 +238,12 @@ public class UserServiceImpl implements UserService {
         user.touchUpdatedAt();
         userRepository.save(user);
         log.info("Password changed successfully for user id={}", id);
+        try {
+            auditClient.log(getCurrentActor(), getCurrentActorRole(), "CHANGE_PASSWORD", "User",
+                    String.valueOf(user.getId()), user.getUsername());
+        } catch (Exception e) {
+            log.warn("Audit log failed for CHANGE_PASSWORD user {}: {}", id, e.getMessage());
+        }
     }
 
     @Override
@@ -220,6 +254,12 @@ public class UserServiceImpl implements UserService {
         user.touchUpdatedAt();
         userRepository.save(user);
         log.info("Soft-deleted (set INACTIVE) user id={}", id);
+        try {
+            auditClient.log(getCurrentActor(), getCurrentActorRole(), "DELETE_USER", "User",
+                    String.valueOf(user.getId()), user.getUsername());
+        } catch (Exception e) {
+            log.warn("Audit log failed for DELETE_USER {}: {}", id, e.getMessage());
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -229,5 +269,30 @@ public class UserServiceImpl implements UserService {
     private User findUserById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", id));
+    }
+
+    private String getCurrentActor() {
+        try {
+            org.springframework.security.core.Authentication auth =
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
+                return auth.getName();
+            }
+        } catch (Exception ignored) {}
+        return "system";
+    }
+
+    private String getCurrentActorRole() {
+        try {
+            org.springframework.security.core.Authentication auth =
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null) {
+                return auth.getAuthorities().stream()
+                    .findFirst()
+                    .map(a -> a.getAuthority())
+                    .orElse("UNKNOWN");
+            }
+        } catch (Exception ignored) {}
+        return "UNKNOWN";
     }
 }

@@ -27,6 +27,7 @@
         <module>church-media-service</module>
         <module>church-interaction-service</module>
         <module>church-gateway-service</module>
+        <module>church-audit-service</module>
     </modules>
 
     <properties>

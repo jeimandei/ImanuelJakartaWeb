@@ -18,6 +18,9 @@ spring:
 jwt:
   secret: 3JkWpV9nR7mQfLxTzYsA2bDcEhGiJuKoNvPwSyUaBdFeHjIlMnOqRtVxZy1235467890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
   expiration: 86400000
+audit-service:
+  url: http://localhost:8087
+
 logging:
   level:
     com.jeimandei: DEBUG

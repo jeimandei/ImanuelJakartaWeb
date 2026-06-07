@@ -1,5 +1,6 @@
 package com.jeimandei.imanuelbytes.cms.service.impl;
 
+import com.jeimandei.imanuelbytes.cms.audit.AuditClientService;
 import com.jeimandei.imanuelbytes.cms.dto.CreateNewsArticleRequest;
 import com.jeimandei.imanuelbytes.cms.dto.NewsArticleDto;
 import com.jeimandei.imanuelbytes.cms.entity.ContentStatus;
@@ -27,11 +28,14 @@ public class NewsArticleServiceImpl implements NewsArticleService {
 
     private final NewsArticleRepository newsArticleRepository;
     private final NewsArticleMapper newsArticleMapper;
+    private final AuditClientService auditClient;
 
     public NewsArticleServiceImpl(NewsArticleRepository newsArticleRepository,
-                                   NewsArticleMapper newsArticleMapper) {
+                                   NewsArticleMapper newsArticleMapper,
+                                   AuditClientService auditClient) {
         this.newsArticleRepository = newsArticleRepository;
         this.newsArticleMapper = newsArticleMapper;
+        this.auditClient = auditClient;
     }
 
     @Override

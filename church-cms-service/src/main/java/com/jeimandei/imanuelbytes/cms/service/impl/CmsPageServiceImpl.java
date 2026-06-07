@@ -1,5 +1,6 @@
 package com.jeimandei.imanuelbytes.cms.service.impl;
 
+import com.jeimandei.imanuelbytes.cms.audit.AuditClientService;
 import com.jeimandei.imanuelbytes.cms.dto.CmsPageDto;
 import com.jeimandei.imanuelbytes.cms.dto.CreateCmsPageRequest;
 import com.jeimandei.imanuelbytes.cms.dto.UpdateCmsPageRequest;
@@ -28,10 +29,13 @@ public class CmsPageServiceImpl implements CmsPageService {
 
     private final CmsPageRepository cmsPageRepository;
     private final CmsPageMapper cmsPageMapper;
+    private final AuditClientService auditClient;
 
-    public CmsPageServiceImpl(CmsPageRepository cmsPageRepository, CmsPageMapper cmsPageMapper) {
+    public CmsPageServiceImpl(CmsPageRepository cmsPageRepository, CmsPageMapper cmsPageMapper,
+                              AuditClientService auditClient) {
         this.cmsPageRepository = cmsPageRepository;
         this.cmsPageMapper = cmsPageMapper;
+        this.auditClient = auditClient;
     }
 
     @Override
@@ -86,6 +90,12 @@ public class CmsPageServiceImpl implements CmsPageService {
         }
         CmsPage saved = cmsPageRepository.save(page);
         log.info("CMS page created: {} by {}", saved.getSlug(), createdBy);
+        try {
+            auditClient.log(getCurrentActor(), getCurrentActorRole(), "CREATE_PAGE", "CmsPage",
+                    String.valueOf(saved.getId()), saved.getTitle());
+        } catch (Exception e) {
+            log.warn("Audit log failed for CREATE_PAGE {}: {}", saved.getId(), e.getMessage());
+        }
         return cmsPageMapper.toDto(saved);
     }
 
@@ -94,7 +104,14 @@ public class CmsPageServiceImpl implements CmsPageService {
         CmsPage page = cmsPageRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("CmsPage", "id", id));
         cmsPageMapper.updateEntity(page, request);
-        return cmsPageMapper.toDto(cmsPageRepository.save(page));
+        CmsPage saved = cmsPageRepository.save(page);
+        try {
+            auditClient.log(getCurrentActor(), getCurrentActorRole(), "UPDATE_PAGE", "CmsPage",
+                    String.valueOf(saved.getId()), saved.getTitle());
+        } catch (Exception e) {
+            log.warn("Audit log failed for UPDATE_PAGE {}: {}", id, e.getMessage());
+        }
+        return cmsPageMapper.toDto(saved);
     }
 
     @Override
@@ -103,7 +120,14 @@ public class CmsPageServiceImpl implements CmsPageService {
                 .orElseThrow(() -> new ResourceNotFoundException("CmsPage", "id", id));
         page.setStatus(ContentStatus.PUBLISHED);
         page.setPublishedAt(LocalDateTime.now());
-        return cmsPageMapper.toDto(cmsPageRepository.save(page));
+        CmsPage saved = cmsPageRepository.save(page);
+        try {
+            auditClient.log(getCurrentActor(), getCurrentActorRole(), "PUBLISH_PAGE", "CmsPage",
+                    String.valueOf(saved.getId()), saved.getTitle());
+        } catch (Exception e) {
+            log.warn("Audit log failed for PUBLISH_PAGE {}: {}", id, e.getMessage());
+        }
+        return cmsPageMapper.toDto(saved);
     }
 
     @Override
@@ -111,21 +135,58 @@ public class CmsPageServiceImpl implements CmsPageService {
         CmsPage page = cmsPageRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("CmsPage", "id", id));
         page.setStatus(ContentStatus.DRAFT);
-        return cmsPageMapper.toDto(cmsPageRepository.save(page));
+        CmsPage saved = cmsPageRepository.save(page);
+        try {
+            auditClient.log(getCurrentActor(), getCurrentActorRole(), "UNPUBLISH_PAGE", "CmsPage",
+                    String.valueOf(saved.getId()), saved.getTitle());
+        } catch (Exception e) {
+            log.warn("Audit log failed for UNPUBLISH_PAGE {}: {}", id, e.getMessage());
+        }
+        return cmsPageMapper.toDto(saved);
     }
 
     @Override
     public void deletePage(Long id) {
-        if (!cmsPageRepository.existsById(id)) {
-            throw new ResourceNotFoundException("CmsPage", "id", id);
-        }
+        CmsPage page = cmsPageRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("CmsPage", "id", id));
         cmsPageRepository.deleteById(id);
         log.info("CMS page deleted: id={}", id);
+        try {
+            auditClient.log(getCurrentActor(), getCurrentActorRole(), "DELETE_PAGE", "CmsPage",
+                    String.valueOf(id), page.getTitle());
+        } catch (Exception e) {
+            log.warn("Audit log failed for DELETE_PAGE {}: {}", id, e.getMessage());
+        }
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<CmsPageDto> searchPages(String query, Pageable pageable) {
         return cmsPageRepository.searchPages(query, pageable).map(cmsPageMapper::toDto);
+    }
+
+    private String getCurrentActor() {
+        try {
+            org.springframework.security.core.Authentication auth =
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
+                return auth.getName();
+            }
+        } catch (Exception ignored) {}
+        return "system";
+    }
+
+    private String getCurrentActorRole() {
+        try {
+            org.springframework.security.core.Authentication auth =
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null) {
+                return auth.getAuthorities().stream()
+                    .findFirst()
+                    .map(a -> a.getAuthority())
+                    .orElse("UNKNOWN");
+            }
+        } catch (Exception ignored) {}
+        return "UNKNOWN";
     }
 }
