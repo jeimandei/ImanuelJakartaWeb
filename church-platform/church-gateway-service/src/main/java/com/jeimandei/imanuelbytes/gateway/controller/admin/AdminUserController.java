@@ -1,5 +1,6 @@
 package com.jeimandei.imanuelbytes.gateway.controller.admin;
 
+import com.jeimandei.imanuelbytes.gateway.dto.UserDto;
 import com.jeimandei.imanuelbytes.gateway.service.UserClientService;
 import com.jeimandei.imanuelbytes.gateway.util.SecurityUtils;
 import org.slf4j.Logger;
@@ -63,6 +64,34 @@ public class AdminUserController {
         } catch (Exception e) {
             log.error("Failed to create user: {}", e.getMessage());
             redirectAttributes.addFlashAttribute("errorMessage", "Failed to create user: " + e.getMessage());
+        }
+        return "redirect:/admin/users";
+    }
+
+    @GetMapping("/{id}/edit")
+    public String editForm(@PathVariable Long id, Model model) {
+        String jwt = SecurityUtils.getJwt();
+        try {
+            UserDto user = userClientService.getUserById(id, jwt);
+            model.addAttribute("user", user);
+        } catch (Exception e) {
+            log.error("Failed to load user {}: {}", id, e.getMessage());
+        }
+        return "admin/users/edit";
+    }
+
+    @PostMapping("/{id}/edit")
+    public String updateUser(@PathVariable Long id,
+                             @RequestParam Map<String, String> params,
+                             RedirectAttributes redirectAttributes) {
+        String jwt = SecurityUtils.getJwt();
+        try {
+            Map<String, Object> request = new HashMap<>(params);
+            userClientService.updateUser(id, request, jwt);
+            redirectAttributes.addFlashAttribute("successMessage", "User updated successfully.");
+        } catch (Exception e) {
+            log.error("Failed to update user {}: {}", id, e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to update user: " + e.getMessage());
         }
         return "redirect:/admin/users";
     }

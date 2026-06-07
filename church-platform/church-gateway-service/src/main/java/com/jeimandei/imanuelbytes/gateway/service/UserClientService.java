@@ -90,6 +90,14 @@ public class UserClientService {
         restTemplate.exchange(url, HttpMethod.DELETE, entity, Void.class);
     }
 
+    public UserDto updateUser(Long id, Map<String, Object> request, String jwt) {
+        String url = serviceUrlConfig.userUrl("/api/users/" + id);
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, createAuthHeaders(jwt));
+        ResponseEntity<UserDto> response = restTemplate.exchange(
+                url, HttpMethod.PUT, entity, UserDto.class);
+        return response.getBody();
+    }
+
     public UserDto assignRoles(Long id, List<String> roles, String jwt) {
         String url = serviceUrlConfig.userUrl("/api/users/" + id + "/roles");
         Map<String, Object> body = Map.of("roles", roles);
