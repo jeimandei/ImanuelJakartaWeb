@@ -45,7 +45,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  DEPLOY_DIR: /home/ibytes/website/church-platform
+  DEPLOY_DIR: /home/ibytes/website/gmimimanueljakarta/church-platform
   SSH_HOST: jeimandei.com
   SSH_PORT: 1709
   SSH_USER: ibytes
