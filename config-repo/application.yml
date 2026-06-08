@@ -3,9 +3,9 @@
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/church_db
-    username: church_app
-    password: church_password
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/church_db}
+    username: ${DB_USERNAME:church_app}
+    password: ${DB_PASSWORD:church_password}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -17,12 +17,12 @@ spring:
         format_sql: true
 
 jwt:
-  secret: 3JkWpV9nR7mQfLxTzYsA2bDcEhGiJuKoNvPwSyUaBdFeHjIlMnOqRtVxZy1235467890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
-  expiration: 86400000
+  secret: ${JWT_SECRET:3JkWpV9nR7mQfLxTzYsA2bDcEhGiJuKoNvPwSyUaBdFeHjIlMnOqRtVxZy1235467890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz}
+  expiration: ${JWT_EXPIRATION:86400000}
 
 # Backend services post audit events directly to the audit service (internal call)
 audit-service:
-  url: http://localhost:8087
+  url: ${AUDIT_SERVICE_URL:http://localhost:8087}
 
 logging:
   level:

@@ -1,0 +1,346 @@
+name: church-platform
+
+networks:
+  church-network:
+    driver: bridge
+    internal: true
+  public:
+    driver: bridge
+
+volumes:
+  postgres-data:
+
+x-service-defaults: &service-defaults
+  build:
+    context: .
+    dockerfile: Containerfile
+  networks:
+    - church-network
+  restart: always
+  deploy:
+    resources:
+      limits:
+        memory: 1g
+        cpus: '2'
+
+x-spring-config-import: &spring-config-import
+  SPRING_CONFIG_IMPORT: "configserver:http://church-config-server:8888"
+
+services:
+
+  # ── PostgreSQL ──────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:15-alpine
+    container_name: church-postgres
+    networks:
+      - church-network
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+          cpus: '2'
+    environment:
+      POSTGRES_DB: church_db
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./database/V1__initial_schema.sql:/docker-entrypoint-initdb.d/V1__initial_schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d church_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  # ── Config Server (internal) ────────────────────────────────────────────────
+  church-config-server:
+    <<: *service-defaults
+    container_name: church-config-server
+    build:
+      context: .
+      dockerfile: Containerfile
+      args:
+        SERVICE_NAME: church-config-server
+        SERVICE_PORT: 8888
+    environment:
+      CONFIG_REPO_PATH: ${CONFIG_REPO_PATH:-/config-repo}
+    volumes:
+      - ./config-repo:/config-repo:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8888/actuator/health | grep -q UP"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ── Auth Service (internal) ─────────────────────────────────────────────────
+  church-auth-service:
+    <<: *service-defaults
+    container_name: church-auth-service
+    build:
+      context: .
+      dockerfile: Containerfile
+      args:
+        SERVICE_NAME: church-auth-service
+        SERVICE_PORT: 8081
+    environment:
+      <<: *spring-config-import
+      DB_URL: ${DB_URL}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION}
+      AUDIT_SERVICE_URL: ${AUDIT_SERVICE_URL}
+    depends_on:
+      church-config-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8081/actuator/health | grep -q UP"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  # ── User Service (internal) ─────────────────────────────────────────────────
+  church-user-service:
+    <<: *service-defaults
+    container_name: church-user-service
+    build:
+      context: .
+      dockerfile: Containerfile
+      args:
+        SERVICE_NAME: church-user-service
+        SERVICE_PORT: 8082
+    environment:
+      <<: *spring-config-import
+      DB_URL: ${DB_URL}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION}
+      AUDIT_SERVICE_URL: ${AUDIT_SERVICE_URL}
+    depends_on:
+      church-config-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8082/actuator/health | grep -q UP"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  # ── CMS Service (internal) ──────────────────────────────────────────────────
+  church-cms-service:
+    <<: *service-defaults
+    container_name: church-cms-service
+    build:
+      context: .
+      dockerfile: Containerfile
+      args:
+        SERVICE_NAME: church-cms-service
+        SERVICE_PORT: 8083
+    environment:
+      <<: *spring-config-import
+      DB_URL: ${DB_URL}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION}
+      AUDIT_SERVICE_URL: ${AUDIT_SERVICE_URL}
+    depends_on:
+      church-config-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8083/actuator/health | grep -q UP"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  # ── Event Service (internal) ────────────────────────────────────────────────
+  church-event-service:
+    <<: *service-defaults
+    container_name: church-event-service
+    build:
+      context: .
+      dockerfile: Containerfile
+      args:
+        SERVICE_NAME: church-event-service
+        SERVICE_PORT: 8084
+    environment:
+      <<: *spring-config-import
+      DB_URL: ${DB_URL}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION}
+      AUDIT_SERVICE_URL: ${AUDIT_SERVICE_URL}
+    depends_on:
+      church-config-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8084/actuator/health | grep -q UP"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  # ── Media Service (internal) ────────────────────────────────────────────────
+  church-media-service:
+    <<: *service-defaults
+    container_name: church-media-service
+    build:
+      context: .
+      dockerfile: Containerfile
+      args:
+        SERVICE_NAME: church-media-service
+        SERVICE_PORT: 8085
+    environment:
+      <<: *spring-config-import
+      DB_URL: ${DB_URL}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION}
+      AUDIT_SERVICE_URL: ${AUDIT_SERVICE_URL}
+    depends_on:
+      church-config-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8085/actuator/health | grep -q UP"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  # ── Interaction Service (internal) ──────────────────────────────────────────
+  church-interaction-service:
+    <<: *service-defaults
+    container_name: church-interaction-service
+    build:
+      context: .
+      dockerfile: Containerfile
+      args:
+        SERVICE_NAME: church-interaction-service
+        SERVICE_PORT: 8086
+    environment:
+      <<: *spring-config-import
+      DB_URL: ${DB_URL}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION}
+      AUDIT_SERVICE_URL: ${AUDIT_SERVICE_URL}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+    depends_on:
+      church-config-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8086/actuator/health | grep -q UP"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  # ── Audit Service (internal) ────────────────────────────────────────────────
+  church-audit-service:
+    <<: *service-defaults
+    container_name: church-audit-service
+    build:
+      context: .
+      dockerfile: Containerfile
+      args:
+        SERVICE_NAME: church-audit-service
+        SERVICE_PORT: 8087
+    environment:
+      <<: *spring-config-import
+      DB_URL: ${DB_URL}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+    depends_on:
+      church-config-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8087/actuator/health | grep -q UP"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  # ── Thymeleaf Frontend (internal) ───────────────────────────────────────────
+  church-gateway-service:
+    <<: *service-defaults
+    container_name: church-gateway-service
+    build:
+      context: .
+      dockerfile: Containerfile
+      args:
+        SERVICE_NAME: church-gateway-service
+        SERVICE_PORT: 8089
+    environment:
+      <<: *spring-config-import
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION}
+      API_GATEWAY_URL: ${API_GATEWAY_URL}
+    depends_on:
+      church-auth-service:
+        condition: service_healthy
+      church-user-service:
+        condition: service_healthy
+      church-cms-service:
+        condition: service_healthy
+      church-event-service:
+        condition: service_healthy
+      church-media-service:
+        condition: service_healthy
+      church-interaction-service:
+        condition: service_healthy
+      church-audit-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8089/actuator/health | grep -q UP"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+  # ── API Gateway (public entry point) ────────────────────────────────────────
+  church-api-gateway:
+    <<: *service-defaults
+    container_name: church-api-gateway
+    build:
+      context: .
+      dockerfile: Containerfile
+      args:
+        SERVICE_NAME: church-api-gateway
+        SERVICE_PORT: 8080
+    networks:
+      - church-network
+      - public
+    ports:
+      - "8080:8080"
+    environment:
+      <<: *spring-config-import
+      AUTH_SERVICE_URI: ${AUTH_SERVICE_URI}
+      USER_SERVICE_URI: ${USER_SERVICE_URI}
+      CMS_SERVICE_URI: ${CMS_SERVICE_URI}
+      EVENT_SERVICE_URI: ${EVENT_SERVICE_URI}
+      MEDIA_SERVICE_URI: ${MEDIA_SERVICE_URI}
+      INTERACTION_SERVICE_URI: ${INTERACTION_SERVICE_URI}
+      AUDIT_SERVICE_URI: ${AUDIT_SERVICE_URI}
+      FRONTEND_URI: ${FRONTEND_URI}
+    depends_on:
+      church-gateway-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q UP"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
