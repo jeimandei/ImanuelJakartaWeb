@@ -1,0 +1,91 @@
+package com.jeimandei.imanuelbytes.media.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+import java.time.LocalDate;
+
+public class CreateSermonRequest {
+
+    @NotBlank
+    private String title;
+
+    @NotBlank
+    private String speaker;
+
+    @NotNull
+    private LocalDate sermonDate;
+
+    private String description;
+    private String youtubeUrl;
+    private String audioUrl;
+    private String scriptureReference;
+    private String seriesName;
+
+    public CreateSermonRequest() {
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getSpeaker() {
+        return speaker;
+    }
+
+    public void setSpeaker(String speaker) {
+        this.speaker = speaker;
+    }
+
+    public LocalDate getSermonDate() {
+        return sermonDate;
+    }
+
+    public void setSermonDate(LocalDate sermonDate) {
+        this.sermonDate = sermonDate;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getYoutubeUrl() {
+        return youtubeUrl;
+    }
+
+    public void setYoutubeUrl(String youtubeUrl) {
+        this.youtubeUrl = youtubeUrl;
+    }
+
+    public String getAudioUrl() {
+        return audioUrl;
+    }
+
+    public void setAudioUrl(String audioUrl) {
+        this.audioUrl = audioUrl;
+    }
+
+    public String getScriptureReference() {
+        return scriptureReference;
+    }
+
+    public void setScriptureReference(String scriptureReference) {
+        this.scriptureReference = scriptureReference;
+    }
+
+    public String getSeriesName() {
+        return seriesName;
+    }
+
+    public void setSeriesName(String seriesName) {
+        this.seriesName = seriesName;
+    }
+}

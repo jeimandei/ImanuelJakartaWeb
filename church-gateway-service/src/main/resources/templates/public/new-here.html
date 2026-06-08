@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('New Here? Welcome!')}"></head>
+<body>
+
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+<div th:replace="~{fragments/alerts :: alerts}"></div>
+
+<!-- Welcome Hero -->
+<section style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 50%, #1a5276 100%); color:white; padding:100px 0;">
+    <div class="container text-center">
+        <i class="fas fa-door-open fa-3x mb-3" style="color:var(--accent); opacity:0.9;"></i>
+        <h1 class="display-4 fw-bold mb-3">We're Glad You're Here!</h1>
+        <p class="lead mb-4" style="opacity:0.9; max-width:600px; margin:0 auto 2rem;">
+            Whether this is your very first church visit or you're looking for a new church home,
+            you are warmly welcome at Imanuel Jakarta Church.
+        </p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a th:href="@{/services}" class="btn btn-gold btn-lg px-4">
+                <i class="fas fa-calendar me-2"></i>Plan a Visit
+            </a>
+            <a th:href="@{/contact}" class="btn btn-outline-light btn-lg px-4">
+                <i class="fas fa-envelope me-2"></i>Contact Us
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- We're Glad You're Here -->
+<section class="py-5">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-md-6">
+                <div class="section-header text-start mb-4">
+                    <h2>A Place for Everyone</h2>
+                    <div class="divider" style="margin:0.8rem 0;"></div>
+                </div>
+                <p class="text-muted mb-3">
+                    No matter where you're coming from — whether you've been a Christian for decades,
+                    you're just beginning to explore faith, or you're somewhere in between — you will find
+                    a genuine welcome at Imanuel Jakarta Church.
+                </p>
+                <p class="text-muted mb-3">
+                    We are a diverse, multigenerational community that worships together in both
+                    Indonesian and English. Our goal is simple: to know God deeply and help others
+                    do the same.
+                </p>
+                <p class="text-muted mb-0">
+                    Come as you are. You don't need to have everything figured out.
+                    We're all on the journey together.
+                </p>
+            </div>
+            <div class="col-md-6">
+                <div class="card p-4 text-center"
+                     style="background: linear-gradient(135deg, rgba(26,58,107,0.08), rgba(42,90,176,0.08)); border:none;">
+                    <i class="fas fa-quote-left fa-2x mb-3" style="color:var(--accent);"></i>
+                    <p class="lead fw-medium mb-3" style="color:var(--primary); font-style:italic;">
+                        "For God so loved the world that he gave his one and only Son, that whoever
+                        believes in him shall not perish but have eternal life."
+                    </p>
+                    <small class="fw-bold" style="color:var(--accent);">John 3:16</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- What to Expect -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="section-header mb-5">
+            <h2>What to Expect</h2>
+            <div class="divider"></div>
+            <p>Here's what your first visit will look like</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="card h-100 text-center p-4">
+                    <div class="ministry-icon mx-auto mb-3" style="background:var(--accent);">
+                        <i class="fas fa-smile" style="color:var(--primary-dark);"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2" style="color:var(--primary);">A Warm Welcome</h5>
+                    <p class="text-muted small">
+                        Our friendly welcome team will greet you at the door, help you find your way,
+                        and answer any questions you have. No pressure, just warmth.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card h-100 text-center p-4">
+                    <div class="ministry-icon mx-auto mb-3" style="background:#28a745;">
+                        <i class="fas fa-music"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2" style="color:var(--primary);">Uplifting Worship</h5>
+                    <p class="text-muted small">
+                        Contemporary and traditional worship music that connects hearts to God.
+                        Lyrics are displayed so everyone can participate, regardless of background.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card h-100 text-center p-4">
+                    <div class="ministry-icon mx-auto mb-3" style="background:#6f42c1;">
+                        <i class="fas fa-bible"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2" style="color:var(--primary);">Relevant Messages</h5>
+                    <p class="text-muted small">
+                        Biblical, practical teaching that connects Scripture to everyday life.
+                        Messages typically run 30–40 minutes and are available online after each service.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card h-100 text-center p-4">
+                    <div class="ministry-icon mx-auto mb-3" style="background:#f0ad4e;">
+                        <i class="fas fa-child" style="color:white;"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2" style="color:var(--primary);">Kids' Programs</h5>
+                    <p class="text-muted small">
+                        Age-appropriate programs for children during every Sunday service,
+                        so parents can worship freely while kids enjoy their own time with God.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Service Times -->
+<section class="py-5">
+    <div class="container">
+        <div class="section-header mb-5">
+            <h2>When &amp; Where</h2>
+            <div class="divider"></div>
+            <p>Join us at any of our weekly gatherings</p>
+        </div>
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-5">
+                <div class="card p-4 h-100">
+                    <h5 class="fw-bold mb-4" style="color:var(--primary);">
+                        <i class="fas fa-clock me-2" style="color:var(--accent);"></i>Service Times
+                    </h5>
+                    <ul class="list-unstyled mb-0">
+                        <li class="d-flex align-items-center mb-3 pb-3 border-bottom">
+                            <div class="event-date-badge me-3 flex-shrink-0">
+                                <div class="day" style="font-size:1rem;">SUN</div>
+                                <div class="month">08:00</div>
+                            </div>
+                            <div>
+                                <strong style="color:var(--primary);">First Service</strong><br/>
+                                <small class="text-muted">Indonesian Language</small>
+                            </div>
+                        </li>
+                        <li class="d-flex align-items-center mb-3 pb-3 border-bottom">
+                            <div class="event-date-badge me-3 flex-shrink-0">
+                                <div class="day" style="font-size:1rem;">SUN</div>
+                                <div class="month">10:30</div>
+                            </div>
+                            <div>
+                                <strong style="color:var(--primary);">Second Service</strong><br/>
+                                <small class="text-muted">English / Bilingual</small>
+                            </div>
+                        </li>
+                        <li class="d-flex align-items-center">
+                            <div class="event-date-badge me-3 flex-shrink-0" style="background:var(--accent);">
+                                <div class="day" style="font-size:1rem; color:var(--primary-dark);">WED</div>
+                                <div class="month" style="color:var(--primary-dark);">19:00</div>
+                            </div>
+                            <div>
+                                <strong style="color:var(--primary);">Bible Study</strong><br/>
+                                <small class="text-muted">Midweek discipleship</small>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="card p-4 h-100">
+                    <h5 class="fw-bold mb-4" style="color:var(--primary);">
+                        <i class="fas fa-map-marker-alt me-2" style="color:var(--accent);"></i>Our Location
+                    </h5>
+                    <address class="text-muted mb-4">
+                        <strong style="color:#333;">GKJ Imanuel Jakarta</strong><br/>
+                        Jl. Imanuel No. 1<br/>
+                        Jakarta Pusat, DKI Jakarta 10110
+                    </address>
+                    <div class="d-grid gap-2">
+                        <a href="https://maps.google.com" target="_blank" class="btn btn-outline-primary">
+                            <i class="fas fa-map me-2"></i>Get Directions
+                        </a>
+                        <a th:href="@{/contact}" class="btn btn-outline-secondary">
+                            <i class="fas fa-phone me-2"></i>Call Us: +62 21 123-4567
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- First Steps -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="section-header mb-5">
+            <h2>Your First Steps</h2>
+            <div class="divider"></div>
+            <p>Getting connected is easy</p>
+        </div>
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-4">
+                <div class="card h-100 text-center p-4">
+                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center mx-auto mb-3 fw-bold"
+                         style="width:55px; height:55px; background:var(--primary); color:white; font-size:1.5rem;">1</div>
+                    <h5 class="fw-bold mb-2" style="color:var(--primary);">Attend a Service</h5>
+                    <p class="text-muted small mb-0">
+                        Come and experience the community for yourself. No registration needed
+                        — just show up! We'd love to meet you.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 text-center p-4">
+                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center mx-auto mb-3 fw-bold"
+                         style="width:55px; height:55px; background:var(--accent); color:var(--primary-dark); font-size:1.5rem;">2</div>
+                    <h5 class="fw-bold mb-2" style="color:var(--primary);">Join a Connect Group</h5>
+                    <p class="text-muted small mb-0">
+                        Small groups are where real community happens. Join a Cell Group
+                        near you to go deeper in friendship and faith.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 text-center p-4">
+                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center mx-auto mb-3 fw-bold"
+                         style="width:55px; height:55px; background:#28a745; color:white; font-size:1.5rem;">3</div>
+                    <h5 class="fw-bold mb-2" style="color:var(--primary);">Get Connected</h5>
+                    <p class="text-muted small mb-0">
+                        Find a ministry to serve in, discover your spiritual gifts, and play
+                        your part in what God is doing here. Every member matters.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Buttons -->
+<section class="py-5" style="background:var(--primary); color:white;">
+    <div class="container text-center">
+        <h2 class="fw-bold mb-3" style="color:white;">Ready to Take the Next Step?</h2>
+        <p class="lead mb-4" style="opacity:0.85;">We would love to walk this journey with you.</p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a th:href="@{/services}" class="btn btn-gold btn-lg px-4">
+                <i class="fas fa-calendar me-2"></i>Plan My Visit
+            </a>
+            <a th:href="@{/contact}" class="btn btn-outline-light btn-lg px-4">
+                <i class="fas fa-envelope me-2"></i>Contact Us
+            </a>
+        </div>
+    </div>
+</section>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/custom.js}"></script>
+</body>
+</html>

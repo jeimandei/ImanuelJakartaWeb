@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head th:replace="~{fragments/head :: head('CMS Pages - Admin')}"></head>
+<body>
+<div class="d-flex">
+
+    <nav class="admin-sidebar d-none d-md-flex flex-column py-3">
+        <div class="admin-sidebar-header mb-3">
+            <div class="brand"><i class="fas fa-church me-2"></i>Church Admin</div>
+        </div>
+        <ul class="nav flex-column">
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin}"><i class="fas fa-tachometer-alt"></i>Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/users}"><i class="fas fa-users"></i>Users</a></li>
+            <li class="nav-item"><a class="nav-link active" th:href="@{/admin/cms}"><i class="fas fa-file-alt"></i>CMS Pages</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/events}"><i class="fas fa-calendar-alt"></i>Events</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/sermons}"><i class="fas fa-microphone"></i>Sermons</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/livestreams}"><i class="fas fa-broadcast-tower"></i>Livestreams</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/announcements}"><i class="fas fa-bullhorn"></i>Announcements</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/news}"><i class="fas fa-newspaper"></i>News</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/gallery}"><i class="fas fa-images"></i>Gallery</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/prayer-requests}"><i class="fas fa-hands"></i>Prayer Requests</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/contacts}"><i class="fas fa-envelope"></i>Contacts</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/audit-logs}"><i class="fas fa-clipboard-list"></i>Audit Logs</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/settings}"><i class="fas fa-cog"></i>Settings</a></li>
+        </ul>
+    </nav>
+
+    <div class="admin-content flex-grow-1">
+        <div class="admin-topbar">
+            <h5 class="mb-0 fw-bold" style="color:var(--primary);">
+                <i class="fas fa-file-alt me-2" style="color:var(--accent);"></i>CMS Pages
+            </h5>
+            <div class="d-flex align-items-center gap-3">
+                <span class="text-muted small"><i class="fas fa-user me-1"></i><span sec:authentication="name">Admin</span></span>
+                <form th:action="@{/logout}" method="post" class="mb-0">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button class="btn btn-sm btn-outline-danger" type="submit">Logout</button>
+                </form>
+            </div>
+        </div>
+
+        <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+        <div class="p-4">
+            <div class="d-flex justify-content-end mb-4">
+                <a th:href="@{/admin/cms/create}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>New Page
+                </a>
+            </div>
+
+            <div class="card">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="px-4">Title</th>
+                                    <th>Slug</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                    <th>Published At</th>
+                                    <th class="text-end px-4">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="page : ${pages.content}">
+                                    <td class="px-4 fw-medium" th:text="${page.title}">Page Title</td>
+                                    <td class="small text-muted font-monospace" th:text="${page.slug}">page-slug</td>
+                                    <td>
+                                        <span class="badge"
+                                              th:text="${page.pageType}"
+                                              th:classappend="${page.pageType == 'HOME' ? 'bg-primary' :
+                                                              (page.pageType == 'ABOUT' ? 'bg-info' : 'bg-secondary')}">
+                                            CUSTOM
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge"
+                                              th:text="${page.status}"
+                                              th:classappend="${page.status == 'PUBLISHED' ? 'bg-success' :
+                                                              (page.status == 'DRAFT' ? 'bg-warning text-dark' : 'bg-secondary')}">
+                                            DRAFT
+                                        </span>
+                                    </td>
+                                    <td class="small text-muted"
+                                        th:text="${page.publishedAt != null ? #temporals.format(page.publishedAt, 'dd MMM yyyy') : '—'}">
+                                        01 Jan 2025
+                                    </td>
+                                    <td class="text-end px-4">
+                                        <div class="d-flex gap-1 justify-content-end">
+                                            <a th:href="@{/admin/cms/{id}/edit(id=${page.id})}"
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form th:if="${page.status != 'PUBLISHED'}"
+                                                  th:action="@{/admin/cms/{id}/publish(id=${page.id})}" method="post" class="d-inline">
+                                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                                <button type="submit" class="btn btn-sm btn-outline-success" title="Publish">
+                                                    <i class="fas fa-globe"></i>
+                                                </button>
+                                            </form>
+                                            <form th:if="${page.status == 'PUBLISHED'}"
+                                                  th:action="@{/admin/cms/{id}/unpublish(id=${page.id})}" method="post" class="d-inline">
+                                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                                <button type="submit" class="btn btn-sm btn-outline-warning" title="Unpublish">
+                                                    <i class="fas fa-eye-slash"></i>
+                                                </button>
+                                            </form>
+                                            <form th:action="@{/admin/cms/{id}/delete(id=${page.id})}" method="post" class="d-inline"
+                                                  onsubmit="return confirm('Delete this page?')">
+                                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr th:if="${pages == null or pages.content == null or pages.content.empty}">
+                                    <td colspan="6" class="text-center text-muted py-4">
+                                        <i class="fas fa-file-alt fa-2x mb-2 opacity-50 d-block"></i>
+                                        No CMS pages yet. <a th:href="@{/admin/cms/create}">Create the first page.</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <nav th:if="${pages != null and pages.totalPages > 1}" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item" th:classappend="${pages.page == 0 ? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{/admin/cms(page=${pages.page - 1})}">Previous</a>
+                    </li>
+                    <li th:each="i : ${#numbers.sequence(0, pages.totalPages - 1)}"
+                        class="page-item" th:classappend="${i == pages.page ? 'active' : ''}">
+                        <a class="page-link" th:href="@{/admin/cms(page=${i})}" th:text="${i + 1}">1</a>
+                    </li>
+                    <li class="page-item" th:classappend="${pages.page + 1 >= pages.totalPages ? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{/admin/cms(page=${pages.page + 1})}">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/custom.js}"></script>
+</body>
+</html>

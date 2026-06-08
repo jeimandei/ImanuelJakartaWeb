@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Our Ministries')}"></head>
+<body>
+
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+<div th:replace="~{fragments/alerts :: alerts}"></div>
+
+<!-- Page Header -->
+<section style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); color:white; padding:80px 0;">
+    <div class="container text-center">
+        <i class="fas fa-hands-helping fa-3x mb-3" style="opacity:0.8;"></i>
+        <h1 class="display-5 fw-bold mb-2">Our Ministries</h1>
+        <p class="lead mb-0" style="opacity:0.85;">Every member has a place to serve, grow, and belong</p>
+    </div>
+</section>
+
+<!-- Ministries Grid -->
+<section class="py-5">
+    <div class="container">
+        <div class="section-header mb-5">
+            <h2>Serving Together</h2>
+            <div class="divider"></div>
+            <p>From children to seniors, there is a ministry for every season of life</p>
+        </div>
+
+        <div class="row g-4">
+
+            <!-- Children's Ministry -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 text-center p-4">
+                    <div class="ministry-icon mx-auto mb-3" style="background:#f0ad4e;">
+                        <i class="fas fa-child" style="color:white;"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2" style="color:var(--primary);">Children's Ministry</h5>
+                    <p class="text-muted small mb-3">
+                        A safe, fun, and nurturing environment where children from birth through elementary age
+                        discover God's love and build a foundation of faith through age-appropriate worship, teaching, and activities.
+                    </p>
+                    <a th:href="@{/contact}" class="btn btn-outline-primary btn-sm mt-auto">
+                        Get Involved
+                    </a>
+                </div>
+            </div>
+
+            <!-- Youth Ministry -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 text-center p-4">
+                    <div class="ministry-icon mx-auto mb-3" style="background:#5bc0de;">
+                        <i class="fas fa-users" style="color:white;"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2" style="color:var(--primary);">Youth Ministry</h5>
+                    <p class="text-muted small mb-3">
+                        Empowering teenagers and young adults to encounter God, find community,
+                        and live out their faith with purpose and passion. Every Thursday at 19:00 WIB.
+                    </p>
+                    <a th:href="@{/contact}" class="btn btn-outline-primary btn-sm mt-auto">
+                        Get Involved
+                    </a>
+                </div>
+            </div>
+
+            <!-- Worship Ministry -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 text-center p-4">
+                    <div class="ministry-icon mx-auto mb-3" style="background:#d9534f;">
+                        <i class="fas fa-music" style="color:white;"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2" style="color:var(--primary);">Worship Ministry</h5>
+                    <p class="text-muted small mb-3">
+                        Leading the congregation into the presence of God through music, song,
+                        and creative arts. Singers, musicians, sound technicians, and media volunteers are all welcome.
+                    </p>
+                    <a th:href="@{/contact}" class="btn btn-outline-primary btn-sm mt-auto">
+                        Get Involved
+                    </a>
+                </div>
+            </div>
+
+            <!-- Cell Groups -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 text-center p-4">
+                    <div class="ministry-icon mx-auto mb-3" style="background:#5cb85c;">
+                        <i class="fas fa-home" style="color:white;"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2" style="color:var(--primary);">Cell Groups</h5>
+                    <p class="text-muted small mb-3">
+                        Smaller gatherings in homes and neighborhoods where members study the Word,
+                        pray together, and do life in authentic Christian community. Meet every Friday at 19:00 WIB.
+                    </p>
+                    <a th:href="@{/contact}" class="btn btn-outline-primary btn-sm mt-auto">
+                        Find a Group
+                    </a>
+                </div>
+            </div>
+
+            <!-- Outreach Ministry -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 text-center p-4">
+                    <div class="ministry-icon mx-auto mb-3" style="background:#f0ad4e;">
+                        <i class="fas fa-hands-helping" style="color:white;"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2" style="color:var(--primary);">Outreach Ministry</h5>
+                    <p class="text-muted small mb-3">
+                        Reaching beyond our walls to serve Jakarta and beyond through evangelism,
+                        mercy ministry, social action, and missions partnerships across Indonesia and the world.
+                    </p>
+                    <a th:href="@{/contact}" class="btn btn-outline-primary btn-sm mt-auto">
+                        Get Involved
+                    </a>
+                </div>
+            </div>
+
+            <!-- Prayer Ministry -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 text-center p-4">
+                    <div class="ministry-icon mx-auto mb-3" style="background:var(--primary);">
+                        <i class="fas fa-hands" style="color:white;"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2" style="color:var(--primary);">Prayer Ministry</h5>
+                    <p class="text-muted small mb-3">
+                        Interceding for the church, the city, and the nations. Prayer warriors gather
+                        weekly to seek God on behalf of our congregation and the world He loves.
+                    </p>
+                    <a th:href="@{/prayer-request}" class="btn btn-outline-primary btn-sm mt-auto">
+                        Submit a Request
+                    </a>
+                </div>
+            </div>
+
+            <!-- Women's Ministry -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 text-center p-4">
+                    <div class="ministry-icon mx-auto mb-3" style="background:#e91e8c;">
+                        <i class="fas fa-heart" style="color:white;"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2" style="color:var(--primary);">Women's Ministry</h5>
+                    <p class="text-muted small mb-3">
+                        A community where women of all ages are encouraged, equipped, and empowered
+                        to live as daughters of God. Bible studies, retreats, and fellowship events throughout the year.
+                    </p>
+                    <a th:href="@{/contact}" class="btn btn-outline-primary btn-sm mt-auto">
+                        Get Involved
+                    </a>
+                </div>
+            </div>
+
+            <!-- Men's Ministry -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 text-center p-4">
+                    <div class="ministry-icon mx-auto mb-3" style="background:#337ab7;">
+                        <i class="fas fa-shield-alt" style="color:white;"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2" style="color:var(--primary);">Men's Ministry</h5>
+                    <p class="text-muted small mb-3">
+                        Building godly men who lead with integrity in their families, workplaces, and community.
+                        Monthly breakfasts, discipleship groups, and community service opportunities.
+                    </p>
+                    <a th:href="@{/contact}" class="btn btn-outline-primary btn-sm mt-auto">
+                        Get Involved
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- Get Connected CTA -->
+<section class="py-5" style="background: linear-gradient(135deg, var(--primary), var(--primary-light)); color:white;">
+    <div class="container text-center">
+        <h2 class="fw-bold mb-3" style="color:white;">Ready to Get Involved?</h2>
+        <p class="lead mb-4" style="opacity:0.85;">
+            Every gift and talent is needed. We believe everyone is called to minister.
+        </p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a th:href="@{/contact}" class="btn btn-gold btn-lg px-4">
+                <i class="fas fa-envelope me-2"></i>Contact Us
+            </a>
+            <a th:href="@{/new-here}" class="btn btn-outline-light btn-lg px-4">
+                <i class="fas fa-door-open me-2"></i>I'm New Here
+            </a>
+        </div>
+    </div>
+</section>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/custom.js}"></script>
+</body>
+</html>

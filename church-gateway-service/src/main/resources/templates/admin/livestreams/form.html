@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head th:replace="~{fragments/head :: head('Livestream Form - Admin')}"></head>
+<body>
+<div class="d-flex">
+
+    <nav class="admin-sidebar d-none d-md-flex flex-column py-3">
+        <div class="admin-sidebar-header mb-3">
+            <div class="brand"><i class="fas fa-church me-2"></i>Church Admin</div>
+        </div>
+        <ul class="nav flex-column">
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin}"><i class="fas fa-tachometer-alt"></i>Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/users}"><i class="fas fa-users"></i>Users</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/cms}"><i class="fas fa-file-alt"></i>CMS Pages</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/events}"><i class="fas fa-calendar-alt"></i>Events</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/sermons}"><i class="fas fa-microphone"></i>Sermons</a></li>
+            <li class="nav-item"><a class="nav-link active" th:href="@{/admin/livestreams}"><i class="fas fa-broadcast-tower"></i>Livestreams</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/announcements}"><i class="fas fa-bullhorn"></i>Announcements</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/news}"><i class="fas fa-newspaper"></i>News</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/gallery}"><i class="fas fa-images"></i>Gallery</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/prayer-requests}"><i class="fas fa-hands"></i>Prayer Requests</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/contacts}"><i class="fas fa-envelope"></i>Contacts</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/audit-logs}"><i class="fas fa-clipboard-list"></i>Audit Logs</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/settings}"><i class="fas fa-cog"></i>Settings</a></li>
+        </ul>
+    </nav>
+
+    <div class="admin-content flex-grow-1">
+        <div class="admin-topbar">
+            <h5 class="mb-0 fw-bold" style="color:var(--primary);">
+                <i class="fas fa-broadcast-tower me-2" style="color:var(--accent);"></i>
+                <span th:text="${livestreamForm?.id != null ? 'Edit Livestream' : 'Create Livestream'}">Create Livestream</span>
+            </h5>
+            <div class="d-flex align-items-center gap-3">
+                <span class="text-muted small"><i class="fas fa-user me-1"></i><span sec:authentication="name">Admin</span></span>
+                <form th:action="@{/logout}" method="post" class="mb-0">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button class="btn btn-sm btn-outline-danger" type="submit">Logout</button>
+                </form>
+            </div>
+        </div>
+
+        <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+        <div class="p-4">
+            <div class="row g-4">
+                <div class="col-lg-7">
+                    <div class="card">
+                        <div class="card-body p-4">
+                            <form th:action="@{/admin/livestreams/create}" method="post" th:object="${livestreamForm}"
+                                  id="livestreamForm">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                                <div class="row g-3">
+                                    <!-- Title -->
+                                    <div class="col-12">
+                                        <label class="form-label fw-medium">Title <span class="text-danger">*</span></label>
+                                        <input type="text" th:field="*{title}" class="form-control"
+                                               th:classappend="${#fields.hasErrors('title') ? 'is-invalid' : ''}"
+                                               placeholder="e.g. Sunday Morning Worship — 08:00 WIB" required/>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
+                                    </div>
+
+                                    <!-- YouTube Embed URL -->
+                                    <div class="col-12">
+                                        <label class="form-label fw-medium">YouTube Embed URL <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text text-danger"><i class="fab fa-youtube"></i></span>
+                                            <input type="url" th:field="*{youtubeEmbedUrl}" class="form-control"
+                                                   th:classappend="${#fields.hasErrors('youtubeEmbedUrl') ? 'is-invalid' : ''}"
+                                                   placeholder="https://www.youtube.com/embed/VIDEO_ID"
+                                                   id="youtubeEmbedUrl"
+                                                   oninput="updatePreview(this.value)"
+                                                   required/>
+                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('youtubeEmbedUrl')}" th:errors="*{youtubeEmbedUrl}"></div>
+                                        </div>
+                                        <div class="form-text">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            Must be in the format: <code>https://www.youtube.com/embed/VIDEO_ID</code>
+                                        </div>
+                                    </div>
+
+                                    <!-- Description -->
+                                    <div class="col-12">
+                                        <label class="form-label fw-medium">Description</label>
+                                        <textarea th:field="*{description}" class="form-control" rows="3"
+                                                  placeholder="Brief description of this livestream..."></textarea>
+                                    </div>
+
+                                    <!-- Scheduled Start -->
+                                    <div class="col-md-8">
+                                        <label class="form-label fw-medium">Scheduled Start</label>
+                                        <input type="datetime-local" th:field="*{scheduledStart}" class="form-control"/>
+                                    </div>
+
+                                    <!-- Active Toggle -->
+                                    <div class="col-12">
+                                        <div class="form-check form-switch">
+                                            <input type="checkbox" th:field="*{active}" class="form-check-input"
+                                                   id="active" style="width:2.5rem; height:1.25rem;"/>
+                                            <label for="active" class="form-check-label fw-medium ms-2">
+                                                <span class="badge bg-danger me-2">LIVE</span>
+                                                Set as active livestream (visible on public site)
+                                            </label>
+                                        </div>
+                                        <div class="form-text">
+                                            Only one livestream can be active at a time. Activating this will deactivate others.
+                                        </div>
+                                    </div>
+
+                                    <!-- Buttons -->
+                                    <div class="col-12 d-flex gap-2 pt-2">
+                                        <button type="submit" class="btn btn-primary px-4">
+                                            <i class="fas fa-save me-2"></i>Save Livestream
+                                        </button>
+                                        <a th:href="@{/admin/livestreams}" class="btn btn-outline-secondary px-4">Cancel</a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview Pane -->
+                <div class="col-lg-5">
+                    <div class="card" id="previewCard">
+                        <div class="card-header bg-white border-bottom py-3 px-4">
+                            <h6 class="mb-0 fw-bold" style="color:var(--primary);">
+                                <i class="fas fa-eye me-2" style="color:var(--accent);"></i>Live Preview
+                            </h6>
+                        </div>
+                        <div class="card-body p-3">
+                            <div id="previewContainer">
+                                <!-- Show existing embed if editing -->
+                                <div th:if="${livestreamForm?.youtubeEmbedUrl != null and !livestreamForm.youtubeEmbedUrl.empty}">
+                                    <div class="livestream-container">
+                                        <iframe th:src="${livestreamForm.youtubeEmbedUrl}" frameborder="0" allowfullscreen></iframe>
+                                    </div>
+                                </div>
+                                <!-- Placeholder -->
+                                <div th:if="${livestreamForm == null or livestreamForm.youtubeEmbedUrl == null or livestreamForm.youtubeEmbedUrl.empty}"
+                                     id="previewPlaceholder"
+                                     class="d-flex flex-column align-items-center justify-content-center text-muted rounded-3"
+                                     style="height:200px; background:#f8f9fa; border:2px dashed #dee2e6;">
+                                    <i class="fab fa-youtube fa-3x mb-2 opacity-50"></i>
+                                    <p class="small mb-0">Enter a YouTube embed URL to preview</p>
+                                </div>
+                                <div id="dynamicPreview"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/custom.js}"></script>
+<script>
+function updatePreview(url) {
+    const placeholder = document.getElementById('previewPlaceholder');
+    const dynamic = document.getElementById('dynamicPreview');
+    if (url && url.includes('youtube.com/embed/')) {
+        if (placeholder) placeholder.style.display = 'none';
+        dynamic.innerHTML = '<div class="livestream-container"><iframe src="' + url + '" frameborder="0" allowfullscreen></iframe></div>';
+    } else {
+        if (placeholder) placeholder.style.display = 'flex';
+        dynamic.innerHTML = '';
+    }
+}
+</script>
+</body>
+</html>
