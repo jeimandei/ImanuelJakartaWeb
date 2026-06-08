@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * <p>Handles creation, publishing and querying of church events such as
  * services, concerts, retreats, and community gatherings.</p>
  */
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "com.jeimandei.imanuelbytes")
 public class ChurchEventApplication {
 
     public static void main(String[] args) {

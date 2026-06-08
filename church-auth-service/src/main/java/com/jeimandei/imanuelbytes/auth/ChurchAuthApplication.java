@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * <p>Runs on port 8081 and is responsible for user registration, login,
  * JWT issuance, and basic user-info retrieval.</p>
  */
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "com.jeimandei.imanuelbytes")
 public class ChurchAuthApplication {
 
     public static void main(String[] args) {
