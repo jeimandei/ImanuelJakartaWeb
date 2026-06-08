@@ -17,12 +17,12 @@ COPY church-audit-service/pom.xml         church-audit-service/pom.xml
 COPY church-gateway-service/pom.xml       church-gateway-service/pom.xml
 COPY church-api-gateway/pom.xml           church-api-gateway/pom.xml
 
-RUN mvn dependency:go-offline -B -q
+RUN mvn dependency:go-offline -B
 
 # Copy full source and build only the requested service (and its dependencies)
 COPY . .
 ARG SERVICE_NAME
-RUN mvn package -pl ${SERVICE_NAME} -am -DskipTests -B -q
+RUN mvn package -pl ${SERVICE_NAME} -am -DskipTests -B
 
 # ─── Stage 2: Runtime ─────────────────────────────────────────────────────────
 FROM eclipse-temurin:21-jre-alpine

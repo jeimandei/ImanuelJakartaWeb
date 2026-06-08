@@ -1,5 +1,10 @@
 name: church-platform
 
+x-logging: &default-logging
+  driver: journald
+  options:
+    tag: "{{.Name}}"
+
 networks:
   church-network:
     driver: bridge
@@ -14,9 +19,12 @@ x-service-defaults: &service-defaults
   build:
     context: .
     dockerfile: Containerfile
+    no_cache: true
+    pull: true
   networks:
     - church-network
   restart: always
+  logging: *default-logging
   deploy:
     resources:
       limits:
@@ -41,12 +49,13 @@ services:
           memory: 1g
           cpus: '2'
     environment:
-      POSTGRES_DB: church_db
+      POSTGRES_DB: imanuelweb_db
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres-data:/var/lib/postgresql/data
       - ./database/V1__initial_schema.sql:/docker-entrypoint-initdb.d/V1__initial_schema.sql:ro
+    logging: *default-logging
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d church_db"]
       interval: 10s
@@ -61,6 +70,8 @@ services:
     build:
       context: .
       dockerfile: Containerfile
+      no_cache: true
+      pull: true
       args:
         SERVICE_NAME: church-config-server
         SERVICE_PORT: 8888
@@ -85,6 +96,8 @@ services:
     build:
       context: .
       dockerfile: Containerfile
+      no_cache: true
+      pull: true
       args:
         SERVICE_NAME: church-auth-service
         SERVICE_PORT: 8081
@@ -113,6 +126,8 @@ services:
     build:
       context: .
       dockerfile: Containerfile
+      no_cache: true
+      pull: true
       args:
         SERVICE_NAME: church-user-service
         SERVICE_PORT: 8082
@@ -141,6 +156,8 @@ services:
     build:
       context: .
       dockerfile: Containerfile
+      no_cache: true
+      pull: true
       args:
         SERVICE_NAME: church-cms-service
         SERVICE_PORT: 8083
@@ -169,6 +186,8 @@ services:
     build:
       context: .
       dockerfile: Containerfile
+      no_cache: true
+      pull: true
       args:
         SERVICE_NAME: church-event-service
         SERVICE_PORT: 8084
@@ -197,6 +216,8 @@ services:
     build:
       context: .
       dockerfile: Containerfile
+      no_cache: true
+      pull: true
       args:
         SERVICE_NAME: church-media-service
         SERVICE_PORT: 8085
@@ -225,6 +246,8 @@ services:
     build:
       context: .
       dockerfile: Containerfile
+      no_cache: true
+      pull: true
       args:
         SERVICE_NAME: church-interaction-service
         SERVICE_PORT: 8086
@@ -255,6 +278,8 @@ services:
     build:
       context: .
       dockerfile: Containerfile
+      no_cache: true
+      pull: true
       args:
         SERVICE_NAME: church-audit-service
         SERVICE_PORT: 8087
@@ -280,6 +305,8 @@ services:
     build:
       context: .
       dockerfile: Containerfile
+      no_cache: true
+      pull: true
       args:
         SERVICE_NAME: church-gateway-service
         SERVICE_PORT: 8089
@@ -317,6 +344,8 @@ services:
     build:
       context: .
       dockerfile: Containerfile
+      no_cache: true
+      pull: true
       args:
         SERVICE_NAME: church-api-gateway
         SERVICE_PORT: 8080
