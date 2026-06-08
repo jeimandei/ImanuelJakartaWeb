@@ -77,6 +77,8 @@ public class SecurityConfig {
 
                 // Authorization rules
                 .authorizeHttpRequests(auth -> auth
+                        // Healthcheck (unauthenticated — used by container orchestration)
+                        .requestMatchers("/actuator/health").permitAll()
                         // Allow all GET read endpoints for any authenticated user
                         .requestMatchers(HttpMethod.GET, "/api/users/**").authenticated()
                         // Require ADMIN for creation, status update, role assignment, deletion

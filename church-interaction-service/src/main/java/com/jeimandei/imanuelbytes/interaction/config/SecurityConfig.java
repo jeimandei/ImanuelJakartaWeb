@@ -30,6 +30,7 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/actuator/health").permitAll()
                 // Public POST endpoints — submissions open to everyone
                 .requestMatchers(HttpMethod.POST, "/api/prayer-requests").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/contact-messages").permitAll()

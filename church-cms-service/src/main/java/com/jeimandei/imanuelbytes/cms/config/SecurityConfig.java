@@ -30,6 +30,7 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/actuator/health").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/cms/pages/slug/*/published").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/cms/pages/published").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/announcements/active").permitAll()
