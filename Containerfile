@@ -1,5 +1,5 @@
 # ─── Stage 1: Build ───────────────────────────────────────────────────────────
-FROM maven:3.9-eclipse-temurin-21-alpine AS build
+FROM docker.io/library/maven:3.9-eclipse-temurin-21-alpine AS build
 
 WORKDIR /workspace
 
@@ -25,7 +25,7 @@ ARG SERVICE_NAME
 RUN mvn package -pl ${SERVICE_NAME} -am -DskipTests -B
 
 # ─── Stage 2: Runtime ─────────────────────────────────────────────────────────
-FROM eclipse-temurin:21-jre-alpine
+FROM docker.io/library/eclipse-temurin:21-jre-alpine
 
 ARG SERVICE_NAME
 ARG SERVICE_PORT=8080
