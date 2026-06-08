@@ -79,6 +79,7 @@ services:
       CONFIG_REPO_PATH: ${CONFIG_REPO_PATH:-/config-repo}
     volumes:
       - ./config-repo:/config-repo:ro
+      - ./logs:/app/logs:z
     depends_on:
       postgres:
         condition: service_healthy
@@ -109,6 +110,8 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION: ${JWT_EXPIRATION}
       AUDIT_SERVICE_URL: ${AUDIT_SERVICE_URL}
+    volumes:
+      - ./logs:/app/logs:z
     depends_on:
       church-config-server:
         condition: service_healthy
@@ -139,6 +142,8 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION: ${JWT_EXPIRATION}
       AUDIT_SERVICE_URL: ${AUDIT_SERVICE_URL}
+    volumes:
+      - ./logs:/app/logs:z
     depends_on:
       church-config-server:
         condition: service_healthy
@@ -169,6 +174,8 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION: ${JWT_EXPIRATION}
       AUDIT_SERVICE_URL: ${AUDIT_SERVICE_URL}
+    volumes:
+      - ./logs:/app/logs:z
     depends_on:
       church-config-server:
         condition: service_healthy
@@ -199,6 +206,8 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION: ${JWT_EXPIRATION}
       AUDIT_SERVICE_URL: ${AUDIT_SERVICE_URL}
+    volumes:
+      - ./logs:/app/logs:z
     depends_on:
       church-config-server:
         condition: service_healthy
@@ -229,6 +238,8 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION: ${JWT_EXPIRATION}
       AUDIT_SERVICE_URL: ${AUDIT_SERVICE_URL}
+    volumes:
+      - ./logs:/app/logs:z
     depends_on:
       church-config-server:
         condition: service_healthy
@@ -261,6 +272,8 @@ services:
       AUDIT_SERVICE_URL: ${AUDIT_SERVICE_URL}
       MAIL_USERNAME: ${MAIL_USERNAME}
       MAIL_PASSWORD: ${MAIL_PASSWORD}
+    volumes:
+      - ./logs:/app/logs:z
     depends_on:
       church-config-server:
         condition: service_healthy
@@ -288,6 +301,8 @@ services:
       DB_URL: ${DB_URL}
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./logs:/app/logs:z
     depends_on:
       church-config-server:
         condition: service_healthy
@@ -315,6 +330,8 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION: ${JWT_EXPIRATION}
       API_GATEWAY_URL: ${API_GATEWAY_URL}
+    volumes:
+      - ./logs:/app/logs:z
     depends_on:
       church-auth-service:
         condition: service_healthy
@@ -364,6 +381,8 @@ services:
       INTERACTION_SERVICE_URI: ${INTERACTION_SERVICE_URI}
       AUDIT_SERVICE_URI: ${AUDIT_SERVICE_URI}
       FRONTEND_URI: ${FRONTEND_URI}
+    volumes:
+      - ./logs:/app/logs:z
     depends_on:
       church-gateway-service:
         condition: service_healthy

@@ -142,6 +142,7 @@ jobs:
               git clean -fd
             fi
             cd ${{ env.DEPLOY_DIR }}
+            mkdir -p logs
             echo "→ Building services one by one"
             for svc in \
               church-config-server \

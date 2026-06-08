@@ -375,6 +375,66 @@ audit-service:
 # church-api-gateway has no application-level config beyond application.yml routes
 ```
 
+## Containerized Deployment
+
+The platform ships with a `Containerfile` (single multi-stage build) and `compose.yml` for Podman Compose. Deployments are managed via the parameterised GitHub Actions workflow in `.github/workflows/deploy.yml`.
+
+### Required GitHub Secrets
+
+| Secret | Description |
+|---|---|
+| `SSH_KEYS` | Private SSH key for the deploy server |
+| `SSH_KNOWN_HOSTS` | Output of `ssh-keyscan -p 1709 -H jeimandei.com` |
+| `ENV_FILE` | Full contents of the server `.env` file |
+
+### Workflow Actions
+
+| Action | What it does |
+|---|---|
+| `full-deploy` | Clone (first run) or pull + build all services sequentially + start stack |
+| `build-service` | Rebuild and restart specific service(s) by name |
+| `restart-service` | Restart service(s) without rebuild |
+| `restart-all` | Restart every container |
+| `deploy-config` | Rsync `config-repo/` to server + trigger config refresh |
+| `deploy-env` | Push `.env` content from `ENV_FILE` secret to server |
+
+### First-Time Server Setup
+
+```bash
+# 1. Push your .env to the server via the deploy-env workflow action
+
+# 2. Run full-deploy — it will clone the repo, create ./logs, build and start all containers
+#    Trigger from: GitHub → Actions → Deploy — Church Platform → full-deploy, branch: main
+```
+
+### Container Directory Layout (on server)
+
+```
+/home/ibytes/website/gmimimanueljakarta/
+├── .env                          # environment variables (never committed)
+├── compose.yml
+├── Containerfile
+├── config-repo/                  # Spring Cloud Config files
+├── database/                     # SQL schema (read-only mount)
+└── logs/                         # all service log files (bind-mounted from containers)
+    ├── church-config-server.log
+    ├── church-auth-service.log
+    └── ...
+```
+
+### Viewing Logs
+
+```bash
+# Tail a specific service
+tail -f logs/church-auth-service.log
+
+# Watch all services at once
+tail -f logs/church-*.log
+
+# Container stdout (journald)
+journalctl -t church-auth-service -f
+```
+
 ## Logging
 
 Each service ships with a `logback-spring.xml` that writes rolling log files:
@@ -384,7 +444,9 @@ Each service ships with a `logback-spring.xml` that writes rolling log files:
 - **Dev profile** (`spring.profiles.active=dev`): `com.jeimandei` at `DEBUG`
 - **Prod profile**: `com.jeimandei` at `INFO`
 
-Log files are written to `logs/<service-name>.log` inside each service directory (excluded from git via `.gitignore`).
+**Local dev**: log files written to `logs/<service-name>.log` inside each service directory (excluded from git).
+
+**Containerized**: log files written to `/app/logs/<service-name>.log` inside the container, bind-mounted to `./logs/` in the deploy directory on the host.
 
 ## Audit Logging
 
