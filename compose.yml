@@ -19,7 +19,6 @@ x-service-defaults: &service-defaults
   build:
     context: .
     dockerfile: Containerfile
-    no_cache: true
     pull: true
   networks:
     - church-network
@@ -70,7 +69,6 @@ services:
     build:
       context: .
       dockerfile: Containerfile
-      no_cache: true
       pull: true
       args:
         SERVICE_NAME: church-config-server
@@ -97,7 +95,6 @@ services:
     build:
       context: .
       dockerfile: Containerfile
-      no_cache: true
       pull: true
       args:
         SERVICE_NAME: church-auth-service
@@ -129,7 +126,6 @@ services:
     build:
       context: .
       dockerfile: Containerfile
-      no_cache: true
       pull: true
       args:
         SERVICE_NAME: church-user-service
@@ -161,7 +157,6 @@ services:
     build:
       context: .
       dockerfile: Containerfile
-      no_cache: true
       pull: true
       args:
         SERVICE_NAME: church-cms-service
@@ -193,7 +188,6 @@ services:
     build:
       context: .
       dockerfile: Containerfile
-      no_cache: true
       pull: true
       args:
         SERVICE_NAME: church-event-service
@@ -225,7 +219,6 @@ services:
     build:
       context: .
       dockerfile: Containerfile
-      no_cache: true
       pull: true
       args:
         SERVICE_NAME: church-media-service
@@ -257,7 +250,6 @@ services:
     build:
       context: .
       dockerfile: Containerfile
-      no_cache: true
       pull: true
       args:
         SERVICE_NAME: church-interaction-service
@@ -291,7 +283,6 @@ services:
     build:
       context: .
       dockerfile: Containerfile
-      no_cache: true
       pull: true
       args:
         SERVICE_NAME: church-audit-service
@@ -320,7 +311,6 @@ services:
     build:
       context: .
       dockerfile: Containerfile
-      no_cache: true
       pull: true
       args:
         SERVICE_NAME: church-gateway-service
@@ -361,7 +351,6 @@ services:
     build:
       context: .
       dockerfile: Containerfile
-      no_cache: true
       pull: true
       args:
         SERVICE_NAME: church-api-gateway
