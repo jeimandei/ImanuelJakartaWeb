@@ -6,6 +6,8 @@ spring:
     enabled: true
     locations: classpath:db/migration
     table: flyway_schema_history_audit
+    baseline-on-migrate: true
+    baseline-version: 0
 
 logging:
   level:
