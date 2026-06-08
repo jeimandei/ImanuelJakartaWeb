@@ -73,7 +73,7 @@ services:
     environment:
       CONFIG_REPO_PATH: ${CONFIG_REPO_PATH:-/config-repo}
     volumes:
-      - ./config-repo:/config-repo:ro
+      - ./config-repo:/config-repo:ro,z
       - ./logs:/app/logs:z
     depends_on:
       postgres:
