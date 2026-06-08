@@ -65,9 +65,9 @@ jobs:
           echo "::error::The 'services' input is required for action '${{ inputs.action }}'."
           exit 1
 
-      # ── Checkout (needed for deploy-config and full-deploy rsync) ──────────
+      # ── Checkout (needed for deploy-config rsync) ────────────────────────
       - name: Checkout ${{ inputs.branch }}
-        if: inputs.action == 'full-deploy' || inputs.action == 'deploy-config'
+        if: inputs.action == 'deploy-config'
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.branch }}
@@ -119,24 +119,25 @@ jobs:
           EOF
 
       # ══════════════════════════════════════════════════════════════════════
-      # full-deploy — git pull on server + rebuild all images + restart stack
+      # full-deploy — git clone (first time) or pull + rebuild all images
       # ══════════════════════════════════════════════════════════════════════
       - name: "[full-deploy] Pull latest code & rebuild all containers"
         if: inputs.action == 'full-deploy'
         run: |
-          # Sync compose.yml, Containerfile, and config-repo from runner checkout
-          rsync -az --delete \
-            -e "ssh -p ${{ env.SSH_PORT }}" \
-            compose.yml Containerfile config-repo/ \
-            ${{ env.SSH_USER }}@${{ env.SSH_HOST }}:${{ env.DEPLOY_DIR }}/
-
           ssh -p ${{ env.SSH_PORT }} ${{ env.SSH_USER }}@${{ env.SSH_HOST }} << EOF
             set -e
+            if [ ! -d "${{ env.DEPLOY_DIR }}/.git" ]; then
+              echo "→ No git repo found — cloning into ${{ env.DEPLOY_DIR }}"
+              mkdir -p "${{ env.DEPLOY_DIR }}"
+              git clone --branch ${{ inputs.branch }} https://github.com/${{ github.repository }}.git "${{ env.DEPLOY_DIR }}"
+            else
+              echo "→ Pulling branch ${{ inputs.branch }}"
+              cd ${{ env.DEPLOY_DIR }}
+              git fetch origin
+              git checkout ${{ inputs.branch }}
+              git pull origin ${{ inputs.branch }}
+            fi
             cd ${{ env.DEPLOY_DIR }}
-            echo "→ Pulling branch ${{ inputs.branch }}"
-            git fetch origin
-            git checkout ${{ inputs.branch }}
-            git pull origin ${{ inputs.branch }}
             echo "→ Rebuilding and restarting all containers"
             podman compose --env-file .env up --build -d
             echo "✓ Full deploy complete"
