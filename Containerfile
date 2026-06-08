@@ -36,7 +36,9 @@ ARG SERVICE_PORT=8080
 
 WORKDIR /app
 
-RUN addgroup -S spring && adduser -S spring -G spring
+RUN addgroup -S spring && adduser -S spring -G spring && \
+    mkdir -p /app/logs && \
+    chown -R spring:spring /app
 USER spring
 
 COPY --from=build /workspace/${SERVICE_NAME}/target/*.jar app.jar
