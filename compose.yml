@@ -20,6 +20,7 @@ x-service-defaults: &service-defaults
     context: .
     dockerfile: Containerfile
     no_cache: true
+    pull: true
   networks:
     - church-network
   restart: always
@@ -70,6 +71,7 @@ services:
       context: .
       dockerfile: Containerfile
       no_cache: true
+      pull: true
       args:
         SERVICE_NAME: church-config-server
         SERVICE_PORT: 8888
@@ -95,6 +97,7 @@ services:
       context: .
       dockerfile: Containerfile
       no_cache: true
+      pull: true
       args:
         SERVICE_NAME: church-auth-service
         SERVICE_PORT: 8081
@@ -124,6 +127,7 @@ services:
       context: .
       dockerfile: Containerfile
       no_cache: true
+      pull: true
       args:
         SERVICE_NAME: church-user-service
         SERVICE_PORT: 8082
@@ -153,6 +157,7 @@ services:
       context: .
       dockerfile: Containerfile
       no_cache: true
+      pull: true
       args:
         SERVICE_NAME: church-cms-service
         SERVICE_PORT: 8083
@@ -182,6 +187,7 @@ services:
       context: .
       dockerfile: Containerfile
       no_cache: true
+      pull: true
       args:
         SERVICE_NAME: church-event-service
         SERVICE_PORT: 8084
@@ -211,6 +217,7 @@ services:
       context: .
       dockerfile: Containerfile
       no_cache: true
+      pull: true
       args:
         SERVICE_NAME: church-media-service
         SERVICE_PORT: 8085
@@ -240,6 +247,7 @@ services:
       context: .
       dockerfile: Containerfile
       no_cache: true
+      pull: true
       args:
         SERVICE_NAME: church-interaction-service
         SERVICE_PORT: 8086
@@ -271,6 +279,7 @@ services:
       context: .
       dockerfile: Containerfile
       no_cache: true
+      pull: true
       args:
         SERVICE_NAME: church-audit-service
         SERVICE_PORT: 8087
@@ -297,6 +306,7 @@ services:
       context: .
       dockerfile: Containerfile
       no_cache: true
+      pull: true
       args:
         SERVICE_NAME: church-gateway-service
         SERVICE_PORT: 8089
@@ -335,6 +345,7 @@ services:
       context: .
       dockerfile: Containerfile
       no_cache: true
+      pull: true
       args:
         SERVICE_NAME: church-api-gateway
         SERVICE_PORT: 8080
