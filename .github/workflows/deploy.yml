@@ -142,8 +142,23 @@ jobs:
               git clean -fd
             fi
             cd ${{ env.DEPLOY_DIR }}
-            echo "→ Rebuilding and restarting all containers"
-            podman compose --env-file .env up --build -d
+            echo "→ Building services one by one"
+            for svc in \
+              church-config-server \
+              church-auth-service \
+              church-user-service \
+              church-cms-service \
+              church-event-service \
+              church-media-service \
+              church-interaction-service \
+              church-audit-service \
+              church-gateway-service \
+              church-api-gateway; do
+              echo "  → Building \$svc"
+              podman compose --env-file .env build \$svc
+            done
+            echo "→ Starting all containers"
+            podman compose --env-file .env up -d
             echo "✓ Full deploy complete"
           EOF
 
