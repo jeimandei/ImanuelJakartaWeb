@@ -24,6 +24,15 @@ jwt:
 audit-service:
   url: ${AUDIT_SERVICE_URL:http://localhost:8087}
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
 logging:
   level:
     com.jeimandei: DEBUG

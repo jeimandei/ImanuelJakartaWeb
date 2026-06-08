@@ -87,6 +87,8 @@ public class SecurityConfig {
 
                 // Authorisation rules
                 .authorizeHttpRequests(auth -> auth
+                        // Healthcheck (unauthenticated — used by container orchestration)
+                        .requestMatchers("/actuator/health").permitAll()
                         // Public authentication endpoints
                         .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()

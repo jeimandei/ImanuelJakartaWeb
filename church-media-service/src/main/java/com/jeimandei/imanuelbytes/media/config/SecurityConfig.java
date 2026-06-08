@@ -31,6 +31,7 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/sermons/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/livestreams/active").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/gallery/**").permitAll()
