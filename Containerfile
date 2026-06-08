@@ -17,12 +17,14 @@ COPY church-audit-service/pom.xml         church-audit-service/pom.xml
 COPY church-gateway-service/pom.xml       church-gateway-service/pom.xml
 COPY church-api-gateway/pom.xml           church-api-gateway/pom.xml
 
-RUN mvn dependency:go-offline -B
+RUN --mount=type=cache,target=/root/.m2,id=maven-m2 \
+    mvn dependency:go-offline -B
 
 # Copy full source and build only the requested service (and its dependencies)
 COPY . .
 ARG SERVICE_NAME
-RUN mvn package -pl ${SERVICE_NAME} -am -DskipTests -B
+RUN --mount=type=cache,target=/root/.m2,id=maven-m2 \
+    mvn package -pl ${SERVICE_NAME} -am -DskipTests -B
 
 # ─── Stage 2: Runtime ─────────────────────────────────────────────────────────
 FROM docker.io/library/eclipse-temurin:21-jre-alpine
