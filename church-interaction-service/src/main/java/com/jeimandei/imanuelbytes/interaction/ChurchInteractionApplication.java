@@ -10,7 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * contact messages, newsletter subscriptions, testimony submissions, and
  * volunteer applications.</p>
  */
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "com.jeimandei.imanuelbytes")
 public class ChurchInteractionApplication {
 
     public static void main(String[] args) {

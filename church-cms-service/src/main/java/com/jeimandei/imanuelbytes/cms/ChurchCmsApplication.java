@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * <p>Manages CMS pages, content blocks, announcements, news articles, and site
  * settings. Runs on port 8083.</p>
  */
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "com.jeimandei.imanuelbytes")
 public class ChurchCmsApplication {
 
     public static void main(String[] args) {

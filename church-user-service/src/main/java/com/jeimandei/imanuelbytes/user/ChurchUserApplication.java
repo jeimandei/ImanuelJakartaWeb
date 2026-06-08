@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * <p>Handles user CRUD operations and profile management, running on port 8082.
  * Shares the same database schema as church-auth-service for the users and roles tables.</p>
  */
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "com.jeimandei.imanuelbytes")
 public class ChurchUserApplication {
 
     public static void main(String[] args) {
