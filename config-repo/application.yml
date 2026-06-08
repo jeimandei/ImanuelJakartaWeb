@@ -3,7 +3,7 @@
 
 spring:
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/church_db}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/imanuelweb_db}
     username: ${DB_USERNAME:church_app}
     password: ${DB_PASSWORD:church_password}
     driver-class-name: org.postgresql.Driver
