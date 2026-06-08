@@ -1,0 +1,8 @@
+server:
+  port: 8081
+
+spring:
+  data:
+    jpa:
+      repositories:
+        bootstrap-mode: deferred

@@ -1,0 +1,30 @@
+# Shared configuration — applied to every service that imports this config server.
+# Service-specific overrides live in {service-name}.yml files alongside this one.
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/church_db
+    username: church_app
+    password: church_password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+jwt:
+  secret: 3JkWpV9nR7mQfLxTzYsA2bDcEhGiJuKoNvPwSyUaBdFeHjIlMnOqRtVxZy1235467890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
+  expiration: 86400000
+
+# Backend services post audit events directly to the audit service (internal call)
+audit-service:
+  url: http://localhost:8087
+
+logging:
+  level:
+    com.jeimandei: DEBUG
+    org.springframework.security: INFO

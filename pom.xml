@@ -29,6 +29,7 @@
         <module>church-gateway-service</module>
         <module>church-audit-service</module>
         <module>church-api-gateway</module>
+        <module>church-config-server</module>
     </modules>
 
     <properties>
