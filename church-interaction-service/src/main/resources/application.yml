@@ -1,48 +1,5 @@
-server:
-  port: 8086
-
 spring:
   application:
     name: church-interaction-service
-  datasource:
-    url: jdbc:postgresql://localhost:5432/church_db
-    username: church_app
-    password: church_password
-    driver-class-name: org.postgresql.Driver
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    show-sql: false
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
-  data:
-    jpa:
-      repositories:
-        bootstrap-mode: deferred
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: ${MAIL_USERNAME:your-email@gmail.com}
-    password: ${MAIL_PASSWORD:your-app-password}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-            required: true
-        debug: false
-
-jwt:
-  secret: 3JkWpV9nR7mQfLxTzYsA2bDcEhGiJuKoNvPwSyUaBdFeHjIlMnOqRtVxZy1235467890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
-  expiration: 86400000
-
-audit-service:
-  url: http://localhost:8087
-
-logging:
-  level:
-    com.jeimandei: DEBUG
-    org.springframework.security: INFO
+  config:
+    import: "configserver:http://localhost:8888"

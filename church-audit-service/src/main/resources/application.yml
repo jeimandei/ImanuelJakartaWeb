@@ -1,29 +1,5 @@
-server:
-  port: 8087
-
 spring:
   application:
     name: church-audit-service
-  datasource:
-    url: jdbc:postgresql://localhost:5432/church_db
-    username: church_app
-    password: church_password
-    driver-class-name: org.postgresql.Driver
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    show-sql: false
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
-  flyway:
-    enabled: true
-    locations: classpath:db/migration
-    table: flyway_schema_history_audit
-
-logging:
-  level:
-    com.jeimandei: INFO
-    org.springframework: WARN
-    org.hibernate: WARN
+  config:
+    import: "configserver:http://localhost:8888"

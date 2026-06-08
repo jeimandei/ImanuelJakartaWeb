@@ -1,0 +1,28 @@
+server:
+  port: 8888
+
+spring:
+  application:
+    name: church-config-server
+  profiles:
+    active: native
+  cloud:
+    config:
+      server:
+        native:
+          # Resolved relative to the config-server working directory (i.e. ../config-repo from church-config-server/)
+          search-locations: file:${CONFIG_REPO_PATH:../config-repo}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,env,refresh
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    com.jeimandei: INFO
+    org.springframework.cloud.config: DEBUG

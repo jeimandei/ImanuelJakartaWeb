@@ -1,0 +1,14 @@
+server:
+  port: 8087
+
+spring:
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    table: flyway_schema_history_audit
+
+logging:
+  level:
+    com.jeimandei: INFO
+    org.springframework: WARN
+    org.hibernate: WARN

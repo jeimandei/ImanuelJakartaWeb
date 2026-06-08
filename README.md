@@ -7,19 +7,29 @@ A complete church website platform built with Java 21, Spring Boot 3.2, Thymelea
 ```
 ImanuelJakartaWeb/
 ├── church-common              # Shared library: DTOs, exceptions, JWT, utils
-├── church-auth-service        # Authentication & authorization           :8081
-├── church-user-service        # User CRUD & profile management           :8082
-├── church-cms-service         # CMS pages, news, announcements, settings :8083
-├── church-event-service       # Event management                         :8084
-├── church-media-service       # Sermons, livestreams, gallery            :8085
-├── church-interaction-service # Prayer requests, contact, newsletter     :8086
-├── church-audit-service       # Cross-service audit log recording        :8087
-├── church-gateway-service     # Public website + admin dashboard         :8080
+├── church-config-server       # Spring Cloud Config Server — centralised config  :8888
+├── church-api-gateway         # Spring Cloud Gateway — single public entry point :8080
+├── church-auth-service        # Authentication & authorization                   :8081
+├── church-user-service        # User CRUD & profile management                   :8082
+├── church-cms-service         # CMS pages, news, announcements, settings         :8083
+├── church-event-service       # Event management                                 :8084
+├── church-media-service       # Sermons, livestreams, gallery                    :8085
+├── church-interaction-service # Prayer requests, contact, newsletter             :8086
+├── church-audit-service       # Cross-service audit log recording                :8087
+├── church-gateway-service     # Thymeleaf frontend + admin dashboard (internal)  :8089
 ├── database                   # PostgreSQL schema and setup script
 └── pom.xml                    # Maven parent POM
 ```
 
-Admin functionality lives inside `church-gateway-service` at `/admin/**`. There is no separate admin service — admin views are Thymeleaf pages that call the same backend REST APIs as the public site.
+**Traffic flow:**
+```
+User → church-api-gateway (:8080)
+           ├── /api/**  → backend services (:8081–:8087)
+           └── /**      → church-gateway-service (:8089, Thymeleaf frontend)
+                              └── all backend calls go through the gateway
+```
+
+Admin functionality lives inside `church-gateway-service` at `/admin/**`. Admin views are Thymeleaf pages that call backend REST APIs through the API gateway.
 
 ## Tech Stack
 
@@ -72,29 +82,35 @@ mvn clean install -DskipTests
 ### 3. Start Services (in order)
 
 ```bash
-# Terminal 1
+# Terminal 1 — start FIRST: all other services fetch config from here on startup
+cd church-config-server && mvn spring-boot:run
+
+# Terminal 2
 cd church-auth-service && mvn spring-boot:run
 
-# Terminal 2 — start audit service early so write operations are captured
+# Terminal 3 — start audit service early so write operations are captured
 cd church-audit-service && mvn spring-boot:run
 
-# Terminal 3
+# Terminal 4
 cd church-user-service && mvn spring-boot:run
 
-# Terminal 4
+# Terminal 5
 cd church-cms-service && mvn spring-boot:run
 
-# Terminal 5
+# Terminal 6
 cd church-event-service && mvn spring-boot:run
 
-# Terminal 6
+# Terminal 7
 cd church-media-service && mvn spring-boot:run
 
-# Terminal 7
+# Terminal 8
 cd church-interaction-service && mvn spring-boot:run
 
-# Terminal 8 — start LAST (depends on all others)
+# Terminal 9 — Thymeleaf frontend (internal, port 8089)
 cd church-gateway-service && mvn spring-boot:run
+
+# Terminal 10 — start LAST: API gateway is the public entry point on :8080
+cd church-api-gateway && mvn spring-boot:run
 ```
 
 ### 4. Access the Application
@@ -114,16 +130,18 @@ Password: Admin@1234
 
 ## Service Ports
 
-| Service | Port |
-|---|---|
-| Gateway (Frontend + Admin UI) | 8080 |
-| Auth Service | 8081 |
-| User Service | 8082 |
-| CMS Service | 8083 |
-| Event Service | 8084 |
-| Media Service | 8085 |
-| Interaction Service | 8086 |
-| Audit Service | 8087 |
+| Service | Port | Visibility |
+|---|---|---|
+| API Gateway (single entry point) | 8080 | Public |
+| Config Server | 8888 | Internal |
+| Auth Service | 8081 | Internal |
+| User Service | 8082 | Internal |
+| CMS Service | 8083 | Internal |
+| Event Service | 8084 | Internal |
+| Media Service | 8085 | Internal |
+| Interaction Service | 8086 | Internal |
+| Audit Service | 8087 | Internal |
+| Frontend / Admin UI (Thymeleaf) | 8089 | Internal |
 
 ## REST API Reference
 
@@ -328,7 +346,9 @@ com.jeimandei.imanuelbytes
 ├── media           # Sermons, livestreams, gallery
 ├── interaction     # Prayer requests, contact, newsletter, testimonies, volunteer
 ├── audit           # Audit log recording and querying (port 8087)
-└── gateway         # Thymeleaf frontend — public site, admin panel, auth pages
+├── apigateway      # Spring Cloud Gateway entry point (port 8080)
+├── configserver    # Spring Cloud Config Server (port 8888)
+└── gateway         # Thymeleaf frontend — public site, admin panel, auth pages (port 8089)
 ```
 
 ## Configuration
@@ -350,7 +370,9 @@ jwt:
   expiration: 86400000     # 24 hours in ms
 
 audit-service:
-  url: http://localhost:8087   # override per environment
+  url: http://localhost:8080   # all backend calls go through the API gateway
+
+# church-api-gateway has no application-level config beyond application.yml routes
 ```
 
 ## Logging
@@ -414,9 +436,13 @@ mvn test -fae
 
 ## Development Tips
 
-- Start `church-audit-service` second (right after auth) so write operations from all services are captured from the beginning
-- Set `spring.jpa.hibernate.ddl-auto: update` on first run, then switch back to `validate`
-- Set `spring.thymeleaf.cache: false` for live template reload during development
-- Set `logging.level.com.jeimandei: DEBUG` for verbose service logs
-- Start the gateway last — it calls all other services on startup to populate the home page
+- Start `church-config-server` first — every service fetches its config from it at startup and will refuse to start if it's unreachable
+- All shared config (datasource, JWT, logging) lives in `config-repo/application.yml`; per-service overrides in `config-repo/{service-name}.yml`
+- To change config without restarting a service, update `config-repo/` and `POST /actuator/refresh` on the target service
+- Start `church-audit-service` early (after config-server) so write operations are captured from the beginning
+- Start `church-api-gateway` last — it is the public entry point and all other services must be up first
+- `church-gateway-service` (Thymeleaf frontend) runs on `:8089` internally; all its backend calls route through the gateway on `:8080`
+- Set `spring.jpa.hibernate.ddl-auto: update` in `config-repo/application.yml` on first run, then switch back to `validate`
+- Set `spring.thymeleaf.cache: false` in `config-repo/church-gateway-service.yml` for live template reload during development
+- Set `logging.level.com.jeimandei: DEBUG` in `config-repo/application.yml` for verbose service logs
 - The audit service uses `flyway.table: flyway_schema_history_audit` to avoid Flyway checksum conflicts when multiple services share the same database

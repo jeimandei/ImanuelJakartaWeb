@@ -1,5 +1,5 @@
 spring:
   application:
-    name: church-cms-service
+    name: church-api-gateway
   config:
     import: "configserver:http://localhost:8888"
