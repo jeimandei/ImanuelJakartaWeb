@@ -21,6 +21,11 @@ x-service-defaults: &service-defaults
     - public
   restart: always
   logging: *default-logging
+  security_opt:
+    - label=disable
+  environment:
+    PUID: 1002
+    PGID: 1002
   deploy:
     resources:
       limits:
@@ -39,18 +44,22 @@ services:
     networks:
       - public
     restart: always
+    security_opt:
+      - label=disable
+    environment:
+      PUID: 1002
+      PGID: 1002
+      POSTGRES_DB: imanuelweb_db
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     deploy:
       resources:
         limits:
           memory: 1g
           cpus: '2'
-    environment:
-      POSTGRES_DB: imanuelweb_db
-      POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ./database/V1__initial_schema.sql:/docker-entrypoint-initdb.d/V1__initial_schema.sql:ro,z
+      - ./database/V1__initial_schema.sql:/docker-entrypoint-initdb.d/V1__initial_schema.sql:ro
     logging: *default-logging
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d church_db"]
@@ -73,8 +82,8 @@ services:
     environment:
       CONFIG_REPO_PATH: ${CONFIG_REPO_PATH:-/config-repo}
     volumes:
-      - ./config-repo:/config-repo:ro,z
-      - ./logs:/app/logs:z
+      - ./config-repo:/config-repo:ro
+      - ./logs:/app/logs
     depends_on:
       postgres:
         condition: service_healthy
@@ -105,7 +114,7 @@ services:
       JWT_EXPIRATION: ${JWT_EXPIRATION}
       AUDIT_SERVICE_URL: ${AUDIT_SERVICE_URL}
     volumes:
-      - ./logs:/app/logs:z
+      - ./logs:/app/logs
     depends_on:
       church-config-server:
         condition: service_healthy
@@ -136,7 +145,7 @@ services:
       JWT_EXPIRATION: ${JWT_EXPIRATION}
       AUDIT_SERVICE_URL: ${AUDIT_SERVICE_URL}
     volumes:
-      - ./logs:/app/logs:z
+      - ./logs:/app/logs
     depends_on:
       church-config-server:
         condition: service_healthy
@@ -167,7 +176,7 @@ services:
       JWT_EXPIRATION: ${JWT_EXPIRATION}
       AUDIT_SERVICE_URL: ${AUDIT_SERVICE_URL}
     volumes:
-      - ./logs:/app/logs:z
+      - ./logs:/app/logs
     depends_on:
       church-config-server:
         condition: service_healthy
@@ -198,7 +207,7 @@ services:
       JWT_EXPIRATION: ${JWT_EXPIRATION}
       AUDIT_SERVICE_URL: ${AUDIT_SERVICE_URL}
     volumes:
-      - ./logs:/app/logs:z
+      - ./logs:/app/logs
     depends_on:
       church-config-server:
         condition: service_healthy
@@ -229,7 +238,7 @@ services:
       JWT_EXPIRATION: ${JWT_EXPIRATION}
       AUDIT_SERVICE_URL: ${AUDIT_SERVICE_URL}
     volumes:
-      - ./logs:/app/logs:z
+      - ./logs:/app/logs
     depends_on:
       church-config-server:
         condition: service_healthy
@@ -262,7 +271,7 @@ services:
       MAIL_USERNAME: ${MAIL_USERNAME}
       MAIL_PASSWORD: ${MAIL_PASSWORD}
     volumes:
-      - ./logs:/app/logs:z
+      - ./logs:/app/logs
     depends_on:
       church-config-server:
         condition: service_healthy
@@ -290,7 +299,7 @@ services:
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
     volumes:
-      - ./logs:/app/logs:z
+      - ./logs:/app/logs
     depends_on:
       church-config-server:
         condition: service_healthy
@@ -318,7 +327,7 @@ services:
       JWT_EXPIRATION: ${JWT_EXPIRATION}
       API_GATEWAY_URL: ${API_GATEWAY_URL}
     volumes:
-      - ./logs:/app/logs:z
+      - ./logs:/app/logs
     depends_on:
       church-auth-service:
         condition: service_healthy
@@ -367,7 +376,7 @@ services:
       AUDIT_SERVICE_URI: ${AUDIT_SERVICE_URI}
       FRONTEND_URI: ${FRONTEND_URI}
     volumes:
-      - ./logs:/app/logs:z
+      - ./logs:/app/logs
     depends_on:
       church-gateway-service:
         condition: service_healthy
