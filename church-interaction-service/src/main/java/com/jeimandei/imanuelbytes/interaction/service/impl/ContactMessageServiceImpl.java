@@ -1,6 +1,7 @@
 package com.jeimandei.imanuelbytes.interaction.service.impl;
 
 import com.jeimandei.imanuelbytes.common.exception.ResourceNotFoundException;
+import com.jeimandei.imanuelbytes.interaction.audit.AuditClientService;
 import com.jeimandei.imanuelbytes.interaction.dto.ContactMessageDto;
 import com.jeimandei.imanuelbytes.interaction.dto.CreateContactMessageRequest;
 import com.jeimandei.imanuelbytes.interaction.dto.UpdateContactStatusRequest;
@@ -22,9 +23,12 @@ public class ContactMessageServiceImpl implements ContactMessageService {
     private static final Logger log = LoggerFactory.getLogger(ContactMessageServiceImpl.class);
 
     private final ContactMessageRepository contactMessageRepository;
+    private final AuditClientService auditClient;
 
-    public ContactMessageServiceImpl(ContactMessageRepository contactMessageRepository) {
+    public ContactMessageServiceImpl(ContactMessageRepository contactMessageRepository,
+                                     AuditClientService auditClient) {
         this.contactMessageRepository = contactMessageRepository;
+        this.auditClient = auditClient;
     }
 
     @Override
@@ -38,6 +42,12 @@ public class ContactMessageServiceImpl implements ContactMessageService {
         );
         ContactMessage saved = contactMessageRepository.save(message);
         log.info("Contact message submitted: id={}", saved.getId());
+        try {
+            auditClient.log("anonymous", "ANONYMOUS", "SUBMIT_CONTACT", "ContactMessage",
+                    String.valueOf(saved.getId()), saved.getName() + ": " + saved.getSubject());
+        } catch (Exception e) {
+            log.warn("Audit log failed for SUBMIT_CONTACT {}: {}", saved.getId(), e.getMessage());
+        }
         return toDto(saved);
     }
 
@@ -72,6 +82,12 @@ public class ContactMessageServiceImpl implements ContactMessageService {
         message.setStatus(request.getStatus());
         ContactMessage saved = contactMessageRepository.save(message);
         log.info("Contact message status updated: id={}, status={}", saved.getId(), saved.getStatus());
+        try {
+            auditClient.log(getCurrentActor(), getCurrentActorRole(), "UPDATE_CONTACT_STATUS", "ContactMessage",
+                    String.valueOf(saved.getId()), saved.getName() + ": " + saved.getSubject());
+        } catch (Exception e) {
+            log.warn("Audit log failed for UPDATE_CONTACT_STATUS {}: {}", id, e.getMessage());
+        }
         return toDto(saved);
     }
 
@@ -79,6 +95,35 @@ public class ContactMessageServiceImpl implements ContactMessageService {
     @Transactional(readOnly = true)
     public long getUnreadCount() {
         return contactMessageRepository.countByStatus(RequestStatus.NEW);
+    }
+
+    // -------------------------------------------------------------------------
+    // Internal helpers
+    // -------------------------------------------------------------------------
+
+    private String getCurrentActor() {
+        try {
+            org.springframework.security.core.Authentication auth =
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
+                return auth.getName();
+            }
+        } catch (Exception ignored) {}
+        return "system";
+    }
+
+    private String getCurrentActorRole() {
+        try {
+            org.springframework.security.core.Authentication auth =
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null) {
+                return auth.getAuthorities().stream()
+                    .findFirst()
+                    .map(a -> a.getAuthority())
+                    .orElse("UNKNOWN");
+            }
+        } catch (Exception ignored) {}
+        return "UNKNOWN";
     }
 
     // -------------------------------------------------------------------------
