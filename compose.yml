@@ -62,7 +62,7 @@ services:
       - ./database/V1__initial_schema.sql:/docker-entrypoint-initdb.d/V1__initial_schema.sql:ro
     logging: *default-logging
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d church_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d imanuelweb_db"]
       interval: 10s
       timeout: 5s
       retries: 5
