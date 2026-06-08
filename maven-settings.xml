@@ -4,9 +4,9 @@
                               https://maven.apache.org/xsd/settings-1.2.0.xsd">
   <mirrors>
     <mirror>
-      <id>aliyun-central</id>
-      <name>Aliyun Maven Central Mirror</name>
-      <url>https://maven.aliyun.com/repository/public</url>
+      <id>google-central</id>
+      <name>Google Maven Central CDN</name>
+      <url>https://maven-central.storage-download.googleapis.com/maven2/</url>
       <mirrorOf>central</mirrorOf>
     </mirror>
   </mirrors>
