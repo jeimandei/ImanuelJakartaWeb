@@ -12,6 +12,7 @@ import java.time.LocalDate;
 @Mapper(componentModel = "spring")
 public interface AnnouncementMapper {
 
+    @Mapping(target = "currentlyActive", expression = "java(announcement.isActive() && !java.time.LocalDate.now().isBefore(announcement.getStartDate()) && !java.time.LocalDate.now().isAfter(announcement.getEndDate()))")
     AnnouncementDto toDto(Announcement announcement);
 
     @Mapping(target = "id", ignore = true)
