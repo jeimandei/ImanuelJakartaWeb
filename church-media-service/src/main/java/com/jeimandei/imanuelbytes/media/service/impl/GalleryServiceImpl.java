@@ -1,6 +1,7 @@
 package com.jeimandei.imanuelbytes.media.service.impl;
 
 import com.jeimandei.imanuelbytes.common.exception.ResourceNotFoundException;
+import com.jeimandei.imanuelbytes.media.audit.AuditClientService;
 import com.jeimandei.imanuelbytes.media.dto.CreateGalleryItemRequest;
 import com.jeimandei.imanuelbytes.media.dto.GalleryItemDto;
 import com.jeimandei.imanuelbytes.media.dto.UpdateGalleryItemRequest;
@@ -25,11 +26,14 @@ public class GalleryServiceImpl implements GalleryService {
 
     private final GalleryItemRepository galleryItemRepository;
     private final GalleryItemMapper galleryItemMapper;
+    private final AuditClientService auditClient;
 
     public GalleryServiceImpl(GalleryItemRepository galleryItemRepository,
-                              GalleryItemMapper galleryItemMapper) {
+                              GalleryItemMapper galleryItemMapper,
+                              AuditClientService auditClient) {
         this.galleryItemRepository = galleryItemRepository;
         this.galleryItemMapper = galleryItemMapper;
+        this.auditClient = auditClient;
     }
 
     @Override

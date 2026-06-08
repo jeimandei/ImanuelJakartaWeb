@@ -1,5 +1,6 @@
 package com.jeimandei.imanuelbytes.cms.service.impl;
 
+import com.jeimandei.imanuelbytes.cms.audit.AuditClientService;
 import com.jeimandei.imanuelbytes.cms.dto.SiteSettingDto;
 import com.jeimandei.imanuelbytes.cms.dto.UpdateSiteSettingRequest;
 import com.jeimandei.imanuelbytes.cms.entity.SiteSetting;
@@ -21,9 +22,12 @@ public class SiteSettingServiceImpl implements SiteSettingService {
     private static final Logger log = LoggerFactory.getLogger(SiteSettingServiceImpl.class);
 
     private final SiteSettingRepository siteSettingRepository;
+    private final AuditClientService auditClient;
 
-    public SiteSettingServiceImpl(SiteSettingRepository siteSettingRepository) {
+    public SiteSettingServiceImpl(SiteSettingRepository siteSettingRepository,
+                                   AuditClientService auditClient) {
         this.siteSettingRepository = siteSettingRepository;
+        this.auditClient = auditClient;
     }
 
     @Override
@@ -57,6 +61,12 @@ public class SiteSettingServiceImpl implements SiteSettingService {
         setting.setUpdatedAt(LocalDateTime.now());
         SiteSettingDto updated = toDto(siteSettingRepository.save(setting));
         log.info("Updated site setting key='{}'", key);
+        try {
+            auditClient.log(getCurrentActor(), getCurrentActorRole(), "UPDATE_SETTING", "SiteSetting",
+                    key, key);
+        } catch (Exception e) {
+            log.warn("Audit log failed for UPDATE_SETTING {}: {}", key, e.getMessage());
+        }
         return updated;
     }
 
@@ -66,6 +76,31 @@ public class SiteSettingServiceImpl implements SiteSettingService {
         return siteSettingRepository.findBySettingKey(key)
                 .map(SiteSetting::getSettingValue)
                 .orElse("");
+    }
+
+    private String getCurrentActor() {
+        try {
+            org.springframework.security.core.Authentication auth =
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
+                return auth.getName();
+            }
+        } catch (Exception ignored) {}
+        return "system";
+    }
+
+    private String getCurrentActorRole() {
+        try {
+            org.springframework.security.core.Authentication auth =
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null) {
+                return auth.getAuthorities().stream()
+                    .findFirst()
+                    .map(a -> a.getAuthority())
+                    .orElse("UNKNOWN");
+            }
+        } catch (Exception ignored) {}
+        return "UNKNOWN";
     }
 
     private SiteSettingDto toDto(SiteSetting s) {

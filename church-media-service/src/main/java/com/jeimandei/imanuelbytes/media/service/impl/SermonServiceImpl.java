@@ -1,6 +1,7 @@
 package com.jeimandei.imanuelbytes.media.service.impl;
 
 import com.jeimandei.imanuelbytes.common.exception.ResourceNotFoundException;
+import com.jeimandei.imanuelbytes.media.audit.AuditClientService;
 import com.jeimandei.imanuelbytes.media.dto.CreateSermonRequest;
 import com.jeimandei.imanuelbytes.media.dto.SermonDto;
 import com.jeimandei.imanuelbytes.media.dto.UpdateSermonRequest;
@@ -26,10 +27,13 @@ public class SermonServiceImpl implements SermonService {
 
     private final SermonRepository sermonRepository;
     private final SermonMapper sermonMapper;
+    private final AuditClientService auditClient;
 
-    public SermonServiceImpl(SermonRepository sermonRepository, SermonMapper sermonMapper) {
+    public SermonServiceImpl(SermonRepository sermonRepository, SermonMapper sermonMapper,
+                             AuditClientService auditClient) {
         this.sermonRepository = sermonRepository;
         this.sermonMapper = sermonMapper;
+        this.auditClient = auditClient;
     }
 
     @Override
@@ -91,6 +95,12 @@ public class SermonServiceImpl implements SermonService {
         sermon.setYoutubeUrl(normalizedUrl);
         Sermon saved = sermonRepository.save(sermon);
         log.info("Sermon created successfully: id={}, title='{}'", saved.getId(), saved.getTitle());
+        try {
+            auditClient.log(getCurrentActor(), getCurrentActorRole(), "CREATE_SERMON", "Sermon",
+                    String.valueOf(saved.getId()), saved.getTitle());
+        } catch (Exception e) {
+            log.warn("Audit log failed for CREATE_SERMON {}: {}", saved.getId(), e.getMessage());
+        }
         return sermonMapper.toDto(saved);
     }
 
@@ -108,18 +118,56 @@ public class SermonServiceImpl implements SermonService {
         }
         Sermon saved = sermonRepository.save(sermon);
         log.info("Sermon updated successfully: id={}", saved.getId());
+        try {
+            auditClient.log(getCurrentActor(), getCurrentActorRole(), "UPDATE_SERMON", "Sermon",
+                    String.valueOf(saved.getId()), saved.getTitle());
+        } catch (Exception e) {
+            log.warn("Audit log failed for UPDATE_SERMON {}: {}", id, e.getMessage());
+        }
         return sermonMapper.toDto(saved);
     }
 
     @Override
     public void deleteSermon(Long id) {
         log.debug("Deleting sermon id={}", id);
-        if (!sermonRepository.existsById(id)) {
-            log.warn("Sermon not found for deletion: id={}", id);
-            throw new ResourceNotFoundException("Sermon", id);
-        }
+        Sermon sermon = sermonRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("Sermon not found for deletion: id={}", id);
+                    return new ResourceNotFoundException("Sermon", id);
+                });
         sermonRepository.deleteById(id);
         log.info("Sermon deleted successfully: id={}", id);
+        try {
+            auditClient.log(getCurrentActor(), getCurrentActorRole(), "DELETE_SERMON", "Sermon",
+                    String.valueOf(id), sermon.getTitle());
+        } catch (Exception e) {
+            log.warn("Audit log failed for DELETE_SERMON {}: {}", id, e.getMessage());
+        }
+    }
+
+    private String getCurrentActor() {
+        try {
+            org.springframework.security.core.Authentication auth =
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
+                return auth.getName();
+            }
+        } catch (Exception ignored) {}
+        return "system";
+    }
+
+    private String getCurrentActorRole() {
+        try {
+            org.springframework.security.core.Authentication auth =
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null) {
+                return auth.getAuthorities().stream()
+                    .findFirst()
+                    .map(a -> a.getAuthority())
+                    .orElse("UNKNOWN");
+            }
+        } catch (Exception ignored) {}
+        return "UNKNOWN";
     }
 
     private String normalizeYoutubeUrl(String url) {

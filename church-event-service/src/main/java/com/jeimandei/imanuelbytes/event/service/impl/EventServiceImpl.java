@@ -3,6 +3,7 @@ package com.jeimandei.imanuelbytes.event.service.impl;
 import com.jeimandei.imanuelbytes.common.exception.ResourceNotFoundException;
 import com.jeimandei.imanuelbytes.common.exception.ValidationException;
 import com.jeimandei.imanuelbytes.common.util.SlugUtils;
+import com.jeimandei.imanuelbytes.event.audit.AuditClientService;
 import com.jeimandei.imanuelbytes.event.dto.CreateEventRequest;
 import com.jeimandei.imanuelbytes.event.dto.EventDto;
 import com.jeimandei.imanuelbytes.event.dto.FeaturedEventDto;
@@ -36,10 +37,13 @@ public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
     private final EventMapper eventMapper;
+    private final AuditClientService auditClient;
 
-    public EventServiceImpl(EventRepository eventRepository, EventMapper eventMapper) {
+    public EventServiceImpl(EventRepository eventRepository, EventMapper eventMapper,
+                            AuditClientService auditClient) {
         this.eventRepository = eventRepository;
         this.eventMapper = eventMapper;
+        this.auditClient = auditClient;
     }
 
     // -------------------------------------------------------------------------
@@ -126,6 +130,12 @@ public class EventServiceImpl implements EventService {
 
         Event saved = eventRepository.save(event);
         log.info("Created event id={}, slug='{}'", saved.getId(), saved.getSlug());
+        try {
+            auditClient.log(getCurrentActor(), getCurrentActorRole(), "CREATE_EVENT", "Event",
+                    String.valueOf(saved.getId()), saved.getTitle());
+        } catch (Exception e) {
+            log.warn("Audit log failed for CREATE_EVENT {}: {}", saved.getId(), e.getMessage());
+        }
         return eventMapper.toDtoWithUpcoming(saved);
     }
 
@@ -145,6 +155,12 @@ public class EventServiceImpl implements EventService {
         eventMapper.updateEntity(event, request);
         Event saved = eventRepository.save(event);
         log.info("Updated event id={}", saved.getId());
+        try {
+            auditClient.log(getCurrentActor(), getCurrentActorRole(), "UPDATE_EVENT", "Event",
+                    String.valueOf(saved.getId()), saved.getTitle());
+        } catch (Exception e) {
+            log.warn("Audit log failed for UPDATE_EVENT {}: {}", id, e.getMessage());
+        }
         return eventMapper.toDtoWithUpcoming(saved);
     }
 
@@ -155,6 +171,12 @@ public class EventServiceImpl implements EventService {
         event.setStatus(EventStatus.CANCELLED);
         eventRepository.save(event);
         log.info("Deleted (cancelled) event id={}", id);
+        try {
+            auditClient.log(getCurrentActor(), getCurrentActorRole(), "DELETE_EVENT", "Event",
+                    String.valueOf(id), event.getTitle());
+        } catch (Exception e) {
+            log.warn("Audit log failed for DELETE_EVENT {}: {}", id, e.getMessage());
+        }
     }
 
     @Override
@@ -164,6 +186,12 @@ public class EventServiceImpl implements EventService {
         event.setFeatured(!event.isFeatured());
         Event saved = eventRepository.save(event);
         log.info("Event id={} featured set to {}", saved.getId(), saved.isFeatured());
+        try {
+            auditClient.log(getCurrentActor(), getCurrentActorRole(), "TOGGLE_FEATURED", "Event",
+                    String.valueOf(saved.getId()), saved.getTitle() + " featured=" + saved.isFeatured());
+        } catch (Exception e) {
+            log.warn("Audit log failed for TOGGLE_FEATURED {}: {}", id, e.getMessage());
+        }
         return eventMapper.toDtoWithUpcoming(saved);
     }
 
@@ -174,6 +202,12 @@ public class EventServiceImpl implements EventService {
         event.setStatus(EventStatus.PUBLISHED);
         Event saved = eventRepository.save(event);
         log.info("Published event id={}, slug='{}'", saved.getId(), saved.getSlug());
+        try {
+            auditClient.log(getCurrentActor(), getCurrentActorRole(), "PUBLISH_EVENT", "Event",
+                    String.valueOf(saved.getId()), saved.getTitle());
+        } catch (Exception e) {
+            log.warn("Audit log failed for PUBLISH_EVENT {}: {}", id, e.getMessage());
+        }
         return eventMapper.toDtoWithUpcoming(saved);
     }
 
@@ -184,6 +218,12 @@ public class EventServiceImpl implements EventService {
         event.setStatus(EventStatus.CANCELLED);
         Event saved = eventRepository.save(event);
         log.info("Cancelled event id={}", saved.getId());
+        try {
+            auditClient.log(getCurrentActor(), getCurrentActorRole(), "CANCEL_EVENT", "Event",
+                    String.valueOf(saved.getId()), saved.getTitle());
+        } catch (Exception e) {
+            log.warn("Audit log failed for CANCEL_EVENT {}: {}", id, e.getMessage());
+        }
         return eventMapper.toDtoWithUpcoming(saved);
     }
 
@@ -205,5 +245,30 @@ public class EventServiceImpl implements EventService {
             return SlugUtils.toSlug(supplied);
         }
         return SlugUtils.toSlug(title);
+    }
+
+    private String getCurrentActor() {
+        try {
+            org.springframework.security.core.Authentication auth =
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
+                return auth.getName();
+            }
+        } catch (Exception ignored) {}
+        return "system";
+    }
+
+    private String getCurrentActorRole() {
+        try {
+            org.springframework.security.core.Authentication auth =
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null) {
+                return auth.getAuthorities().stream()
+                    .findFirst()
+                    .map(a -> a.getAuthority())
+                    .orElse("UNKNOWN");
+            }
+        } catch (Exception ignored) {}
+        return "UNKNOWN";
     }
 }

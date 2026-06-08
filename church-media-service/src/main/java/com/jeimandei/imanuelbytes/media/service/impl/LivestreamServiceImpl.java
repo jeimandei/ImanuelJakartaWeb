@@ -2,6 +2,7 @@ package com.jeimandei.imanuelbytes.media.service.impl;
 
 import com.jeimandei.imanuelbytes.common.exception.ResourceNotFoundException;
 import com.jeimandei.imanuelbytes.common.exception.ValidationException;
+import com.jeimandei.imanuelbytes.media.audit.AuditClientService;
 import com.jeimandei.imanuelbytes.media.dto.CreateLivestreamRequest;
 import com.jeimandei.imanuelbytes.media.dto.LivestreamDto;
 import com.jeimandei.imanuelbytes.media.dto.UpdateLivestreamRequest;
@@ -29,11 +30,14 @@ public class LivestreamServiceImpl implements LivestreamService {
 
     private final LivestreamRepository livestreamRepository;
     private final LivestreamMapper livestreamMapper;
+    private final AuditClientService auditClient;
 
     public LivestreamServiceImpl(LivestreamRepository livestreamRepository,
-                                 LivestreamMapper livestreamMapper) {
+                                 LivestreamMapper livestreamMapper,
+                                 AuditClientService auditClient) {
         this.livestreamRepository = livestreamRepository;
         this.livestreamMapper = livestreamMapper;
+        this.auditClient = auditClient;
     }
 
     @Override
@@ -70,6 +74,12 @@ public class LivestreamServiceImpl implements LivestreamService {
         Livestream livestream = livestreamMapper.toEntity(request);
         Livestream saved = livestreamRepository.save(livestream);
         log.info("Livestream created successfully: id={}, title='{}'", saved.getId(), saved.getTitle());
+        try {
+            auditClient.log(getCurrentActor(), getCurrentActorRole(), "CREATE_LIVESTREAM", "Livestream",
+                    String.valueOf(saved.getId()), saved.getTitle());
+        } catch (Exception e) {
+            log.warn("Audit log failed for CREATE_LIVESTREAM {}: {}", saved.getId(), e.getMessage());
+        }
         return livestreamMapper.toDto(saved);
     }
 
@@ -87,18 +97,31 @@ public class LivestreamServiceImpl implements LivestreamService {
         livestreamMapper.updateEntity(livestream, request);
         Livestream saved = livestreamRepository.save(livestream);
         log.info("Livestream updated successfully: id={}", saved.getId());
+        try {
+            auditClient.log(getCurrentActor(), getCurrentActorRole(), "UPDATE_LIVESTREAM", "Livestream",
+                    String.valueOf(saved.getId()), saved.getTitle());
+        } catch (Exception e) {
+            log.warn("Audit log failed for UPDATE_LIVESTREAM {}: {}", id, e.getMessage());
+        }
         return livestreamMapper.toDto(saved);
     }
 
     @Override
     public void deleteLivestream(Long id) {
         log.debug("Deleting livestream id={}", id);
-        if (!livestreamRepository.existsById(id)) {
-            log.warn("Livestream not found for deletion: id={}", id);
-            throw new ResourceNotFoundException("Livestream", id);
-        }
+        Livestream livestream = livestreamRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("Livestream not found for deletion: id={}", id);
+                    return new ResourceNotFoundException("Livestream", id);
+                });
         livestreamRepository.deleteById(id);
         log.info("Livestream deleted successfully: id={}", id);
+        try {
+            auditClient.log(getCurrentActor(), getCurrentActorRole(), "DELETE_LIVESTREAM", "Livestream",
+                    String.valueOf(id), livestream.getTitle());
+        } catch (Exception e) {
+            log.warn("Audit log failed for DELETE_LIVESTREAM {}: {}", id, e.getMessage());
+        }
     }
 
     @Override
@@ -120,6 +143,12 @@ public class LivestreamServiceImpl implements LivestreamService {
         target.setActive(true);
         Livestream saved = livestreamRepository.save(target);
         log.info("Livestream activated: id={}", saved.getId());
+        try {
+            auditClient.log(getCurrentActor(), getCurrentActorRole(), "ACTIVATE_LIVESTREAM", "Livestream",
+                    String.valueOf(saved.getId()), saved.getTitle());
+        } catch (Exception e) {
+            log.warn("Audit log failed for ACTIVATE_LIVESTREAM {}: {}", id, e.getMessage());
+        }
         return livestreamMapper.toDto(saved);
     }
 
@@ -135,6 +164,31 @@ public class LivestreamServiceImpl implements LivestreamService {
         Livestream saved = livestreamRepository.save(livestream);
         log.info("Livestream deactivated: id={}", saved.getId());
         return livestreamMapper.toDto(saved);
+    }
+
+    private String getCurrentActor() {
+        try {
+            org.springframework.security.core.Authentication auth =
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
+                return auth.getName();
+            }
+        } catch (Exception ignored) {}
+        return "system";
+    }
+
+    private String getCurrentActorRole() {
+        try {
+            org.springframework.security.core.Authentication auth =
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null) {
+                return auth.getAuthorities().stream()
+                    .findFirst()
+                    .map(a -> a.getAuthority())
+                    .orElse("UNKNOWN");
+            }
+        } catch (Exception ignored) {}
+        return "UNKNOWN";
     }
 
     private void validateEmbedUrl(String url) {

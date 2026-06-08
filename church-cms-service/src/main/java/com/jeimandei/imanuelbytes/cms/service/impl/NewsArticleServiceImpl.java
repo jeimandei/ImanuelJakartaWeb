@@ -89,6 +89,12 @@ public class NewsArticleServiceImpl implements NewsArticleService {
         }
         NewsArticleDto created = newsArticleMapper.toDto(newsArticleRepository.save(article));
         log.info("Created news article id={}, slug='{}'", created.getId(), created.getSlug());
+        try {
+            auditClient.log(getCurrentActor(), getCurrentActorRole(), "CREATE_ARTICLE", "NewsArticle",
+                    String.valueOf(created.getId()), created.getTitle());
+        } catch (Exception e) {
+            log.warn("Audit log failed for CREATE_ARTICLE {}: {}", created.getId(), e.getMessage());
+        }
         return created;
     }
 
@@ -103,6 +109,12 @@ public class NewsArticleServiceImpl implements NewsArticleService {
         newsArticleMapper.updateEntity(article, request);
         NewsArticleDto updated = newsArticleMapper.toDto(newsArticleRepository.save(article));
         log.info("Updated news article id={}", updated.getId());
+        try {
+            auditClient.log(getCurrentActor(), getCurrentActorRole(), "UPDATE_ARTICLE", "NewsArticle",
+                    String.valueOf(updated.getId()), updated.getTitle());
+        } catch (Exception e) {
+            log.warn("Audit log failed for UPDATE_ARTICLE {}: {}", id, e.getMessage());
+        }
         return updated;
     }
 
@@ -118,17 +130,55 @@ public class NewsArticleServiceImpl implements NewsArticleService {
         article.setPublishedAt(LocalDateTime.now());
         NewsArticleDto published = newsArticleMapper.toDto(newsArticleRepository.save(article));
         log.info("Published news article id={}, slug='{}'", published.getId(), published.getSlug());
+        try {
+            auditClient.log(getCurrentActor(), getCurrentActorRole(), "PUBLISH_ARTICLE", "NewsArticle",
+                    String.valueOf(published.getId()), published.getTitle());
+        } catch (Exception e) {
+            log.warn("Audit log failed for PUBLISH_ARTICLE {}: {}", id, e.getMessage());
+        }
         return published;
     }
 
     @Override
     public void deleteArticle(Long id) {
         log.debug("Deleting news article id={}", id);
-        if (!newsArticleRepository.existsById(id)) {
-            log.warn("News article not found for id={}", id);
-            throw new ResourceNotFoundException("NewsArticle", "id", id);
-        }
+        NewsArticle article = newsArticleRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("News article not found for id={}", id);
+                    return new ResourceNotFoundException("NewsArticle", "id", id);
+                });
         newsArticleRepository.deleteById(id);
         log.info("Deleted news article id={}", id);
+        try {
+            auditClient.log(getCurrentActor(), getCurrentActorRole(), "DELETE_ARTICLE", "NewsArticle",
+                    String.valueOf(id), article.getTitle());
+        } catch (Exception e) {
+            log.warn("Audit log failed for DELETE_ARTICLE {}: {}", id, e.getMessage());
+        }
+    }
+
+    private String getCurrentActor() {
+        try {
+            org.springframework.security.core.Authentication auth =
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
+                return auth.getName();
+            }
+        } catch (Exception ignored) {}
+        return "system";
+    }
+
+    private String getCurrentActorRole() {
+        try {
+            org.springframework.security.core.Authentication auth =
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null) {
+                return auth.getAuthorities().stream()
+                    .findFirst()
+                    .map(a -> a.getAuthority())
+                    .orElse("UNKNOWN");
+            }
+        } catch (Exception ignored) {}
+        return "UNKNOWN";
     }
 }
