@@ -13,6 +13,7 @@ ImanuelJakartaWeb/
 ├── church-event-service       # Event management                         :8084
 ├── church-media-service       # Sermons, livestreams, gallery            :8085
 ├── church-interaction-service # Prayer requests, contact, newsletter     :8086
+├── church-audit-service       # Cross-service audit log recording        :8087
 ├── church-gateway-service     # Public website + admin dashboard         :8080
 ├── database                   # PostgreSQL schema and setup script
 └── pom.xml                    # Maven parent POM
@@ -74,22 +75,25 @@ mvn clean install -DskipTests
 # Terminal 1
 cd church-auth-service && mvn spring-boot:run
 
-# Terminal 2
-cd church-user-service && mvn spring-boot:run
+# Terminal 2 — start audit service early so write operations are captured
+cd church-audit-service && mvn spring-boot:run
 
 # Terminal 3
-cd church-cms-service && mvn spring-boot:run
+cd church-user-service && mvn spring-boot:run
 
 # Terminal 4
-cd church-event-service && mvn spring-boot:run
+cd church-cms-service && mvn spring-boot:run
 
 # Terminal 5
-cd church-media-service && mvn spring-boot:run
+cd church-event-service && mvn spring-boot:run
 
 # Terminal 6
+cd church-media-service && mvn spring-boot:run
+
+# Terminal 7
 cd church-interaction-service && mvn spring-boot:run
 
-# Terminal 7 — start LAST (depends on all others)
+# Terminal 8 — start LAST (depends on all others)
 cd church-gateway-service && mvn spring-boot:run
 ```
 
@@ -119,6 +123,7 @@ Password: Admin@1234
 | Event Service | 8084 |
 | Media Service | 8085 |
 | Interaction Service | 8086 |
+| Audit Service | 8087 |
 
 ## REST API Reference
 
@@ -218,6 +223,25 @@ POST /api/testimonies                  Submit testimony (public)
 POST /api/volunteer                    Apply to volunteer (public)
 ```
 
+### Audit Service — port 8087
+
+Internal service. All 6 backend services post write operations here automatically.
+
+```
+POST /api/audit          Record an audit log entry
+GET  /api/audit          Query audit logs (paginated, filterable)
+  ?actor=                Filter by username who performed the action
+  ?action=               Filter by action name (e.g. CREATE_EVENT, DELETE_USER)
+  ?entityType=           Filter by entity type (e.g. Event, User, Sermon)
+  ?serviceName=          Filter by originating service (e.g. church-event-service)
+  ?from=                 Filter by start date-time (ISO-8601: 2026-06-01T00:00:00)
+  ?to=                   Filter by end date-time (ISO-8601: 2026-06-08T23:59:59)
+  ?page=                 Page number (0-based, default 0)
+  ?size=                 Page size (default 50)
+```
+
+Results are always sorted by `createdAt DESC` regardless of the caller-supplied sort.
+
 ## Public Website Pages
 
 | Path | Page |
@@ -262,6 +286,7 @@ All admin routes require `ROLE_ADMIN` or `ROLE_SUPER_ADMIN`. Content routes also
 | `/admin/gallery` | Gallery items and albums |
 | `/admin/prayer-requests` | Prayer request queue (confidential flag respected) |
 | `/admin/contacts` | Contact message inbox |
+| `/admin/audit-logs` | Audit log viewer — filter by actor, action, entity, service, date range |
 | `/admin/settings` | Site settings key-value editor |
 | `/admin/cms` | CMS page management (publish/unpublish) |
 
@@ -277,9 +302,10 @@ All admin routes require `ROLE_ADMIN` or `ROLE_SUPER_ADMIN`. Content routes also
 
 ## Database
 
-See `database/V1__initial_schema.sql` for the complete PostgreSQL schema:
+See `database/V1__initial_schema.sql` for the main PostgreSQL schema:
 
 - **17 tables**: users, roles, user_roles, cms_pages, cms_content_blocks, events, sermons, livestreams, announcements, news_articles, gallery_items, prayer_requests, contact_messages, site_settings, newsletter_subscriptions, testimony_submissions, volunteer_applications
+- **1 additional table** (`audit_logs`) created by `church-audit-service` via its own Flyway migration (`flyway_schema_history_audit` history table to avoid conflicts)
 - Indexes on all commonly-queried columns
 - CHECK constraints for all status enums
 - Seed data: default roles, admin user (`admin` / `Admin@1234`), and sample site settings
@@ -289,7 +315,7 @@ See `database/V1__initial_schema.sql` for the complete PostgreSQL schema:
 ```
 com.jeimandei.imanuelbytes
 ├── common
-│   ├── dto         # ApiResponse, PageResponse
+│   ├── dto         # ApiResponse, PageResponse, AuditLogRequest
 │   ├── entity      # BaseEntity (createdAt, updatedAt)
 │   ├── exception   # ResourceNotFoundException, ValidationException, GlobalExceptionHandler
 │   ├── security    # JwtService, JwtAuthenticationFilter
@@ -301,6 +327,7 @@ com.jeimandei.imanuelbytes
 ├── event           # Events with lifecycle (draft → published → cancelled)
 ├── media           # Sermons, livestreams, gallery
 ├── interaction     # Prayer requests, contact, newsletter, testimonies, volunteer
+├── audit           # Audit log recording and querying (port 8087)
 └── gateway         # Thymeleaf frontend — public site, admin panel, auth pages
 ```
 
@@ -321,7 +348,29 @@ spring:
 jwt:
   secret: <256-bit-base64-secret>
   expiration: 86400000     # 24 hours in ms
+
+audit-service:
+  url: http://localhost:8087   # override per environment
 ```
+
+## Logging
+
+Each service ships with a `logback-spring.xml` that writes rolling log files:
+
+- **Pattern**: timestamp, thread, level, logger with class name and **line number**, message
+- **Rotation**: daily, compressed to `.log.gz`, 30-day retention, 1 GB total size cap
+- **Dev profile** (`spring.profiles.active=dev`): `com.jeimandei` at `DEBUG`
+- **Prod profile**: `com.jeimandei` at `INFO`
+
+Log files are written to `logs/<service-name>.log` inside each service directory (excluded from git via `.gitignore`).
+
+## Audit Logging
+
+Every write operation across all 6 backend services is recorded to `church-audit-service`. Each service embeds an `AuditClientService` that posts audit events as fire-and-forget HTTP calls — if the audit service is down, business operations are never blocked.
+
+Recorded fields per event: actor (username), actor role, action name, entity type, entity ID, entity name, originating service, IP address, timestamp.
+
+The admin UI at `/admin/audit-logs` provides a searchable, filterable, paginated view of all audit events with color-coded action badges.
 
 ## YouTube Livestream
 
@@ -341,6 +390,7 @@ Only one livestream can be active at a time — activating one automatically dea
 - CSRF tokens on all HTML forms
 - Confidential prayer requests visible to `ROLE_ADMIN` / `ROLE_EDITOR` only
 - Account status (ACTIVE / INACTIVE / LOCKED) checked on every login
+- Audit service is internal-only (no JWT required, CSRF disabled, not exposed via gateway)
 
 ## Running Tests
 
@@ -348,7 +398,7 @@ Only one livestream can be active at a time — activating one automatically dea
 mvn test -fae
 ```
 
-154 unit tests across all 8 modules — JUnit 5 + Mockito, no Spring context or database required.
+175 unit tests across all 9 modules — JUnit 5 + Mockito, no Spring context or database required.
 
 | Module | Tests |
 |---|---|
@@ -359,11 +409,14 @@ mvn test -fae
 | church-event-service | 13 |
 | church-media-service | 22 |
 | church-interaction-service | 12 |
+| church-audit-service | 21 |
 | church-gateway-service | 27 |
 
 ## Development Tips
 
+- Start `church-audit-service` second (right after auth) so write operations from all services are captured from the beginning
 - Set `spring.jpa.hibernate.ddl-auto: update` on first run, then switch back to `validate`
 - Set `spring.thymeleaf.cache: false` for live template reload during development
 - Set `logging.level.com.jeimandei: DEBUG` for verbose service logs
 - Start the gateway last — it calls all other services on startup to populate the home page
+- The audit service uses `flyway.table: flyway_schema_history_audit` to avoid Flyway checksum conflicts when multiple services share the same database
