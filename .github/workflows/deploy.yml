@@ -131,11 +131,12 @@ jobs:
               mkdir -p "${{ env.DEPLOY_DIR }}"
               git clone --branch ${{ inputs.branch }} https://github.com/${{ github.repository }}.git "${{ env.DEPLOY_DIR }}"
             else
-              echo "→ Pulling branch ${{ inputs.branch }}"
+              echo "→ Pulling branch ${{ inputs.branch }} (force overwrite)"
               cd ${{ env.DEPLOY_DIR }}
               git fetch origin
               git checkout ${{ inputs.branch }}
-              git pull origin ${{ inputs.branch }}
+              git reset --hard origin/${{ inputs.branch }}
+              git clean -fd
             fi
             cd ${{ env.DEPLOY_DIR }}
             echo "→ Rebuilding and restarting all containers"
