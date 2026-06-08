@@ -255,7 +255,7 @@ ON CONFLICT (role_name) DO NOTHING;
 
 -- Admin user (password: Admin@1234, BCrypt hash)
 INSERT INTO users (username, email, password_hash, full_name, phone_number, status) VALUES
-    ('admin', 'admin@imanueljakarta.org',
+    ('admin', 'admin@gmimimanueljakarta.or.id',
      '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iKVPOJGpFp5X2jNZ.X.0j5ZlhO/i',
      'System Administrator', '+62-21-123-4567', 'ACTIVE')
 ON CONFLICT (username) DO NOTHING;
@@ -268,23 +268,23 @@ ON CONFLICT DO NOTHING;
 
 -- Site Settings
 INSERT INTO site_settings (setting_key, setting_value, description) VALUES
-    ('church_name',            'Imanuel Jakarta Church',                           'Church official name'),
-    ('church_tagline',         'A community of faith, hope, and love',             'Church tagline'),
+    ('church_name',            'Imanuel Jakarta Church',                          'Church official name'),
+    ('church_tagline',         'A community of faith, hope, and love',            'Church tagline'),
     ('church_address',         'Jl. Imanuel No. 1, Jakarta Pusat 10110',          'Full church address'),
     ('church_phone',           '+62 21 123-4567',                                 'Main phone number'),
-    ('church_email',           'info@imanueljakarta.org',                          'Main email address'),
-    ('church_logo_url',        '/images/logo.png',                                 'Church logo URL'),
+    ('church_email',           'info@gmimimanueljakarta.or.id',                   'Main email address'),
+    ('church_logo_url',        '/images/logo.png',                                'Church logo URL'),
     ('church_youtube_channel', 'https://youtube.com/@imanueljakarta',             'YouTube channel URL'),
-    ('default_livestream_url', 'https://www.youtube.com/embed/dQw4w9WgXcQ',      'Default livestream embed URL'),
+    ('default_livestream_url', 'https://www.youtube.com/embed/dQw4w9WgXcQ',       'Default livestream embed URL'),
     ('facebook_url',           'https://facebook.com/imanueljakarta',             'Facebook page URL'),
     ('instagram_url',          'https://instagram.com/imanueljakarta',            'Instagram profile URL'),
     ('about_us_text',          'Imanuel Jakarta Church has been serving the Jakarta community since the 1970s. We are a multicultural, welcoming congregation committed to sharing the love of Christ.', 'About us text'),
     ('vision_statement',       'To be a Christ-centered church that transforms lives and communities in Jakarta and beyond.', 'Vision statement'),
     ('mission_statement',      'Worship God. Grow Together. Serve Others. Share Christ.',                                    'Mission statement'),
-    ('giving_bank_name',       'Bank BCA',                                         'Bank name for giving'),
-    ('giving_account_name',    'GKJ Imanuel Jakarta',                             'Bank account name'),
+    ('giving_bank_name',       'Bank BRI',                                        'Bank name for giving'),
+    ('giving_account_name',    'GMIM Imanuel Jakarta Barat',                      'Bank account name'),
     ('giving_account_number',  '123-456-7890',                                    'Bank account number'),
-    ('giving_branch',          'Jakarta Pusat',                                    'Bank branch')
+    ('giving_branch',          'Jakarta Pusat',                                   'Bank branch')
 ON CONFLICT (setting_key) DO NOTHING;
 
 -- Sample announcement
