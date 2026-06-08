@@ -127,9 +127,12 @@ jobs:
           ssh -p ${{ env.SSH_PORT }} ${{ env.SSH_USER }}@${{ env.SSH_HOST }} << EOF
             set -e
             if [ ! -d "${{ env.DEPLOY_DIR }}/.git" ]; then
-              echo "→ No git repo found — cloning into ${{ env.DEPLOY_DIR }}"
+              echo "→ No git repo found — initialising in ${{ env.DEPLOY_DIR }}"
               mkdir -p "${{ env.DEPLOY_DIR }}"
-              git clone --branch ${{ inputs.branch }} https://github.com/${{ github.repository }}.git "${{ env.DEPLOY_DIR }}"
+              git -C "${{ env.DEPLOY_DIR }}" init
+              git -C "${{ env.DEPLOY_DIR }}" remote add origin https://github.com/${{ github.repository }}.git
+              git -C "${{ env.DEPLOY_DIR }}" fetch origin
+              git -C "${{ env.DEPLOY_DIR }}" checkout -b ${{ inputs.branch }} --track origin/${{ inputs.branch }}
             else
               echo "→ Pulling branch ${{ inputs.branch }} (force overwrite)"
               cd ${{ env.DEPLOY_DIR }}
