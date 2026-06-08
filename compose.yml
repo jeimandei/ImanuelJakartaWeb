@@ -41,7 +41,7 @@ services:
           memory: 1g
           cpus: '2'
     environment:
-      POSTGRES_DB: church_db
+      POSTGRES_DB: imanuelweb_db
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
