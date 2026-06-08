@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8089
   error:
     whitelabel:
       enabled: false
@@ -21,19 +21,19 @@ spring:
 
 services:
   auth-service:
-    url: http://localhost:8081
+    url: http://localhost:8080
   user-service:
-    url: http://localhost:8082
+    url: http://localhost:8080
   cms-service:
-    url: http://localhost:8083
+    url: http://localhost:8080
   event-service:
-    url: http://localhost:8084
+    url: http://localhost:8080
   media-service:
-    url: http://localhost:8085
+    url: http://localhost:8080
   interaction-service:
-    url: http://localhost:8086
+    url: http://localhost:8080
   audit-service:
-    url: http://localhost:8087
+    url: http://localhost:8080
 
 jwt:
   secret: 3JkWpV9nR7mQfLxTzYsA2bDcEhGiJuKoNvPwSyUaBdFeHjIlMnOqRtVxZy1235467890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz

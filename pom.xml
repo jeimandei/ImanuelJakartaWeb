@@ -28,6 +28,7 @@
         <module>church-interaction-service</module>
         <module>church-gateway-service</module>
         <module>church-audit-service</module>
+        <module>church-api-gateway</module>
     </modules>
 
     <properties>
@@ -40,10 +41,20 @@
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <postgresql.version>42.7.3</postgresql.version>
         <flyway.version>10.11.0</flyway.version>
+        <spring-cloud.version>2023.0.3</spring-cloud.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <!-- Spring Cloud BOM -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
             <!-- Internal modules -->
             <dependency>
                 <groupId>com.jeimandei</groupId>
