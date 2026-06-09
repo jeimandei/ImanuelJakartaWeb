@@ -46,7 +46,7 @@ concurrency:
 
 env:
   DEPLOY_DIR: /home/ibytes/website/gmimimanueljakarta
-  SSH_HOST: jeimandei.com
+  SSH_HOST: 203.83.37.247
   SSH_PORT: 1709
   SSH_USER: ibytes
 
