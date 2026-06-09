@@ -107,6 +107,13 @@ public interface UserService {
     void deleteUser(Long id);
 
     /**
+     * Admin-only: generates a random temporary password, persists it, and emails it to the user.
+     *
+     * @param id the ID of the target user
+     */
+    void resetPassword(Long id);
+
+    /**
      * Full-text search across username, email, and full name fields.
      *
      * @param query    the search term

@@ -20,10 +20,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -39,23 +42,29 @@ import java.util.Map;
 public class UserServiceImpl implements UserService {
 
     private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
+    private static final String TEMP_PASSWORD_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
+    private static final int TEMP_PASSWORD_LENGTH = 12;
+    private static final SecureRandom RANDOM = new SecureRandom();
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final AuditClientService auditClient;
+    private final JavaMailSender mailSender;
 
     public UserServiceImpl(UserRepository userRepository,
                            RoleRepository roleRepository,
                            PasswordEncoder passwordEncoder,
                            UserMapper userMapper,
-                           AuditClientService auditClient) {
+                           AuditClientService auditClient,
+                           JavaMailSender mailSender) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
         this.auditClient = auditClient;
+        this.mailSender = mailSender;
     }
 
     // -------------------------------------------------------------------------
@@ -262,9 +271,53 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
+    public void resetPassword(Long id) {
+        log.debug("Admin password reset for user id={}", id);
+        User user = findUserById(id);
+
+        String tempPassword = generateTempPassword();
+        user.setPasswordHash(passwordEncoder.encode(tempPassword));
+        user.touchUpdatedAt();
+        userRepository.save(user);
+        log.info("Temporary password set for user id={}", id);
+
+        try {
+            SimpleMailMessage mail = new SimpleMailMessage();
+            mail.setTo(user.getEmail());
+            mail.setSubject("Your password has been reset - GMIM Imanuel Jakarta");
+            mail.setText(
+                "Dear " + (user.getFullName() != null ? user.getFullName() : user.getUsername()) + ",\n\n" +
+                "An administrator has reset your password.\n\n" +
+                "Your temporary password is: " + tempPassword + "\n\n" +
+                "Please log in and change your password immediately.\n\n" +
+                "GMIM Imanuel Jakarta"
+            );
+            mailSender.send(mail);
+            log.info("Password reset email sent to {}", user.getEmail());
+        } catch (Exception e) {
+            log.error("Failed to send password reset email to {}: {}", user.getEmail(), e.getMessage());
+        }
+
+        try {
+            auditClient.log(getCurrentActor(), getCurrentActorRole(), "RESET_PASSWORD", "User",
+                    String.valueOf(user.getId()), user.getUsername());
+        } catch (Exception e) {
+            log.warn("Audit log failed for RESET_PASSWORD user {}: {}", id, e.getMessage());
+        }
+    }
+
     // -------------------------------------------------------------------------
     // Internal helpers
     // -------------------------------------------------------------------------
+
+    private String generateTempPassword() {
+        StringBuilder sb = new StringBuilder(TEMP_PASSWORD_LENGTH);
+        for (int i = 0; i < TEMP_PASSWORD_LENGTH; i++) {
+            sb.append(TEMP_PASSWORD_CHARS.charAt(RANDOM.nextInt(TEMP_PASSWORD_CHARS.length())));
+        }
+        return sb.toString();
+    }
 
     private User findUserById(Long id) {
         return userRepository.findById(id)

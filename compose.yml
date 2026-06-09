@@ -144,6 +144,8 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION: ${JWT_EXPIRATION}
       AUDIT_SERVICE_URL: ${AUDIT_SERVICE_URL}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
     volumes:
       - ./logs:/app/logs
     depends_on:

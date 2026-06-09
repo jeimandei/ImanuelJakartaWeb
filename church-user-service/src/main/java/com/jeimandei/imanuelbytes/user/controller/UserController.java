@@ -188,6 +188,19 @@ public class UserController {
     }
 
     // -------------------------------------------------------------------------
+    // POST /api/users/{id}/reset-password  —  admin resets a user's password (ROLE_ADMIN)
+    // -------------------------------------------------------------------------
+
+    @PostMapping("/{id}/reset-password")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<Void>> resetPassword(@PathVariable Long id) {
+        log.debug("Admin reset password for user id={}", id);
+        userService.resetPassword(id);
+        log.info("Password reset initiated for user id={}", id);
+        return ResponseEntity.ok(ApiResponse.success("Password reset email sent successfully"));
+    }
+
+    // -------------------------------------------------------------------------
     // DELETE /api/users/{id}  —  soft delete (ROLE_ADMIN)
     // -------------------------------------------------------------------------
 

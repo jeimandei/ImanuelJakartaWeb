@@ -102,6 +102,12 @@ public class UserClientService {
         restTemplate.exchange(url, HttpMethod.DELETE, entity, Void.class);
     }
 
+    public void resetPassword(Long id, String jwt) {
+        String url = serviceUrlConfig.userUrl("/api/users/" + id + "/reset-password");
+        HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
+        restTemplate.exchange(url, HttpMethod.POST, entity, Void.class);
+    }
+
     public UserDto updateUser(Long id, Map<String, Object> request, String jwt) {
         String url = serviceUrlConfig.userUrl("/api/users/" + id);
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, createAuthHeaders(jwt));
