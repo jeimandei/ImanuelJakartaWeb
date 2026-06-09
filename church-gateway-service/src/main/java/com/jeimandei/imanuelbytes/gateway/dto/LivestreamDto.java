@@ -1,5 +1,7 @@
 package com.jeimandei.imanuelbytes.gateway.dto;
 
+import java.time.LocalDateTime;
+
 public class LivestreamDto {
 
     private Long id;
@@ -7,7 +9,7 @@ public class LivestreamDto {
     private String youtubeEmbedUrl;
     private String description;
     private boolean active;
-    private String scheduledStart;
+    private LocalDateTime scheduledStart;
 
     public LivestreamDto() {}
 
@@ -26,6 +28,6 @@ public class LivestreamDto {
     public boolean isActive() { return active; }
     public void setActive(boolean active) { this.active = active; }
 
-    public String getScheduledStart() { return scheduledStart; }
-    public void setScheduledStart(String scheduledStart) { this.scheduledStart = scheduledStart; }
+    public LocalDateTime getScheduledStart() { return scheduledStart; }
+    public void setScheduledStart(LocalDateTime scheduledStart) { this.scheduledStart = scheduledStart; }
 }

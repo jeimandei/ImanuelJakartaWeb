@@ -1,17 +1,20 @@
 package com.jeimandei.imanuelbytes.gateway.dto;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 public class SermonDto {
 
     private Long id;
     private String title;
     private String speaker;
-    private String sermonDate;
+    private LocalDate sermonDate;
     private String description;
     private String youtubeUrl;
     private String audioUrl;
     private String scriptureReference;
     private String seriesName;
-    private String createdAt;
+    private LocalDateTime createdAt;
 
     public SermonDto() {}
 
@@ -24,8 +27,8 @@ public class SermonDto {
     public String getSpeaker() { return speaker; }
     public void setSpeaker(String speaker) { this.speaker = speaker; }
 
-    public String getSermonDate() { return sermonDate; }
-    public void setSermonDate(String sermonDate) { this.sermonDate = sermonDate; }
+    public LocalDate getSermonDate() { return sermonDate; }
+    public void setSermonDate(LocalDate sermonDate) { this.sermonDate = sermonDate; }
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
@@ -42,6 +45,6 @@ public class SermonDto {
     public String getSeriesName() { return seriesName; }
     public void setSeriesName(String seriesName) { this.seriesName = seriesName; }
 
-    public String getCreatedAt() { return createdAt; }
-    public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }

@@ -1,5 +1,7 @@
 package com.jeimandei.imanuelbytes.gateway.dto;
 
+import java.time.LocalDateTime;
+
 public class CmsPageDto {
 
     private Long id;
@@ -10,6 +12,7 @@ public class CmsPageDto {
     private String metaTitle;
     private String metaDescription;
     private String status;
+    private LocalDateTime publishedAt;
 
     public CmsPageDto() {}
 
@@ -36,4 +39,7 @@ public class CmsPageDto {
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public LocalDateTime getPublishedAt() { return publishedAt; }
+    public void setPublishedAt(LocalDateTime publishedAt) { this.publishedAt = publishedAt; }
 }
