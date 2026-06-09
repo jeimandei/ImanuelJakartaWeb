@@ -1,5 +1,6 @@
 package com.jeimandei.imanuelbytes.gateway.service;
 
+import com.jeimandei.imanuelbytes.common.dto.ApiResponse;
 import com.jeimandei.imanuelbytes.gateway.config.ServiceUrlConfig;
 import com.jeimandei.imanuelbytes.gateway.dto.PageResponse;
 import com.jeimandei.imanuelbytes.gateway.dto.SermonDto;
@@ -44,10 +45,11 @@ public class SermonClientService {
     public List<SermonDto> getLatestSermons() {
         try {
             String url = serviceUrlConfig.mediaUrl("/api/sermons/latest?limit=6");
-            ResponseEntity<List<SermonDto>> response = restTemplate.exchange(
+            ResponseEntity<ApiResponse<List<SermonDto>>> response = restTemplate.exchange(
                     url, HttpMethod.GET, null,
-                    new ParameterizedTypeReference<List<SermonDto>>() {});
-            return response.getBody() != null ? response.getBody() : Collections.emptyList();
+                    new ParameterizedTypeReference<ApiResponse<List<SermonDto>>>() {});
+            ApiResponse<List<SermonDto>> body = response.getBody();
+            return (body != null && body.getData() != null) ? body.getData() : Collections.emptyList();
         } catch (RestClientException e) {
             log.error("Failed to fetch latest sermons: {}", e.getMessage());
             return Collections.emptyList();
@@ -58,10 +60,11 @@ public class SermonClientService {
         try {
             String url = serviceUrlConfig.mediaUrl("/api/sermons?page=" + page + "&size=" + size);
             HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
-            ResponseEntity<PageResponse<SermonDto>> response = restTemplate.exchange(
+            ResponseEntity<ApiResponse<PageResponse<SermonDto>>> response = restTemplate.exchange(
                     url, HttpMethod.GET, entity,
-                    new ParameterizedTypeReference<PageResponse<SermonDto>>() {});
-            return response.getBody() != null ? response.getBody() : PageResponse.empty();
+                    new ParameterizedTypeReference<ApiResponse<PageResponse<SermonDto>>>() {});
+            ApiResponse<PageResponse<SermonDto>> body = response.getBody();
+            return (body != null && body.getData() != null) ? body.getData() : PageResponse.empty();
         } catch (RestClientException e) {
             log.error("Failed to fetch all sermons: {}", e.getMessage());
             return PageResponse.empty();
@@ -71,9 +74,11 @@ public class SermonClientService {
     public SermonDto getSermonById(Long id) {
         try {
             String url = serviceUrlConfig.mediaUrl("/api/sermons/" + id);
-            ResponseEntity<SermonDto> response = restTemplate.exchange(
-                    url, HttpMethod.GET, null, SermonDto.class);
-            return response.getBody();
+            ResponseEntity<ApiResponse<SermonDto>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, null,
+                    new ParameterizedTypeReference<ApiResponse<SermonDto>>() {});
+            ApiResponse<SermonDto> body = response.getBody();
+            return body != null ? body.getData() : null;
         } catch (RestClientException e) {
             log.error("Failed to fetch sermon {}: {}", id, e.getMessage());
             return null;
@@ -83,9 +88,11 @@ public class SermonClientService {
     public SermonDto createSermon(Map<String, Object> request, String jwt) {
         String url = serviceUrlConfig.mediaUrl("/api/sermons");
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, createAuthHeaders(jwt));
-        ResponseEntity<SermonDto> response = restTemplate.exchange(
-                url, HttpMethod.POST, entity, SermonDto.class);
-        return response.getBody();
+        ResponseEntity<ApiResponse<SermonDto>> response = restTemplate.exchange(
+                url, HttpMethod.POST, entity,
+                new ParameterizedTypeReference<ApiResponse<SermonDto>>() {});
+        ApiResponse<SermonDto> body = response.getBody();
+        return body != null ? body.getData() : null;
     }
 
     public void deleteSermon(Long id, String jwt) {

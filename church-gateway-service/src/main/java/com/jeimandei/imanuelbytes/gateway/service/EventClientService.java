@@ -1,5 +1,6 @@
 package com.jeimandei.imanuelbytes.gateway.service;
 
+import com.jeimandei.imanuelbytes.common.dto.ApiResponse;
 import com.jeimandei.imanuelbytes.gateway.config.ServiceUrlConfig;
 import com.jeimandei.imanuelbytes.gateway.dto.EventDto;
 import com.jeimandei.imanuelbytes.gateway.dto.PageResponse;
@@ -44,10 +45,15 @@ public class EventClientService {
     public List<EventDto> getUpcomingEvents() {
         try {
             String url = serviceUrlConfig.eventUrl("/api/events/upcoming?size=6");
-            ResponseEntity<List<EventDto>> response = restTemplate.exchange(
+            ResponseEntity<ApiResponse<PageResponse<EventDto>>> response = restTemplate.exchange(
                     url, HttpMethod.GET, null,
-                    new ParameterizedTypeReference<List<EventDto>>() {});
-            return response.getBody() != null ? response.getBody() : Collections.emptyList();
+                    new ParameterizedTypeReference<ApiResponse<PageResponse<EventDto>>>() {});
+            ApiResponse<PageResponse<EventDto>> body = response.getBody();
+            if (body != null && body.getData() != null) {
+                List<EventDto> content = body.getData().getContent();
+                return content != null ? content : Collections.emptyList();
+            }
+            return Collections.emptyList();
         } catch (RestClientException e) {
             log.error("Failed to fetch upcoming events: {}", e.getMessage());
             return Collections.emptyList();
@@ -57,10 +63,11 @@ public class EventClientService {
     public List<EventDto> getFeaturedEvents() {
         try {
             String url = serviceUrlConfig.eventUrl("/api/events/featured");
-            ResponseEntity<List<EventDto>> response = restTemplate.exchange(
+            ResponseEntity<ApiResponse<List<EventDto>>> response = restTemplate.exchange(
                     url, HttpMethod.GET, null,
-                    new ParameterizedTypeReference<List<EventDto>>() {});
-            return response.getBody() != null ? response.getBody() : Collections.emptyList();
+                    new ParameterizedTypeReference<ApiResponse<List<EventDto>>>() {});
+            ApiResponse<List<EventDto>> body = response.getBody();
+            return (body != null && body.getData() != null) ? body.getData() : Collections.emptyList();
         } catch (RestClientException e) {
             log.error("Failed to fetch featured events: {}", e.getMessage());
             return Collections.emptyList();
@@ -71,10 +78,11 @@ public class EventClientService {
         try {
             String url = serviceUrlConfig.eventUrl("/api/events/all?page=" + page + "&size=" + size);
             HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
-            ResponseEntity<PageResponse<EventDto>> response = restTemplate.exchange(
+            ResponseEntity<ApiResponse<PageResponse<EventDto>>> response = restTemplate.exchange(
                     url, HttpMethod.GET, entity,
-                    new ParameterizedTypeReference<PageResponse<EventDto>>() {});
-            return response.getBody() != null ? response.getBody() : PageResponse.empty();
+                    new ParameterizedTypeReference<ApiResponse<PageResponse<EventDto>>>() {});
+            ApiResponse<PageResponse<EventDto>> body = response.getBody();
+            return (body != null && body.getData() != null) ? body.getData() : PageResponse.empty();
         } catch (RestClientException e) {
             log.error("Failed to fetch all events: {}", e.getMessage());
             return PageResponse.empty();
@@ -84,9 +92,11 @@ public class EventClientService {
     public EventDto getEventBySlug(String slug) {
         try {
             String url = serviceUrlConfig.eventUrl("/api/events/slug/" + slug);
-            ResponseEntity<EventDto> response = restTemplate.exchange(
-                    url, HttpMethod.GET, null, EventDto.class);
-            return response.getBody();
+            ResponseEntity<ApiResponse<EventDto>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, null,
+                    new ParameterizedTypeReference<ApiResponse<EventDto>>() {});
+            ApiResponse<EventDto> body = response.getBody();
+            return body != null ? body.getData() : null;
         } catch (RestClientException e) {
             log.error("Failed to fetch event by slug {}: {}", slug, e.getMessage());
             return null;
@@ -96,9 +106,11 @@ public class EventClientService {
     public EventDto createEvent(Map<String, Object> request, String jwt) {
         String url = serviceUrlConfig.eventUrl("/api/events");
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, createAuthHeaders(jwt));
-        ResponseEntity<EventDto> response = restTemplate.exchange(
-                url, HttpMethod.POST, entity, EventDto.class);
-        return response.getBody();
+        ResponseEntity<ApiResponse<EventDto>> response = restTemplate.exchange(
+                url, HttpMethod.POST, entity,
+                new ParameterizedTypeReference<ApiResponse<EventDto>>() {});
+        ApiResponse<EventDto> body = response.getBody();
+        return body != null ? body.getData() : null;
     }
 
     public void deleteEvent(Long id, String jwt) {

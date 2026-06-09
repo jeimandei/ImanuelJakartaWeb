@@ -1,5 +1,6 @@
 package com.jeimandei.imanuelbytes.gateway.service;
 
+import com.jeimandei.imanuelbytes.common.dto.ApiResponse;
 import com.jeimandei.imanuelbytes.gateway.config.ServiceUrlConfig;
 import com.jeimandei.imanuelbytes.gateway.dto.LivestreamDto;
 import com.jeimandei.imanuelbytes.gateway.dto.PageResponse;
@@ -43,9 +44,11 @@ public class LivestreamClientService {
     public Optional<LivestreamDto> getActiveLivestream() {
         try {
             String url = serviceUrlConfig.mediaUrl("/api/livestreams/active");
-            ResponseEntity<LivestreamDto> response = restTemplate.exchange(
-                    url, HttpMethod.GET, null, LivestreamDto.class);
-            return Optional.ofNullable(response.getBody());
+            ResponseEntity<ApiResponse<LivestreamDto>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, null,
+                    new ParameterizedTypeReference<ApiResponse<LivestreamDto>>() {});
+            ApiResponse<LivestreamDto> body = response.getBody();
+            return Optional.ofNullable(body != null ? body.getData() : null);
         } catch (RestClientException e) {
             log.error("Failed to fetch active livestream: {}", e.getMessage());
             return Optional.empty();
@@ -56,10 +59,11 @@ public class LivestreamClientService {
         try {
             String url = serviceUrlConfig.mediaUrl("/api/livestreams?page=" + page + "&size=" + size);
             HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
-            ResponseEntity<PageResponse<LivestreamDto>> response = restTemplate.exchange(
+            ResponseEntity<ApiResponse<PageResponse<LivestreamDto>>> response = restTemplate.exchange(
                     url, HttpMethod.GET, entity,
-                    new ParameterizedTypeReference<PageResponse<LivestreamDto>>() {});
-            return response.getBody() != null ? response.getBody() : PageResponse.empty();
+                    new ParameterizedTypeReference<ApiResponse<PageResponse<LivestreamDto>>>() {});
+            ApiResponse<PageResponse<LivestreamDto>> body = response.getBody();
+            return (body != null && body.getData() != null) ? body.getData() : PageResponse.empty();
         } catch (RestClientException e) {
             log.error("Failed to fetch all livestreams: {}", e.getMessage());
             return PageResponse.empty();
@@ -69,17 +73,21 @@ public class LivestreamClientService {
     public LivestreamDto createLivestream(Map<String, Object> request, String jwt) {
         String url = serviceUrlConfig.mediaUrl("/api/livestreams");
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, createAuthHeaders(jwt));
-        ResponseEntity<LivestreamDto> response = restTemplate.exchange(
-                url, HttpMethod.POST, entity, LivestreamDto.class);
-        return response.getBody();
+        ResponseEntity<ApiResponse<LivestreamDto>> response = restTemplate.exchange(
+                url, HttpMethod.POST, entity,
+                new ParameterizedTypeReference<ApiResponse<LivestreamDto>>() {});
+        ApiResponse<LivestreamDto> body = response.getBody();
+        return body != null ? body.getData() : null;
     }
 
     public LivestreamDto activateLivestream(Long id, String jwt) {
         String url = serviceUrlConfig.mediaUrl("/api/livestreams/" + id + "/activate");
         HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
-        ResponseEntity<LivestreamDto> response = restTemplate.exchange(
-                url, HttpMethod.PUT, entity, LivestreamDto.class);
-        return response.getBody();
+        ResponseEntity<ApiResponse<LivestreamDto>> response = restTemplate.exchange(
+                url, HttpMethod.PUT, entity,
+                new ParameterizedTypeReference<ApiResponse<LivestreamDto>>() {});
+        ApiResponse<LivestreamDto> body = response.getBody();
+        return body != null ? body.getData() : null;
     }
 
     public void deleteLivestream(Long id, String jwt) {

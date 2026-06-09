@@ -1,5 +1,6 @@
 package com.jeimandei.imanuelbytes.gateway.service;
 
+import com.jeimandei.imanuelbytes.common.dto.ApiResponse;
 import com.jeimandei.imanuelbytes.gateway.config.ServiceUrlConfig;
 import com.jeimandei.imanuelbytes.gateway.dto.ContactFormDto;
 import com.jeimandei.imanuelbytes.gateway.dto.PageResponse;
@@ -87,10 +88,11 @@ public class InteractionClientService {
         try {
             String url = serviceUrlConfig.interactionUrl("/api/prayer-requests?page=" + page + "&size=" + size);
             HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
-            ResponseEntity<PageResponse<?>> response = restTemplate.exchange(
+            ResponseEntity<ApiResponse<PageResponse<?>>> response = restTemplate.exchange(
                     url, HttpMethod.GET, entity,
-                    new ParameterizedTypeReference<PageResponse<?>>() {});
-            return response.getBody() != null ? response.getBody() : PageResponse.empty();
+                    new ParameterizedTypeReference<ApiResponse<PageResponse<?>>>() {});
+            ApiResponse<PageResponse<?>> body = response.getBody();
+            return (body != null && body.getData() != null) ? body.getData() : PageResponse.empty();
         } catch (RestClientException e) {
             log.error("Failed to fetch prayer requests: {}", e.getMessage());
             return PageResponse.empty();
@@ -101,10 +103,11 @@ public class InteractionClientService {
         try {
             String url = serviceUrlConfig.interactionUrl("/api/contact-messages?page=" + page + "&size=" + size);
             HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
-            ResponseEntity<PageResponse<?>> response = restTemplate.exchange(
+            ResponseEntity<ApiResponse<PageResponse<?>>> response = restTemplate.exchange(
                     url, HttpMethod.GET, entity,
-                    new ParameterizedTypeReference<PageResponse<?>>() {});
-            return response.getBody() != null ? response.getBody() : PageResponse.empty();
+                    new ParameterizedTypeReference<ApiResponse<PageResponse<?>>>() {});
+            ApiResponse<PageResponse<?>> body = response.getBody();
+            return (body != null && body.getData() != null) ? body.getData() : PageResponse.empty();
         } catch (RestClientException e) {
             log.error("Failed to fetch contact messages: {}", e.getMessage());
             return PageResponse.empty();

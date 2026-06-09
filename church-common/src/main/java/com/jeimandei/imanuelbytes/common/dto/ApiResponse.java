@@ -1,6 +1,8 @@
 package com.jeimandei.imanuelbytes.common.dto;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -23,7 +25,12 @@ public class ApiResponse<T> {
     private final LocalDateTime timestamp;
     private final Map<String, String> errors;
 
-    private ApiResponse(boolean success, String message, T data, Map<String, String> errors) {
+    @JsonCreator
+    private ApiResponse(
+            @JsonProperty("success") boolean success,
+            @JsonProperty("message") String message,
+            @JsonProperty("data") T data,
+            @JsonProperty("errors") Map<String, String> errors) {
         this.success = success;
         this.message = message;
         this.data = data;

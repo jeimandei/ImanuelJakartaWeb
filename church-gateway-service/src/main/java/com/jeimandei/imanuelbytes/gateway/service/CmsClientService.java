@@ -1,5 +1,6 @@
 package com.jeimandei.imanuelbytes.gateway.service;
 
+import com.jeimandei.imanuelbytes.common.dto.ApiResponse;
 import com.jeimandei.imanuelbytes.gateway.config.ServiceUrlConfig;
 import com.jeimandei.imanuelbytes.gateway.dto.AnnouncementDto;
 import com.jeimandei.imanuelbytes.gateway.dto.CmsPageDto;
@@ -49,10 +50,11 @@ public class CmsClientService {
     public List<AnnouncementDto> getActiveAnnouncements() {
         try {
             String url = serviceUrlConfig.cmsUrl("/api/announcements/active");
-            ResponseEntity<List<AnnouncementDto>> response = restTemplate.exchange(
+            ResponseEntity<ApiResponse<List<AnnouncementDto>>> response = restTemplate.exchange(
                     url, HttpMethod.GET, null,
-                    new ParameterizedTypeReference<List<AnnouncementDto>>() {});
-            return response.getBody() != null ? response.getBody() : Collections.emptyList();
+                    new ParameterizedTypeReference<ApiResponse<List<AnnouncementDto>>>() {});
+            ApiResponse<List<AnnouncementDto>> body = response.getBody();
+            return (body != null && body.getData() != null) ? body.getData() : Collections.emptyList();
         } catch (RestClientException e) {
             log.error("Failed to fetch active announcements: {}", e.getMessage());
             return Collections.emptyList();
@@ -63,10 +65,11 @@ public class CmsClientService {
         try {
             String url = serviceUrlConfig.cmsUrl("/api/announcements?page=" + page + "&size=" + size);
             HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
-            ResponseEntity<PageResponse<AnnouncementDto>> response = restTemplate.exchange(
+            ResponseEntity<ApiResponse<PageResponse<AnnouncementDto>>> response = restTemplate.exchange(
                     url, HttpMethod.GET, entity,
-                    new ParameterizedTypeReference<PageResponse<AnnouncementDto>>() {});
-            return response.getBody() != null ? response.getBody() : PageResponse.empty();
+                    new ParameterizedTypeReference<ApiResponse<PageResponse<AnnouncementDto>>>() {});
+            ApiResponse<PageResponse<AnnouncementDto>> body = response.getBody();
+            return (body != null && body.getData() != null) ? body.getData() : PageResponse.empty();
         } catch (RestClientException e) {
             log.error("Failed to fetch all announcements: {}", e.getMessage());
             return PageResponse.empty();
@@ -77,9 +80,11 @@ public class CmsClientService {
         try {
             String url = serviceUrlConfig.cmsUrl("/api/announcements/" + id);
             HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
-            ResponseEntity<AnnouncementDto> response = restTemplate.exchange(
-                    url, HttpMethod.GET, entity, AnnouncementDto.class);
-            return response.getBody();
+            ResponseEntity<ApiResponse<AnnouncementDto>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity,
+                    new ParameterizedTypeReference<ApiResponse<AnnouncementDto>>() {});
+            ApiResponse<AnnouncementDto> body = response.getBody();
+            return body != null ? body.getData() : null;
         } catch (RestClientException e) {
             log.error("Failed to fetch announcement {}: {}", id, e.getMessage());
             return null;
@@ -89,9 +94,11 @@ public class CmsClientService {
     public AnnouncementDto createAnnouncement(Map<String, Object> request, String jwt) {
         String url = serviceUrlConfig.cmsUrl("/api/announcements");
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, createAuthHeaders(jwt));
-        ResponseEntity<AnnouncementDto> response = restTemplate.exchange(
-                url, HttpMethod.POST, entity, AnnouncementDto.class);
-        return response.getBody();
+        ResponseEntity<ApiResponse<AnnouncementDto>> response = restTemplate.exchange(
+                url, HttpMethod.POST, entity,
+                new ParameterizedTypeReference<ApiResponse<AnnouncementDto>>() {});
+        ApiResponse<AnnouncementDto> body = response.getBody();
+        return body != null ? body.getData() : null;
     }
 
     public void deleteAnnouncement(Long id, String jwt) {
@@ -106,9 +113,11 @@ public class CmsClientService {
         try {
             String url = serviceUrlConfig.cmsUrl("/api/cms/pages/" + id);
             HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
-            ResponseEntity<CmsPageDto> response = restTemplate.exchange(
-                    url, HttpMethod.GET, entity, CmsPageDto.class);
-            return response.getBody();
+            ResponseEntity<ApiResponse<CmsPageDto>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity,
+                    new ParameterizedTypeReference<ApiResponse<CmsPageDto>>() {});
+            ApiResponse<CmsPageDto> body = response.getBody();
+            return body != null ? body.getData() : null;
         } catch (RestClientException e) {
             log.error("Failed to fetch CMS page {}: {}", id, e.getMessage());
             return null;
@@ -118,17 +127,21 @@ public class CmsClientService {
     public CmsPageDto createCmsPage(Map<String, Object> request, String jwt) {
         String url = serviceUrlConfig.cmsUrl("/api/cms/pages");
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, createAuthHeaders(jwt));
-        ResponseEntity<CmsPageDto> response = restTemplate.exchange(
-                url, HttpMethod.POST, entity, CmsPageDto.class);
-        return response.getBody();
+        ResponseEntity<ApiResponse<CmsPageDto>> response = restTemplate.exchange(
+                url, HttpMethod.POST, entity,
+                new ParameterizedTypeReference<ApiResponse<CmsPageDto>>() {});
+        ApiResponse<CmsPageDto> body = response.getBody();
+        return body != null ? body.getData() : null;
     }
 
     public CmsPageDto updateCmsPage(Long id, Map<String, Object> request, String jwt) {
         String url = serviceUrlConfig.cmsUrl("/api/cms/pages/" + id);
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, createAuthHeaders(jwt));
-        ResponseEntity<CmsPageDto> response = restTemplate.exchange(
-                url, HttpMethod.PUT, entity, CmsPageDto.class);
-        return response.getBody();
+        ResponseEntity<ApiResponse<CmsPageDto>> response = restTemplate.exchange(
+                url, HttpMethod.PUT, entity,
+                new ParameterizedTypeReference<ApiResponse<CmsPageDto>>() {});
+        ApiResponse<CmsPageDto> body = response.getBody();
+        return body != null ? body.getData() : null;
     }
 
     public void publishCmsPage(Long id, String jwt) {
@@ -152,9 +165,11 @@ public class CmsClientService {
     public CmsPageDto getPublishedPageBySlug(String slug) {
         try {
             String url = serviceUrlConfig.cmsUrl("/api/cms/pages/slug/" + slug + "/published");
-            ResponseEntity<CmsPageDto> response = restTemplate.exchange(
-                    url, HttpMethod.GET, null, CmsPageDto.class);
-            return response.getBody();
+            ResponseEntity<ApiResponse<CmsPageDto>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, null,
+                    new ParameterizedTypeReference<ApiResponse<CmsPageDto>>() {});
+            ApiResponse<CmsPageDto> body = response.getBody();
+            return body != null ? body.getData() : null;
         } catch (RestClientException e) {
             log.error("Failed to fetch CMS page by slug {}: {}", slug, e.getMessage());
             return null;
@@ -165,10 +180,11 @@ public class CmsClientService {
         try {
             String url = serviceUrlConfig.cmsUrl("/api/cms/pages?page=" + page + "&size=" + size);
             HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
-            ResponseEntity<PageResponse<CmsPageDto>> response = restTemplate.exchange(
+            ResponseEntity<ApiResponse<PageResponse<CmsPageDto>>> response = restTemplate.exchange(
                     url, HttpMethod.GET, entity,
-                    new ParameterizedTypeReference<PageResponse<CmsPageDto>>() {});
-            return response.getBody() != null ? response.getBody() : PageResponse.empty();
+                    new ParameterizedTypeReference<ApiResponse<PageResponse<CmsPageDto>>>() {});
+            ApiResponse<PageResponse<CmsPageDto>> body = response.getBody();
+            return (body != null && body.getData() != null) ? body.getData() : PageResponse.empty();
         } catch (RestClientException e) {
             log.error("Failed to fetch all CMS pages: {}", e.getMessage());
             return PageResponse.empty();
@@ -177,11 +193,6 @@ public class CmsClientService {
 
     // ─── Settings ─────────────────────────────────────────────────────────────
 
-    /**
-     * Fetches a single setting value. The upstream API wraps the value in an
-     * ApiResponse envelope with a "data" field that is a {@link SiteSettingDto}.
-     * We deserialise as a Map for resilience and pull out "settingValue" directly.
-     */
     public String getSettingValue(String key) {
         try {
             String url = serviceUrlConfig.cmsUrl("/api/settings/" + key);
@@ -190,12 +201,10 @@ public class CmsClientService {
                     new ParameterizedTypeReference<Map<String, Object>>() {});
             Map<String, Object> body = response.getBody();
             if (body != null) {
-                // Try direct settingValue first (flat response)
                 if (body.containsKey("settingValue")) {
                     Object val = body.get("settingValue");
                     return val != null ? val.toString() : "";
                 }
-                // Then try envelope: { data: { settingValue: "..." } }
                 if (body.containsKey("data") && body.get("data") instanceof Map<?, ?> data) {
                     Object val = data.get("settingValue");
                     return val != null ? val.toString() : "";
@@ -212,10 +221,11 @@ public class CmsClientService {
         try {
             String url = serviceUrlConfig.cmsUrl("/api/settings");
             HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
-            ResponseEntity<List<SiteSettingDto>> response = restTemplate.exchange(
+            ResponseEntity<ApiResponse<List<SiteSettingDto>>> response = restTemplate.exchange(
                     url, HttpMethod.GET, entity,
-                    new ParameterizedTypeReference<List<SiteSettingDto>>() {});
-            return response.getBody() != null ? response.getBody() : Collections.emptyList();
+                    new ParameterizedTypeReference<ApiResponse<List<SiteSettingDto>>>() {});
+            ApiResponse<List<SiteSettingDto>> body = response.getBody();
+            return (body != null && body.getData() != null) ? body.getData() : Collections.emptyList();
         } catch (RestClientException e) {
             log.error("Failed to fetch all settings: {}", e.getMessage());
             return Collections.emptyList();
@@ -234,10 +244,11 @@ public class CmsClientService {
     public PageResponse<NewsArticleDto> getPublishedNews(int page, int size) {
         try {
             String url = serviceUrlConfig.cmsUrl("/api/news?page=" + page + "&size=" + size);
-            ResponseEntity<PageResponse<NewsArticleDto>> response = restTemplate.exchange(
+            ResponseEntity<ApiResponse<PageResponse<NewsArticleDto>>> response = restTemplate.exchange(
                     url, HttpMethod.GET, null,
-                    new ParameterizedTypeReference<PageResponse<NewsArticleDto>>() {});
-            return response.getBody() != null ? response.getBody() : PageResponse.empty();
+                    new ParameterizedTypeReference<ApiResponse<PageResponse<NewsArticleDto>>>() {});
+            ApiResponse<PageResponse<NewsArticleDto>> body = response.getBody();
+            return (body != null && body.getData() != null) ? body.getData() : PageResponse.empty();
         } catch (RestClientException e) {
             log.error("Failed to fetch published news: {}", e.getMessage());
             return PageResponse.empty();
@@ -248,10 +259,11 @@ public class CmsClientService {
         try {
             String url = serviceUrlConfig.cmsUrl("/api/news/all?page=" + page + "&size=" + size);
             HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
-            ResponseEntity<PageResponse<NewsArticleDto>> response = restTemplate.exchange(
+            ResponseEntity<ApiResponse<PageResponse<NewsArticleDto>>> response = restTemplate.exchange(
                     url, HttpMethod.GET, entity,
-                    new ParameterizedTypeReference<PageResponse<NewsArticleDto>>() {});
-            return response.getBody() != null ? response.getBody() : PageResponse.empty();
+                    new ParameterizedTypeReference<ApiResponse<PageResponse<NewsArticleDto>>>() {});
+            ApiResponse<PageResponse<NewsArticleDto>> body = response.getBody();
+            return (body != null && body.getData() != null) ? body.getData() : PageResponse.empty();
         } catch (RestClientException e) {
             log.error("Failed to fetch all news: {}", e.getMessage());
             return PageResponse.empty();
@@ -261,9 +273,11 @@ public class CmsClientService {
     public NewsArticleDto getNewsBySlug(String slug) {
         try {
             String url = serviceUrlConfig.cmsUrl("/api/news/slug/" + slug);
-            ResponseEntity<NewsArticleDto> response = restTemplate.exchange(
-                    url, HttpMethod.GET, null, NewsArticleDto.class);
-            return response.getBody();
+            ResponseEntity<ApiResponse<NewsArticleDto>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, null,
+                    new ParameterizedTypeReference<ApiResponse<NewsArticleDto>>() {});
+            ApiResponse<NewsArticleDto> body = response.getBody();
+            return body != null ? body.getData() : null;
         } catch (RestClientException e) {
             log.error("Failed to fetch news article by slug {}: {}", slug, e.getMessage());
             return null;
@@ -273,9 +287,11 @@ public class CmsClientService {
     public NewsArticleDto createNewsArticle(Map<String, Object> request, String jwt) {
         String url = serviceUrlConfig.cmsUrl("/api/news");
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, createAuthHeaders(jwt));
-        ResponseEntity<NewsArticleDto> response = restTemplate.exchange(
-                url, HttpMethod.POST, entity, NewsArticleDto.class);
-        return response.getBody();
+        ResponseEntity<ApiResponse<NewsArticleDto>> response = restTemplate.exchange(
+                url, HttpMethod.POST, entity,
+                new ParameterizedTypeReference<ApiResponse<NewsArticleDto>>() {});
+        ApiResponse<NewsArticleDto> body = response.getBody();
+        return body != null ? body.getData() : null;
     }
 
     public void deleteNewsArticle(Long id, String jwt) {
