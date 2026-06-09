@@ -64,7 +64,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr th:each="ann : ${announcements}">
+                                <tr th:each="ann : ${announcements.content}">
                                     <td class="px-4 fw-medium" th:text="${ann.title}">Announcement Title</td>
                                     <td class="small text-muted"
                                         th:text="${ann.startDate != null ? #temporals.format(ann.startDate, 'dd MMM yyyy') : '-'}">
@@ -105,7 +105,7 @@
                                         </div>
                                     </td>
                                 </tr>
-                                <tr th:if="${announcements == null or announcements.empty}">
+                                <tr th:if="${announcements == null or #lists.isEmpty(announcements.content)}">
                                     <td colspan="6" class="text-center text-muted py-4">
                                         <i class="fas fa-bullhorn fa-2x mb-2 opacity-50 d-block"></i>
                                         No announcements yet.
