@@ -117,7 +117,7 @@ public class UserController {
     // -------------------------------------------------------------------------
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<UserDto>> createUser(
             @Valid @RequestBody CreateUserRequest request) {
         log.debug("Creating user with username='{}'", request.getUsername());
@@ -146,7 +146,7 @@ public class UserController {
     // -------------------------------------------------------------------------
 
     @PutMapping("/{id}/status")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<UserDto>> updateUserStatus(
             @PathVariable Long id,
             @Valid @RequestBody UpdateUserStatusRequest request) {
@@ -161,7 +161,7 @@ public class UserController {
     // -------------------------------------------------------------------------
 
     @PutMapping("/{id}/roles")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<UserDto>> assignRoles(
             @PathVariable Long id,
             @Valid @RequestBody AssignRolesRequest request) {
@@ -192,7 +192,7 @@ public class UserController {
     // -------------------------------------------------------------------------
 
     @PostMapping("/{id}/reset-password")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<Void>> resetPassword(@PathVariable Long id) {
         log.debug("Admin reset password for user id={}", id);
         userService.resetPassword(id);
@@ -205,7 +205,7 @@ public class UserController {
     // -------------------------------------------------------------------------
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long id) {
         log.debug("Deleting (deactivating) user id={}", id);
         userService.deleteUser(id);
