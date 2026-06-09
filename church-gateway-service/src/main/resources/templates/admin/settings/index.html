@@ -60,18 +60,17 @@
                                  th:classappend="${iterStat.last ? '' : 'border-bottom'}">
                                 <div class="row align-items-start g-3">
                                     <div class="col-md-4">
-                                        <code class="fs-6 fw-bold" style="color:var(--primary);" th:text="${setting.key}">setting.key</code>
+                                        <code class="fs-6 fw-bold" style="color:var(--primary);" th:text="${setting.settingKey}">setting.key</code>
                                         <p class="text-muted small mb-0 mt-1"
                                            th:if="${setting.description != null and !setting.description.empty}"
                                            th:text="${setting.description}">Setting description</p>
                                     </div>
                                     <div class="col-md-8">
-                                        <input type="hidden" th:name="'keys'" th:value="${setting.key}"/>
                                         <input type="text"
-                                               th:name="'values[' + ${setting.key} + ']'"
+                                               th:name="${setting.settingKey}"
                                                th:value="${setting.settingValue}"
                                                class="form-control font-monospace"
-                                               th:placeholder="${setting.key}"/>
+                                               th:placeholder="${setting.settingKey}"/>
                                     </div>
                                 </div>
                             </div>
