@@ -90,7 +90,7 @@ public class AuthController {
     @PreAuthorize("isAuthenticated()")
     public String profile(Model model) {
         GatewayUserDetails currentUser = SecurityUtils.getCurrentUser();
-        model.addAttribute("currentUser", currentUser);
+        model.addAttribute("user", currentUser);
         ProfileFormDto profileForm = new ProfileFormDto(
                 currentUser != null ? currentUser.getFullName() : "",
                 "",
