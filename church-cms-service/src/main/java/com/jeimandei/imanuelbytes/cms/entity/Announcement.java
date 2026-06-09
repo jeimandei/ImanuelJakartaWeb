@@ -6,7 +6,6 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -35,7 +34,6 @@ public class Announcement {
     @Column(name = "title", nullable = false, length = 255)
     private String title;
 
-    @Lob
     @Column(name = "message", columnDefinition = "TEXT")
     private String message;
 

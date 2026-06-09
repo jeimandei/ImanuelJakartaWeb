@@ -8,7 +8,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -39,7 +38,6 @@ public class PrayerRequest {
     @Column(name = "phone", length = 20)
     private String phone;
 
-    @Lob
     @Column(name = "message", nullable = false, columnDefinition = "TEXT")
     private String message;
 

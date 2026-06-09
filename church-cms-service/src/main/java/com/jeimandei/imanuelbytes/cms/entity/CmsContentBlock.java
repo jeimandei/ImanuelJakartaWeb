@@ -5,7 +5,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 
 /**
@@ -32,7 +31,6 @@ public class CmsContentBlock {
     @Column(name = "title", length = 255)
     private String title;
 
-    @Lob
     @Column(name = "body", columnDefinition = "TEXT")
     private String body;
 

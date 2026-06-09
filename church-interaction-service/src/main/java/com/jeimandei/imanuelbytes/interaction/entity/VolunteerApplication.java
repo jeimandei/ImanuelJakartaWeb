@@ -8,7 +8,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -36,7 +35,6 @@ public class VolunteerApplication {
     @Column(nullable = false, length = 100)
     private String ministry;
 
-    @Lob
     @Column(columnDefinition = "TEXT")
     private String message;
 

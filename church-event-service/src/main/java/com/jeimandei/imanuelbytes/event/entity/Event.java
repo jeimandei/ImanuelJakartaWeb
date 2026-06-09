@@ -8,7 +8,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.annotation.CreatedDate;
@@ -36,7 +35,6 @@ public class Event {
     @Column(unique = true)
     private String slug;
 
-    @Lob
     @Column(columnDefinition = "TEXT")
     private String description;
 
