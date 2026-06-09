@@ -136,21 +136,6 @@
                 </div>
             </div>
 
-            <!-- Pagination -->
-            <nav th:if="${users != null and users.totalPages > 1}" class="mt-4" aria-label="User pagination">
-                <ul class="pagination justify-content-center">
-                    <li class="page-item" th:classappend="${users.page == 0 ? 'disabled' : ''}">
-                        <a class="page-link" th:href="@{/admin/users(page=${users.page - 1}, q=${param.q})}">Previous</a>
-                    </li>
-                    <li th:each="i : ${#numbers.sequence(0, users.totalPages - 1)}"
-                        class="page-item" th:classappend="${i == users.page ? 'active' : ''}">
-                        <a class="page-link" th:href="@{/admin/users(page=${i}, q=${param.q})}" th:text="${i + 1}">1</a>
-                    </li>
-                    <li class="page-item" th:classappend="${users.page + 1 >= users.totalPages ? 'disabled' : ''}">
-                        <a class="page-link" th:href="@{/admin/users(page=${users.page + 1}, q=${param.q})}">Next</a>
-                    </li>
-                </ul>
-            </nav>
         </div>
     </div>
 </div>
