@@ -44,7 +44,7 @@
 
         <div class="p-4">
             <div class="d-flex justify-content-end mb-4">
-                <a th:href="@{/admin/gallery/create}" class="btn btn-primary">
+                <a th:href="@{/admin/gallery/new}" class="btn btn-primary">
                     <i class="fas fa-plus me-2"></i>Add Photo
                 </a>
             </div>
@@ -100,7 +100,7 @@
                                 <tr th:if="${galleryItems == null or galleryItems.content == null or galleryItems.content.empty}">
                                     <td colspan="6" class="text-center text-muted py-4">
                                         <i class="fas fa-images fa-2x mb-2 opacity-50 d-block"></i>
-                                        No photos yet. <a th:href="@{/admin/gallery/create}">Add the first photo.</a>
+                                        No photos yet. <a th:href="@{/admin/gallery/new}">Add the first photo.</a>
                                     </td>
                                 </tr>
                             </tbody>
