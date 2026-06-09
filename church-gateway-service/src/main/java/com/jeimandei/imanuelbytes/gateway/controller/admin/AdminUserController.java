@@ -129,6 +129,21 @@ public class AdminUserController {
         return "redirect:/admin/users";
     }
 
+    @PostMapping("/{id}/reset-password")
+    public String resetPassword(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        String jwt = SecurityUtils.getJwt();
+        try {
+            userClientService.resetPassword(id, jwt);
+            log.info("Password reset for user {}", id);
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Password reset successfully. A temporary password has been sent to the user's email.");
+        } catch (Exception e) {
+            log.error("Failed to reset password for user {}: {}", id, e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to reset password: " + e.getMessage());
+        }
+        return "redirect:/admin/users";
+    }
+
     @PostMapping("/{id}/delete")
     public String deleteUser(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         String jwt = SecurityUtils.getJwt();
