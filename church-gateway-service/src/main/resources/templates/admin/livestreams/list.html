@@ -45,7 +45,7 @@
         <div class="p-4">
 
             <!-- Active Livestream Preview -->
-            <div th:each="ls : ${livestreams}"
+            <div th:each="ls : ${livestreams.content}"
                  th:if="${ls.active and ls.youtubeEmbedUrl != null}"
                  class="card mb-4 border-danger">
                 <div class="card-header bg-danger text-white">
@@ -79,7 +79,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr th:each="ls : ${livestreams}">
+                                <tr th:each="ls : ${livestreams.content}">
                                     <td class="px-4 fw-medium" th:text="${ls.title}">Title</td>
                                     <td class="small text-muted font-monospace"
                                         th:text="${ls.youtubeEmbedUrl != null ? #strings.abbreviate(ls.youtubeEmbedUrl, 45) : '-'}">
@@ -122,7 +122,7 @@
                                         </div>
                                     </td>
                                 </tr>
-                                <tr th:if="${livestreams == null or livestreams.empty}">
+                                <tr th:if="${livestreams == null or #lists.isEmpty(livestreams.content)}">
                                     <td colspan="5" class="text-center text-muted py-4">
                                         <i class="fas fa-broadcast-tower fa-2x mb-2 opacity-50 d-block"></i>
                                         No livestreams found.
