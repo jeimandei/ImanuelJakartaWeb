@@ -157,15 +157,18 @@ GET  /api/auth/me             Get current user info
 ### User Service — port 8082
 
 ```
-GET    /api/users                  List users (paginated, searchable)
-GET    /api/users/{id}             Get user by ID
-GET    /api/users/username/{name}  Get user by username
-POST   /api/users                  Create user (ADMIN)
-PUT    /api/users/{id}             Update user
-PUT    /api/users/{id}/status      Change status (ACTIVE / INACTIVE / LOCKED)
-PUT    /api/users/{id}/roles       Assign roles
-PUT    /api/users/{id}/password    Change password
-DELETE /api/users/{id}             Soft delete (ADMIN)
+GET    /api/users                           List users (paginated, searchable)
+GET    /api/users/{id}                      Get user by ID
+GET    /api/users/username/{name}           Get user by username
+POST   /api/users                           Create user (ADMIN)
+PUT    /api/users/{id}                      Update user
+PUT    /api/users/{id}/status               Change status (ACTIVE / INACTIVE / LOCKED) (ADMIN)
+PUT    /api/users/{id}/roles                Assign roles (ADMIN)
+PUT    /api/users/{id}/password             Change password (requires current password)
+POST   /api/users/{id}/reset-password       Admin resets password — emails temp password (ADMIN)
+POST   /api/users/{id}/request-password-otp Send 6-digit OTP to user's email (authenticated)
+PUT    /api/users/{id}/change-password-otp  Change password verified by OTP (authenticated)
+DELETE /api/users/{id}                      Soft delete (ADMIN)
 ```
 
 ### CMS Service — port 8083
@@ -282,6 +285,7 @@ Results are always sorted by `createdAt DESC` regardless of the caller-supplied 
 | `/new-here` | New visitor guide |
 | `/faq` | Frequently asked questions |
 | `/leadership` | Pastoral & leadership team |
+| `/profile` | Authenticated user profile — edit info, change password with OTP |
 
 ## Admin Pages
 
@@ -290,7 +294,7 @@ All admin routes require `ROLE_ADMIN` or `ROLE_SUPER_ADMIN`. Content routes also
 | Path | Description |
 |---|---|
 | `/admin` | Dashboard — stats, recent activity |
-| `/admin/users` | List, activate/deactivate, delete users |
+| `/admin/users` | List, activate/deactivate, reset password, delete users |
 | `/admin/users/new` | Create user |
 | `/admin/users/{id}/edit` | Edit user (name, email, phone, status) |
 | `/admin/events` | Event list with publish / feature toggle |
@@ -374,6 +378,17 @@ audit-service:
 
 # church-api-gateway has no application-level config beyond application.yml routes
 ```
+
+### Email (SMTP)
+
+`church-user-service` and `church-interaction-service` both send email. Configure via environment variables (see `config-repo/church-user-service.yml`):
+
+| Variable | Description |
+|---|---|
+| `MAIL_USERNAME` | Gmail address to send from |
+| `MAIL_PASSWORD` | Gmail app password (not your account password) |
+
+Used for: admin password reset emails and OTP codes for user-initiated password changes.
 
 ## Containerized Deployment
 
@@ -466,6 +481,19 @@ https://www.youtube.com/embed/VIDEO_ID
 
 Only one livestream can be active at a time — activating one automatically deactivates all others. The active stream appears on the homepage and `/livestream`.
 
+## Password Management
+
+### Admin Reset Password
+An admin can reset any user's password from the `/admin/users` list by clicking the key icon button. A secure random 12-character temporary password is generated and emailed to the user's registered email address. The audit log records `RESET_PASSWORD`.
+
+### User Self-Service Password Change (OTP)
+Authenticated users can change their own password from `/profile`:
+
+1. Click **"Send OTP to Email"** — a 6-digit one-time code is sent to the account's registered email (expires in 5 minutes).
+2. Enter the OTP code along with the new password and confirmation, then click **"Change Password"**.
+
+OTP codes are stored in-memory per user (no database table required) and are single-use. The audit log records `CHANGE_PASSWORD_OTP`.
+
 ## Security
 
 - Passwords hashed with BCrypt
@@ -475,6 +503,7 @@ Only one livestream can be active at a time — activating one automatically dea
 - Confidential prayer requests visible to `ROLE_ADMIN` / `ROLE_EDITOR` only
 - Account status (ACTIVE / INACTIVE / LOCKED) checked on every login
 - Audit service is internal-only (no JWT required, CSRF disabled, not exposed via gateway)
+- Password change requires OTP email verification; admin resets bypass this via a temporary password sent to email
 
 ## Running Tests
 
