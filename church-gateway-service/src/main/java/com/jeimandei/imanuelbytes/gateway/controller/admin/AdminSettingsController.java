@@ -43,6 +43,7 @@ public class AdminSettingsController {
     public String updateSettings(@RequestParam Map<String, String> settings,
                                  RedirectAttributes redirectAttributes) {
         String jwt = SecurityUtils.getJwt();
+        settings.remove("_csrf");
         int successCount = 0;
         int failCount = 0;
         for (Map.Entry<String, String> entry : settings.entrySet()) {
