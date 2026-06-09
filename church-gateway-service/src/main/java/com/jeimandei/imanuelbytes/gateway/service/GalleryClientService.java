@@ -1,5 +1,6 @@
 package com.jeimandei.imanuelbytes.gateway.service;
 
+import com.jeimandei.imanuelbytes.common.dto.ApiResponse;
 import com.jeimandei.imanuelbytes.gateway.config.ServiceUrlConfig;
 import com.jeimandei.imanuelbytes.gateway.dto.GalleryItemDto;
 import com.jeimandei.imanuelbytes.gateway.dto.PageResponse;
@@ -44,10 +45,11 @@ public class GalleryClientService {
     public PageResponse<GalleryItemDto> getGalleryItems(int page, int size) {
         try {
             String url = serviceUrlConfig.mediaUrl("/api/gallery?page=" + page + "&size=" + size);
-            ResponseEntity<PageResponse<GalleryItemDto>> response = restTemplate.exchange(
+            ResponseEntity<ApiResponse<PageResponse<GalleryItemDto>>> response = restTemplate.exchange(
                     url, HttpMethod.GET, null,
-                    new ParameterizedTypeReference<PageResponse<GalleryItemDto>>() {});
-            return response.getBody() != null ? response.getBody() : PageResponse.empty();
+                    new ParameterizedTypeReference<ApiResponse<PageResponse<GalleryItemDto>>>() {});
+            ApiResponse<PageResponse<GalleryItemDto>> body = response.getBody();
+            return (body != null && body.getData() != null) ? body.getData() : PageResponse.empty();
         } catch (RestClientException e) {
             log.error("Failed to fetch gallery items: {}", e.getMessage());
             return PageResponse.empty();
@@ -57,10 +59,11 @@ public class GalleryClientService {
     public List<String> getAlbumNames() {
         try {
             String url = serviceUrlConfig.mediaUrl("/api/gallery/albums");
-            ResponseEntity<List<String>> response = restTemplate.exchange(
+            ResponseEntity<ApiResponse<List<String>>> response = restTemplate.exchange(
                     url, HttpMethod.GET, null,
-                    new ParameterizedTypeReference<List<String>>() {});
-            return response.getBody() != null ? response.getBody() : Collections.emptyList();
+                    new ParameterizedTypeReference<ApiResponse<List<String>>>() {});
+            ApiResponse<List<String>> body = response.getBody();
+            return (body != null && body.getData() != null) ? body.getData() : Collections.emptyList();
         } catch (RestClientException e) {
             log.error("Failed to fetch album names: {}", e.getMessage());
             return Collections.emptyList();
@@ -71,10 +74,11 @@ public class GalleryClientService {
         try {
             String url = serviceUrlConfig.mediaUrl(
                     "/api/gallery/album/" + albumName + "?page=" + page + "&size=" + size);
-            ResponseEntity<PageResponse<GalleryItemDto>> response = restTemplate.exchange(
+            ResponseEntity<ApiResponse<PageResponse<GalleryItemDto>>> response = restTemplate.exchange(
                     url, HttpMethod.GET, null,
-                    new ParameterizedTypeReference<PageResponse<GalleryItemDto>>() {});
-            return response.getBody() != null ? response.getBody() : PageResponse.empty();
+                    new ParameterizedTypeReference<ApiResponse<PageResponse<GalleryItemDto>>>() {});
+            ApiResponse<PageResponse<GalleryItemDto>> body = response.getBody();
+            return (body != null && body.getData() != null) ? body.getData() : PageResponse.empty();
         } catch (RestClientException e) {
             log.error("Failed to fetch gallery for album {}: {}", albumName, e.getMessage());
             return PageResponse.empty();
@@ -85,9 +89,11 @@ public class GalleryClientService {
         String url = serviceUrlConfig.mediaUrl("/api/gallery");
         HttpHeaders headers = createAuthHeaders(jwt);
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, headers);
-        ResponseEntity<GalleryItemDto> response = restTemplate.exchange(
-                url, HttpMethod.POST, entity, GalleryItemDto.class);
-        return response.getBody();
+        ResponseEntity<ApiResponse<GalleryItemDto>> response = restTemplate.exchange(
+                url, HttpMethod.POST, entity,
+                new ParameterizedTypeReference<ApiResponse<GalleryItemDto>>() {});
+        ApiResponse<GalleryItemDto> body = response.getBody();
+        return body != null ? body.getData() : null;
     }
 
     public void deleteGalleryItem(Long id, String jwt) {

@@ -1,5 +1,6 @@
 package com.jeimandei.imanuelbytes.gateway.service;
 
+import com.jeimandei.imanuelbytes.common.dto.ApiResponse;
 import com.jeimandei.imanuelbytes.gateway.config.ServiceUrlConfig;
 import com.jeimandei.imanuelbytes.gateway.dto.UserDto;
 import org.slf4j.Logger;
@@ -44,10 +45,11 @@ public class UserClientService {
         try {
             String url = serviceUrlConfig.userUrl("/api/users");
             HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
-            ResponseEntity<List<UserDto>> response = restTemplate.exchange(
+            ResponseEntity<ApiResponse<List<UserDto>>> response = restTemplate.exchange(
                     url, HttpMethod.GET, entity,
-                    new ParameterizedTypeReference<List<UserDto>>() {});
-            return response.getBody() != null ? response.getBody() : Collections.emptyList();
+                    new ParameterizedTypeReference<ApiResponse<List<UserDto>>>() {});
+            ApiResponse<List<UserDto>> body = response.getBody();
+            return (body != null && body.getData() != null) ? body.getData() : Collections.emptyList();
         } catch (RestClientException e) {
             log.error("Failed to fetch users: {}", e.getMessage());
             return Collections.emptyList();
@@ -58,9 +60,11 @@ public class UserClientService {
         try {
             String url = serviceUrlConfig.userUrl("/api/users/" + id);
             HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
-            ResponseEntity<UserDto> response = restTemplate.exchange(
-                    url, HttpMethod.GET, entity, UserDto.class);
-            return response.getBody();
+            ResponseEntity<ApiResponse<UserDto>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity,
+                    new ParameterizedTypeReference<ApiResponse<UserDto>>() {});
+            ApiResponse<UserDto> body = response.getBody();
+            return body != null ? body.getData() : null;
         } catch (RestClientException e) {
             log.error("Failed to fetch user {}: {}", id, e.getMessage());
             return null;
@@ -70,18 +74,22 @@ public class UserClientService {
     public UserDto createUser(Map<String, Object> request, String jwt) {
         String url = serviceUrlConfig.userUrl("/api/users");
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, createAuthHeaders(jwt));
-        ResponseEntity<UserDto> response = restTemplate.exchange(
-                url, HttpMethod.POST, entity, UserDto.class);
-        return response.getBody();
+        ResponseEntity<ApiResponse<UserDto>> response = restTemplate.exchange(
+                url, HttpMethod.POST, entity,
+                new ParameterizedTypeReference<ApiResponse<UserDto>>() {});
+        ApiResponse<UserDto> body = response.getBody();
+        return body != null ? body.getData() : null;
     }
 
     public UserDto updateUserStatus(Long id, String status, String jwt) {
         String url = serviceUrlConfig.userUrl("/api/users/" + id + "/status");
         Map<String, String> body = Map.of("status", status);
         HttpEntity<Map<String, String>> entity = new HttpEntity<>(body, createAuthHeaders(jwt));
-        ResponseEntity<UserDto> response = restTemplate.exchange(
-                url, HttpMethod.PUT, entity, UserDto.class);
-        return response.getBody();
+        ResponseEntity<ApiResponse<UserDto>> response = restTemplate.exchange(
+                url, HttpMethod.PUT, entity,
+                new ParameterizedTypeReference<ApiResponse<UserDto>>() {});
+        ApiResponse<UserDto> apiBody = response.getBody();
+        return apiBody != null ? apiBody.getData() : null;
     }
 
     public void deleteUser(Long id, String jwt) {
@@ -93,17 +101,21 @@ public class UserClientService {
     public UserDto updateUser(Long id, Map<String, Object> request, String jwt) {
         String url = serviceUrlConfig.userUrl("/api/users/" + id);
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, createAuthHeaders(jwt));
-        ResponseEntity<UserDto> response = restTemplate.exchange(
-                url, HttpMethod.PUT, entity, UserDto.class);
-        return response.getBody();
+        ResponseEntity<ApiResponse<UserDto>> response = restTemplate.exchange(
+                url, HttpMethod.PUT, entity,
+                new ParameterizedTypeReference<ApiResponse<UserDto>>() {});
+        ApiResponse<UserDto> body = response.getBody();
+        return body != null ? body.getData() : null;
     }
 
     public UserDto assignRoles(Long id, List<String> roles, String jwt) {
         String url = serviceUrlConfig.userUrl("/api/users/" + id + "/roles");
         Map<String, Object> body = Map.of("roles", roles);
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, createAuthHeaders(jwt));
-        ResponseEntity<UserDto> response = restTemplate.exchange(
-                url, HttpMethod.PUT, entity, UserDto.class);
-        return response.getBody();
+        ResponseEntity<ApiResponse<UserDto>> response = restTemplate.exchange(
+                url, HttpMethod.PUT, entity,
+                new ParameterizedTypeReference<ApiResponse<UserDto>>() {});
+        ApiResponse<UserDto> apiBody = response.getBody();
+        return apiBody != null ? apiBody.getData() : null;
     }
 }

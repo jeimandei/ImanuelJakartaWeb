@@ -1,11 +1,17 @@
 package com.jeimandei.imanuelbytes.gateway.service;
 
+import com.jeimandei.imanuelbytes.common.dto.ApiResponse;
 import com.jeimandei.imanuelbytes.gateway.config.ServiceUrlConfig;
 import com.jeimandei.imanuelbytes.gateway.dto.AuthResponse;
 import com.jeimandei.imanuelbytes.gateway.dto.RegisterFormDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -40,8 +46,15 @@ public class AuthClientService {
     public AuthResponse login(String username, String password) {
         String url = serviceUrlConfig.authUrl("/api/auth/login");
         Map<String, String> body = Map.of("username", username, "password", password);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<Map<String, String>> entity = new HttpEntity<>(body, headers);
         log.debug("Calling auth service login: {}", url);
-        return restTemplate.postForObject(url, body, AuthResponse.class);
+        ResponseEntity<ApiResponse<AuthResponse>> response = restTemplate.exchange(
+                url, HttpMethod.POST, entity,
+                new ParameterizedTypeReference<ApiResponse<AuthResponse>>() {});
+        ApiResponse<AuthResponse> apiBody = response.getBody();
+        return apiBody != null ? apiBody.getData() : null;
     }
 
     /**
@@ -51,7 +64,10 @@ public class AuthClientService {
      */
     public void register(RegisterFormDto dto) {
         String url = serviceUrlConfig.authUrl("/api/auth/register");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<RegisterFormDto> entity = new HttpEntity<>(dto, headers);
         log.debug("Calling auth service register: {}", url);
-        restTemplate.postForObject(url, dto, Void.class);
+        restTemplate.exchange(url, HttpMethod.POST, entity, Void.class);
     }
 }
