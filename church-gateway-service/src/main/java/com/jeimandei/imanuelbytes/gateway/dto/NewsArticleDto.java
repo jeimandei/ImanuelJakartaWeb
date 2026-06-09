@@ -1,5 +1,7 @@
 package com.jeimandei.imanuelbytes.gateway.dto;
 
+import java.time.LocalDateTime;
+
 public class NewsArticleDto {
 
     private Long id;
@@ -10,8 +12,8 @@ public class NewsArticleDto {
     private String imageUrl;
     private Long authorId;
     private String status;
-    private String publishedAt;
-    private String createdAt;
+    private LocalDateTime publishedAt;
+    private LocalDateTime createdAt;
 
     public NewsArticleDto() {}
 
@@ -39,9 +41,9 @@ public class NewsArticleDto {
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
-    public String getPublishedAt() { return publishedAt; }
-    public void setPublishedAt(String publishedAt) { this.publishedAt = publishedAt; }
+    public LocalDateTime getPublishedAt() { return publishedAt; }
+    public void setPublishedAt(LocalDateTime publishedAt) { this.publishedAt = publishedAt; }
 
-    public String getCreatedAt() { return createdAt; }
-    public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }

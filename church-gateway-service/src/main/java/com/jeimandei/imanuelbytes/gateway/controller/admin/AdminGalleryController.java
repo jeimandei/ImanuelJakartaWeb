@@ -1,5 +1,6 @@
 package com.jeimandei.imanuelbytes.gateway.controller.admin;
 
+import com.jeimandei.imanuelbytes.gateway.dto.GalleryItemDto;
 import com.jeimandei.imanuelbytes.gateway.service.GalleryClientService;
 import com.jeimandei.imanuelbytes.gateway.util.SecurityUtils;
 import org.slf4j.Logger;
@@ -44,7 +45,7 @@ public class AdminGalleryController {
 
     @GetMapping("/new")
     public String createForm(Model model) {
-        model.addAttribute("galleryForm", new HashMap<String, Object>());
+        model.addAttribute("galleryForm", new GalleryItemDto());
         return "admin/gallery/form";
     }
 

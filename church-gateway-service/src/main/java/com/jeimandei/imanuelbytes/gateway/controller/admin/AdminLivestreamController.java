@@ -1,5 +1,6 @@
 package com.jeimandei.imanuelbytes.gateway.controller.admin;
 
+import com.jeimandei.imanuelbytes.gateway.dto.LivestreamDto;
 import com.jeimandei.imanuelbytes.gateway.service.LivestreamClientService;
 import com.jeimandei.imanuelbytes.gateway.util.SecurityUtils;
 import org.slf4j.Logger;
@@ -44,7 +45,7 @@ public class AdminLivestreamController {
 
     @GetMapping("/create")
     public String createForm(Model model) {
-        model.addAttribute("livestreamForm", new HashMap<String, Object>());
+        model.addAttribute("livestreamForm", new LivestreamDto());
         return "admin/livestreams/form";
     }
 

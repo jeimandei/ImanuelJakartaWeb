@@ -3,7 +3,9 @@ package com.jeimandei.imanuelbytes.gateway.service;
 import com.jeimandei.imanuelbytes.common.dto.ApiResponse;
 import com.jeimandei.imanuelbytes.gateway.config.ServiceUrlConfig;
 import com.jeimandei.imanuelbytes.gateway.dto.ContactFormDto;
+import com.jeimandei.imanuelbytes.gateway.dto.ContactMessageDto;
 import com.jeimandei.imanuelbytes.gateway.dto.PageResponse;
+import com.jeimandei.imanuelbytes.gateway.dto.PrayerRequestDto;
 import com.jeimandei.imanuelbytes.gateway.dto.PrayerRequestFormDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,14 +86,14 @@ public class InteractionClientService {
         }
     }
 
-    public PageResponse<?> getPrayerRequests(int page, int size, String jwt) {
+    public PageResponse<PrayerRequestDto> getPrayerRequests(int page, int size, String jwt) {
         try {
             String url = serviceUrlConfig.interactionUrl("/api/prayer-requests?page=" + page + "&size=" + size);
             HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
-            ResponseEntity<ApiResponse<PageResponse<?>>> response = restTemplate.exchange(
+            ResponseEntity<ApiResponse<PageResponse<PrayerRequestDto>>> response = restTemplate.exchange(
                     url, HttpMethod.GET, entity,
-                    new ParameterizedTypeReference<ApiResponse<PageResponse<?>>>() {});
-            ApiResponse<PageResponse<?>> body = response.getBody();
+                    new ParameterizedTypeReference<ApiResponse<PageResponse<PrayerRequestDto>>>() {});
+            ApiResponse<PageResponse<PrayerRequestDto>> body = response.getBody();
             return (body != null && body.getData() != null) ? body.getData() : PageResponse.empty();
         } catch (RestClientException e) {
             log.error("Failed to fetch prayer requests: {}", e.getMessage());
@@ -99,14 +101,14 @@ public class InteractionClientService {
         }
     }
 
-    public PageResponse<?> getContactMessages(int page, int size, String jwt) {
+    public PageResponse<ContactMessageDto> getContactMessages(int page, int size, String jwt) {
         try {
             String url = serviceUrlConfig.interactionUrl("/api/contact-messages?page=" + page + "&size=" + size);
             HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
-            ResponseEntity<ApiResponse<PageResponse<?>>> response = restTemplate.exchange(
+            ResponseEntity<ApiResponse<PageResponse<ContactMessageDto>>> response = restTemplate.exchange(
                     url, HttpMethod.GET, entity,
-                    new ParameterizedTypeReference<ApiResponse<PageResponse<?>>>() {});
-            ApiResponse<PageResponse<?>> body = response.getBody();
+                    new ParameterizedTypeReference<ApiResponse<PageResponse<ContactMessageDto>>>() {});
+            ApiResponse<PageResponse<ContactMessageDto>> body = response.getBody();
             return (body != null && body.getData() != null) ? body.getData() : PageResponse.empty();
         } catch (RestClientException e) {
             log.error("Failed to fetch contact messages: {}", e.getMessage());
