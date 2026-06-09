@@ -172,6 +172,10 @@ jobs:
           ssh -p ${{ env.SSH_PORT }} ${{ env.SSH_USER }}@${{ env.SSH_HOST }} << EOF
             set -e
             cd ${{ env.DEPLOY_DIR }}
+            echo "→ Pulling branch ${{ inputs.branch }}"
+            git fetch origin
+            git checkout ${{ inputs.branch }}
+            git reset --hard origin/${{ inputs.branch }}
             echo "→ Rebuilding: ${{ inputs.services }}"
             podman compose --env-file .env up --build -d ${{ inputs.services }}
             echo "✓ Build-service complete"
