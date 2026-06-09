@@ -2,6 +2,7 @@ package com.jeimandei.imanuelbytes.gateway.service;
 
 import com.jeimandei.imanuelbytes.common.dto.ApiResponse;
 import com.jeimandei.imanuelbytes.gateway.config.ServiceUrlConfig;
+import com.jeimandei.imanuelbytes.gateway.dto.PageResponse;
 import com.jeimandei.imanuelbytes.gateway.dto.UserDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,13 +44,16 @@ public class UserClientService {
 
     public List<UserDto> getAllUsers(String jwt) {
         try {
-            String url = serviceUrlConfig.userUrl("/api/users");
+            String url = serviceUrlConfig.userUrl("/api/users?size=200");
             HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
-            ResponseEntity<ApiResponse<List<UserDto>>> response = restTemplate.exchange(
+            ResponseEntity<ApiResponse<PageResponse<UserDto>>> response = restTemplate.exchange(
                     url, HttpMethod.GET, entity,
-                    new ParameterizedTypeReference<ApiResponse<List<UserDto>>>() {});
-            ApiResponse<List<UserDto>> body = response.getBody();
-            return (body != null && body.getData() != null) ? body.getData() : Collections.emptyList();
+                    new ParameterizedTypeReference<ApiResponse<PageResponse<UserDto>>>() {});
+            ApiResponse<PageResponse<UserDto>> body = response.getBody();
+            if (body != null && body.getData() != null && body.getData().getContent() != null) {
+                return body.getData().getContent();
+            }
+            return Collections.emptyList();
         } catch (RestClientException e) {
             log.error("Failed to fetch users: {}", e.getMessage());
             return Collections.emptyList();
