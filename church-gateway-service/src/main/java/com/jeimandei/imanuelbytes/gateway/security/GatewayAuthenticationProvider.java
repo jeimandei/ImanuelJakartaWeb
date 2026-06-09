@@ -15,6 +15,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 
+import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -36,7 +37,13 @@ public class GatewayAuthenticationProvider implements AuthenticationProvider {
         try {
             AuthResponse authResponse = authClientService.login(username, password);
 
-            List<GrantedAuthority> authorities = authResponse.getRoles().stream()
+            if (authResponse == null) {
+                throw new BadCredentialsException("No response from authentication service");
+            }
+
+            List<String> roles = authResponse.getRoles() != null
+                    ? authResponse.getRoles() : Collections.emptyList();
+            List<GrantedAuthority> authorities = roles.stream()
                     .map(role -> (GrantedAuthority) new SimpleGrantedAuthority(role))
                     .toList();
 
