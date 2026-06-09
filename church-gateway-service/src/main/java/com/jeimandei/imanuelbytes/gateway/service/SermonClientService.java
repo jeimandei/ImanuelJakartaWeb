@@ -95,6 +95,16 @@ public class SermonClientService {
         return body != null ? body.getData() : null;
     }
 
+    public SermonDto updateSermon(Long id, Map<String, Object> request, String jwt) {
+        String url = serviceUrlConfig.mediaUrl("/api/sermons/" + id);
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, createAuthHeaders(jwt));
+        ResponseEntity<ApiResponse<SermonDto>> response = restTemplate.exchange(
+                url, HttpMethod.PUT, entity,
+                new ParameterizedTypeReference<ApiResponse<SermonDto>>() {});
+        ApiResponse<SermonDto> body = response.getBody();
+        return body != null ? body.getData() : null;
+    }
+
     public void deleteSermon(Long id, String jwt) {
         String url = serviceUrlConfig.mediaUrl("/api/sermons/" + id);
         HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));

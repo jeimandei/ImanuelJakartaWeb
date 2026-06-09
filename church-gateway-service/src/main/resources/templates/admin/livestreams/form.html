@@ -48,7 +48,7 @@
                 <div class="col-lg-7">
                     <div class="card">
                         <div class="card-body p-4">
-                            <form th:action="@{/admin/livestreams/create}" method="post" th:object="${livestreamForm}"
+                            <form th:action="${livestreamForm?.id != null} ? @{/admin/livestreams/{id}/edit(id=${livestreamForm.id})} : @{/admin/livestreams/create}" method="post" th:object="${livestreamForm}"
                                   id="livestreamForm">
                                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 

@@ -46,7 +46,7 @@
         <div class="p-4">
             <div class="card" style="max-width:800px;">
                 <div class="card-body p-4">
-                    <form th:action="@{/admin/events/create}" method="post" th:object="${eventForm}">
+                    <form th:action="${eventForm?.id != null} ? @{/admin/events/{id}/edit(id=${eventForm.id})} : @{/admin/events/create}" method="post" th:object="${eventForm}">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
                         <div class="row g-3">

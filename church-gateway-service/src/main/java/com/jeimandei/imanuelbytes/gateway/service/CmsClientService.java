@@ -101,6 +101,16 @@ public class CmsClientService {
         return body != null ? body.getData() : null;
     }
 
+    public AnnouncementDto updateAnnouncement(Long id, Map<String, Object> request, String jwt) {
+        String url = serviceUrlConfig.cmsUrl("/api/announcements/" + id);
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, createAuthHeaders(jwt));
+        ResponseEntity<ApiResponse<AnnouncementDto>> response = restTemplate.exchange(
+                url, HttpMethod.PUT, entity,
+                new ParameterizedTypeReference<ApiResponse<AnnouncementDto>>() {});
+        ApiResponse<AnnouncementDto> body = response.getBody();
+        return body != null ? body.getData() : null;
+    }
+
     public void deleteAnnouncement(Long id, String jwt) {
         String url = serviceUrlConfig.cmsUrl("/api/announcements/" + id);
         HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
@@ -289,6 +299,31 @@ public class CmsClientService {
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, createAuthHeaders(jwt));
         ResponseEntity<ApiResponse<NewsArticleDto>> response = restTemplate.exchange(
                 url, HttpMethod.POST, entity,
+                new ParameterizedTypeReference<ApiResponse<NewsArticleDto>>() {});
+        ApiResponse<NewsArticleDto> body = response.getBody();
+        return body != null ? body.getData() : null;
+    }
+
+    public NewsArticleDto getNewsById(Long id, String jwt) {
+        try {
+            String url = serviceUrlConfig.cmsUrl("/api/news/" + id);
+            HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
+            ResponseEntity<ApiResponse<NewsArticleDto>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity,
+                    new ParameterizedTypeReference<ApiResponse<NewsArticleDto>>() {});
+            ApiResponse<NewsArticleDto> body = response.getBody();
+            return body != null ? body.getData() : null;
+        } catch (RestClientException e) {
+            log.error("Failed to fetch news article {}: {}", id, e.getMessage());
+            return null;
+        }
+    }
+
+    public NewsArticleDto updateNewsArticle(Long id, Map<String, Object> request, String jwt) {
+        String url = serviceUrlConfig.cmsUrl("/api/news/" + id);
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, createAuthHeaders(jwt));
+        ResponseEntity<ApiResponse<NewsArticleDto>> response = restTemplate.exchange(
+                url, HttpMethod.PUT, entity,
                 new ParameterizedTypeReference<ApiResponse<NewsArticleDto>>() {});
         ApiResponse<NewsArticleDto> body = response.getBody();
         return body != null ? body.getData() : null;

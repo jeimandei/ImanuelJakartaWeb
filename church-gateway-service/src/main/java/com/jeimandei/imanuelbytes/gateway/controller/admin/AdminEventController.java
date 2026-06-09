@@ -65,6 +65,41 @@ public class AdminEventController {
         return "redirect:/admin/events";
     }
 
+    @GetMapping("/{id}/edit")
+    public String editForm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+        String jwt = SecurityUtils.getJwt();
+        try {
+            EventDto event = eventClientService.getEventById(id, jwt);
+            if (event == null) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Event not found.");
+                return "redirect:/admin/events";
+            }
+            model.addAttribute("eventForm", event);
+        } catch (Exception e) {
+            log.error("Failed to load event {}: {}", id, e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to load event.");
+            return "redirect:/admin/events";
+        }
+        return "admin/events/form";
+    }
+
+    @PostMapping("/{id}/edit")
+    public String updateEvent(@PathVariable Long id,
+                              @RequestParam Map<String, String> params,
+                              RedirectAttributes redirectAttributes) {
+        String jwt = SecurityUtils.getJwt();
+        try {
+            Map<String, Object> request = new HashMap<>(params);
+            eventClientService.updateEvent(id, request, jwt);
+            log.info("Event {} updated successfully", id);
+            redirectAttributes.addFlashAttribute("successMessage", "Event updated successfully.");
+        } catch (Exception e) {
+            log.error("Failed to update event {}: {}", id, e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to update event.");
+        }
+        return "redirect:/admin/events";
+    }
+
     @PostMapping("/{id}/delete")
     public String deleteEvent(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         String jwt = SecurityUtils.getJwt();
@@ -75,23 +110,6 @@ public class AdminEventController {
         } catch (Exception e) {
             log.error("Failed to delete event {}: {}", id, e.getMessage());
             redirectAttributes.addFlashAttribute("errorMessage", "Failed to delete event.");
-        }
-        return "redirect:/admin/events";
-    }
-
-    @PostMapping("/{id}/featured")
-    public String toggleFeatured(@PathVariable Long id,
-                                 @RequestParam(required = false) Boolean featured,
-                                 RedirectAttributes redirectAttributes) {
-        String jwt = SecurityUtils.getJwt();
-        try {
-            Map<String, Object> request = Map.of("featured", featured != null && featured);
-            eventClientService.createEvent(request, jwt); // update via patch-like POST; adjust if API differs
-            log.info("Event {} featured status toggled to {}", id, featured != null && featured);
-            redirectAttributes.addFlashAttribute("successMessage", "Event featured status updated.");
-        } catch (Exception e) {
-            log.error("Failed to toggle featured for event {}: {}", id, e.getMessage());
-            redirectAttributes.addFlashAttribute("errorMessage", "Failed to update featured status.");
         }
         return "redirect:/admin/events";
     }

@@ -77,6 +77,51 @@ public class AdminGalleryController {
         return "redirect:/admin/gallery";
     }
 
+    @GetMapping("/{id}/edit")
+    public String editForm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+        String jwt = SecurityUtils.getJwt();
+        try {
+            GalleryItemDto item = galleryClientService.getGalleryItemById(id, jwt);
+            if (item == null) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Gallery item not found.");
+                return "redirect:/admin/gallery";
+            }
+            model.addAttribute("galleryForm", item);
+        } catch (Exception e) {
+            log.error("Failed to load gallery item {}: {}", id, e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to load gallery item.");
+            return "redirect:/admin/gallery";
+        }
+        return "admin/gallery/form";
+    }
+
+    @PostMapping("/{id}/edit")
+    public String updateGalleryItem(@PathVariable Long id,
+                                    @RequestParam Map<String, String> params,
+                                    RedirectAttributes redirectAttributes) {
+        String jwt = SecurityUtils.getJwt();
+        try {
+            Map<String, Object> request = new HashMap<>(params);
+            if (params.containsKey("active")) {
+                request.put("active", Boolean.parseBoolean(params.get("active")));
+            }
+            if (params.containsKey("displayOrder")) {
+                try {
+                    request.put("displayOrder", Integer.parseInt(params.get("displayOrder")));
+                } catch (NumberFormatException ignored) {
+                    request.put("displayOrder", 0);
+                }
+            }
+            galleryClientService.updateGalleryItem(id, request, jwt);
+            log.info("Gallery item {} updated successfully", id);
+            redirectAttributes.addFlashAttribute("successMessage", "Gallery item updated successfully.");
+        } catch (Exception e) {
+            log.error("Failed to update gallery item {}: {}", id, e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to update gallery item.");
+        }
+        return "redirect:/admin/gallery";
+    }
+
     @PostMapping("/{id}/delete")
     public String deleteGalleryItem(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         String jwt = SecurityUtils.getJwt();

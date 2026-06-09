@@ -46,7 +46,7 @@
         <div class="p-4">
             <div class="card" style="max-width:800px;">
                 <div class="card-body p-4">
-                    <form th:action="@{/admin/sermons/create}" method="post" th:object="${sermonForm}">
+                    <form th:action="${sermonForm?.id != null} ? @{/admin/sermons/{id}/edit(id=${sermonForm.id})} : @{/admin/sermons/create}" method="post" th:object="${sermonForm}">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
                         <div class="row g-3">
