@@ -323,5 +323,3 @@ INSERT INTO sermons (title, speaker, sermon_date, description, scripture_referen
      'Hebrews 11:1-6',
      'Faith Foundations')
 ON CONFLICT DO NOTHING;
-
-COMMIT;
