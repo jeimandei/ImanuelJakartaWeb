@@ -48,7 +48,7 @@
                 <div class="col-lg-7">
                     <div class="card">
                         <div class="card-body p-4">
-                            <form th:action="@{/admin/gallery/create}" method="post" th:object="${galleryForm}">
+                            <form th:action="${galleryForm?.id != null} ? @{/admin/gallery/{id}/edit(id=${galleryForm.id})} : @{/admin/gallery/create}" method="post" th:object="${galleryForm}">
                                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
                                 <div class="row g-3">

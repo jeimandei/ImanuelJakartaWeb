@@ -65,6 +65,41 @@ public class AdminAnnouncementController {
         return "redirect:/admin/announcements";
     }
 
+    @GetMapping("/{id}/edit")
+    public String editForm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+        String jwt = SecurityUtils.getJwt();
+        try {
+            AnnouncementDto announcement = cmsClientService.getAnnouncementById(id, jwt);
+            if (announcement == null) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Announcement not found.");
+                return "redirect:/admin/announcements";
+            }
+            model.addAttribute("announcementForm", announcement);
+        } catch (Exception e) {
+            log.error("Failed to load announcement {}: {}", id, e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to load announcement.");
+            return "redirect:/admin/announcements";
+        }
+        return "admin/announcements/form";
+    }
+
+    @PostMapping("/{id}/edit")
+    public String updateAnnouncement(@PathVariable Long id,
+                                     @RequestParam Map<String, String> params,
+                                     RedirectAttributes redirectAttributes) {
+        String jwt = SecurityUtils.getJwt();
+        try {
+            Map<String, Object> request = new HashMap<>(params);
+            cmsClientService.updateAnnouncement(id, request, jwt);
+            log.info("Announcement {} updated successfully", id);
+            redirectAttributes.addFlashAttribute("successMessage", "Announcement updated successfully.");
+        } catch (Exception e) {
+            log.error("Failed to update announcement {}: {}", id, e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to update announcement.");
+        }
+        return "redirect:/admin/announcements";
+    }
+
     @PostMapping("/{id}/delete")
     public String deleteAnnouncement(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         String jwt = SecurityUtils.getJwt();

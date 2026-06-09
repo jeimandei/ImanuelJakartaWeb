@@ -65,6 +65,41 @@ public class AdminLivestreamController {
         return "redirect:/admin/livestreams";
     }
 
+    @GetMapping("/{id}/edit")
+    public String editForm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+        String jwt = SecurityUtils.getJwt();
+        try {
+            LivestreamDto livestream = livestreamClientService.getLivestreamById(id, jwt);
+            if (livestream == null) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Livestream not found.");
+                return "redirect:/admin/livestreams";
+            }
+            model.addAttribute("livestreamForm", livestream);
+        } catch (Exception e) {
+            log.error("Failed to load livestream {}: {}", id, e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to load livestream.");
+            return "redirect:/admin/livestreams";
+        }
+        return "admin/livestreams/form";
+    }
+
+    @PostMapping("/{id}/edit")
+    public String updateLivestream(@PathVariable Long id,
+                                   @RequestParam Map<String, String> params,
+                                   RedirectAttributes redirectAttributes) {
+        String jwt = SecurityUtils.getJwt();
+        try {
+            Map<String, Object> request = new HashMap<>(params);
+            livestreamClientService.updateLivestream(id, request, jwt);
+            log.info("Livestream {} updated successfully", id);
+            redirectAttributes.addFlashAttribute("successMessage", "Livestream updated successfully.");
+        } catch (Exception e) {
+            log.error("Failed to update livestream {}: {}", id, e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to update livestream.");
+        }
+        return "redirect:/admin/livestreams";
+    }
+
     @PostMapping("/{id}/activate")
     public String activateLivestream(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         String jwt = SecurityUtils.getJwt();

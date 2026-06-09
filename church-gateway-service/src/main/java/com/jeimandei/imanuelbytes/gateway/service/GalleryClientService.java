@@ -96,6 +96,31 @@ public class GalleryClientService {
         return body != null ? body.getData() : null;
     }
 
+    public GalleryItemDto getGalleryItemById(Long id, String jwt) {
+        try {
+            String url = serviceUrlConfig.mediaUrl("/api/gallery/" + id);
+            HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
+            ResponseEntity<ApiResponse<GalleryItemDto>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity,
+                    new ParameterizedTypeReference<ApiResponse<GalleryItemDto>>() {});
+            ApiResponse<GalleryItemDto> body = response.getBody();
+            return body != null ? body.getData() : null;
+        } catch (RestClientException e) {
+            log.error("Failed to fetch gallery item {}: {}", id, e.getMessage());
+            return null;
+        }
+    }
+
+    public GalleryItemDto updateGalleryItem(Long id, Map<String, Object> request, String jwt) {
+        String url = serviceUrlConfig.mediaUrl("/api/gallery/" + id);
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, createAuthHeaders(jwt));
+        ResponseEntity<ApiResponse<GalleryItemDto>> response = restTemplate.exchange(
+                url, HttpMethod.PUT, entity,
+                new ParameterizedTypeReference<ApiResponse<GalleryItemDto>>() {});
+        ApiResponse<GalleryItemDto> body = response.getBody();
+        return body != null ? body.getData() : null;
+    }
+
     public void deleteGalleryItem(Long id, String jwt) {
         String url = serviceUrlConfig.mediaUrl("/api/gallery/" + id);
         HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));

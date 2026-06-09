@@ -127,6 +127,31 @@ public class EventClientService {
         return body != null ? body.getData() : null;
     }
 
+    public EventDto getEventById(Long id, String jwt) {
+        try {
+            String url = serviceUrlConfig.eventUrl("/api/events/" + id);
+            HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
+            ResponseEntity<ApiResponse<EventDto>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity,
+                    new ParameterizedTypeReference<ApiResponse<EventDto>>() {});
+            ApiResponse<EventDto> body = response.getBody();
+            return body != null ? body.getData() : null;
+        } catch (RestClientException e) {
+            log.error("Failed to fetch event {}: {}", id, e.getMessage());
+            return null;
+        }
+    }
+
+    public EventDto updateEvent(Long id, Map<String, Object> request, String jwt) {
+        String url = serviceUrlConfig.eventUrl("/api/events/" + id);
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, createAuthHeaders(jwt));
+        ResponseEntity<ApiResponse<EventDto>> response = restTemplate.exchange(
+                url, HttpMethod.PUT, entity,
+                new ParameterizedTypeReference<ApiResponse<EventDto>>() {});
+        ApiResponse<EventDto> body = response.getBody();
+        return body != null ? body.getData() : null;
+    }
+
     public void deleteEvent(Long id, String jwt) {
         String url = serviceUrlConfig.eventUrl("/api/events/" + id);
         HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));

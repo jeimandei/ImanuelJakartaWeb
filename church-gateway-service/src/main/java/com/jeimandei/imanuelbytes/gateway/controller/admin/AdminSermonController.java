@@ -65,6 +65,41 @@ public class AdminSermonController {
         return "redirect:/admin/sermons";
     }
 
+    @GetMapping("/{id}/edit")
+    public String editForm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+        String jwt = SecurityUtils.getJwt();
+        try {
+            SermonDto sermon = sermonClientService.getSermonById(id);
+            if (sermon == null) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Sermon not found.");
+                return "redirect:/admin/sermons";
+            }
+            model.addAttribute("sermonForm", sermon);
+        } catch (Exception e) {
+            log.error("Failed to load sermon {}: {}", id, e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to load sermon.");
+            return "redirect:/admin/sermons";
+        }
+        return "admin/sermons/form";
+    }
+
+    @PostMapping("/{id}/edit")
+    public String updateSermon(@PathVariable Long id,
+                               @RequestParam Map<String, String> params,
+                               RedirectAttributes redirectAttributes) {
+        String jwt = SecurityUtils.getJwt();
+        try {
+            Map<String, Object> request = new HashMap<>(params);
+            sermonClientService.updateSermon(id, request, jwt);
+            log.info("Sermon {} updated successfully", id);
+            redirectAttributes.addFlashAttribute("successMessage", "Sermon updated successfully.");
+        } catch (Exception e) {
+            log.error("Failed to update sermon {}: {}", id, e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to update sermon.");
+        }
+        return "redirect:/admin/sermons";
+    }
+
     @PostMapping("/{id}/delete")
     public String deleteSermon(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         String jwt = SecurityUtils.getJwt();
