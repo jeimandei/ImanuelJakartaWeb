@@ -49,7 +49,7 @@ public class AdminUserController {
 
     @GetMapping("/new")
     public String createForm(Model model) {
-        model.addAttribute("userForm", new HashMap<String, Object>());
+        model.addAttribute("userForm", new UserDto());
         return "admin/users/create";
     }
 

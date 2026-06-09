@@ -1,5 +1,6 @@
 package com.jeimandei.imanuelbytes.gateway.controller.admin;
 
+import com.jeimandei.imanuelbytes.gateway.dto.EventDto;
 import com.jeimandei.imanuelbytes.gateway.service.EventClientService;
 import com.jeimandei.imanuelbytes.gateway.util.SecurityUtils;
 import org.slf4j.Logger;
@@ -44,7 +45,7 @@ public class AdminEventController {
 
     @GetMapping("/create")
     public String createForm(Model model) {
-        model.addAttribute("eventForm", new HashMap<String, Object>());
+        model.addAttribute("eventForm", new EventDto());
         return "admin/events/form";
     }
 

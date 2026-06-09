@@ -1,5 +1,6 @@
 package com.jeimandei.imanuelbytes.gateway.controller.admin;
 
+import com.jeimandei.imanuelbytes.gateway.dto.CmsPageDto;
 import com.jeimandei.imanuelbytes.gateway.service.CmsClientService;
 import com.jeimandei.imanuelbytes.gateway.util.SecurityUtils;
 import org.slf4j.Logger;
@@ -47,7 +48,7 @@ public class AdminCmsController {
 
     @GetMapping("/new")
     public String createForm(Model model) {
-        model.addAttribute("cmsForm", new HashMap<String, Object>());
+        model.addAttribute("cmsForm", new CmsPageDto());
         return "admin/cms/form";
     }
 

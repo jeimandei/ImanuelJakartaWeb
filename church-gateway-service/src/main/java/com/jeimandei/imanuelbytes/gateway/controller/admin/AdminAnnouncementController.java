@@ -1,5 +1,6 @@
 package com.jeimandei.imanuelbytes.gateway.controller.admin;
 
+import com.jeimandei.imanuelbytes.gateway.dto.AnnouncementDto;
 import com.jeimandei.imanuelbytes.gateway.service.CmsClientService;
 import com.jeimandei.imanuelbytes.gateway.util.SecurityUtils;
 import org.slf4j.Logger;
@@ -44,7 +45,7 @@ public class AdminAnnouncementController {
 
     @GetMapping("/create")
     public String createForm(Model model) {
-        model.addAttribute("announcementForm", new HashMap<String, Object>());
+        model.addAttribute("announcementForm", new AnnouncementDto());
         return "admin/announcements/form";
     }
 

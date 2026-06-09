@@ -1,5 +1,6 @@
 package com.jeimandei.imanuelbytes.gateway.controller.admin;
 
+import com.jeimandei.imanuelbytes.gateway.dto.SermonDto;
 import com.jeimandei.imanuelbytes.gateway.service.SermonClientService;
 import com.jeimandei.imanuelbytes.gateway.util.SecurityUtils;
 import org.slf4j.Logger;
@@ -44,7 +45,7 @@ public class AdminSermonController {
 
     @GetMapping("/create")
     public String createForm(Model model) {
-        model.addAttribute("sermonForm", new HashMap<String, Object>());
+        model.addAttribute("sermonForm", new SermonDto());
         return "admin/sermons/form";
     }
 
