@@ -178,8 +178,8 @@ jobs:
             git reset --hard origin/${{ inputs.branch }}
             echo "→ Rebuilding: ${{ inputs.services }}"
             podman compose --env-file .env build ${{ inputs.services }}
-            podman compose --env-file .env stop ${{ inputs.services }}
-            podman compose --env-file .env up -d ${{ inputs.services }}
+            echo "→ Deploying: ${{ inputs.services }}"
+            podman compose --env-file .env up -d --force-recreate --no-deps ${{ inputs.services }}
             echo "✓ Build-service complete"
           EOF
 
