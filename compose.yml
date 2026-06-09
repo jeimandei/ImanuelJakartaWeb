@@ -331,19 +331,7 @@ services:
     volumes:
       - ./logs:/app/logs
     depends_on:
-      church-auth-service:
-        condition: service_healthy
-      church-user-service:
-        condition: service_healthy
-      church-cms-service:
-        condition: service_healthy
-      church-event-service:
-        condition: service_healthy
-      church-media-service:
-        condition: service_healthy
-      church-interaction-service:
-        condition: service_healthy
-      church-audit-service:
+      church-api-gateway:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:8089/actuator/health | grep -q UP"]
@@ -380,7 +368,19 @@ services:
     volumes:
       - ./logs:/app/logs
     depends_on:
-      church-gateway-service:
+      church-auth-service:
+        condition: service_healthy
+      church-user-service:
+        condition: service_healthy
+      church-cms-service:
+        condition: service_healthy
+      church-event-service:
+        condition: service_healthy
+      church-media-service:
+        condition: service_healthy
+      church-interaction-service:
+        condition: service_healthy
+      church-audit-service:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q UP"]
