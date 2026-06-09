@@ -1,6 +1,7 @@
 package com.jeimandei.imanuelbytes.user.service;
 
 import com.jeimandei.imanuelbytes.user.dto.AssignRolesRequest;
+import com.jeimandei.imanuelbytes.user.dto.ChangePasswordOtpRequest;
 import com.jeimandei.imanuelbytes.user.dto.ChangePasswordRequest;
 import com.jeimandei.imanuelbytes.user.dto.CreateUserRequest;
 import com.jeimandei.imanuelbytes.user.dto.UpdateUserRequest;
@@ -112,6 +113,21 @@ public interface UserService {
      * @param id the ID of the target user
      */
     void resetPassword(Long id);
+
+    /**
+     * Generates a 6-digit OTP, stores it (5-minute expiry), and emails it to the user.
+     *
+     * @param id the ID of the user requesting the OTP
+     */
+    void requestPasswordOtp(Long id);
+
+    /**
+     * Verifies the OTP and, if valid, changes the user's password.
+     *
+     * @param id      the ID of the user
+     * @param request contains newPassword, confirmPassword, and the OTP code
+     */
+    void changePasswordWithOtp(Long id, ChangePasswordOtpRequest request);
 
     /**
      * Full-text search across username, email, and full name fields.

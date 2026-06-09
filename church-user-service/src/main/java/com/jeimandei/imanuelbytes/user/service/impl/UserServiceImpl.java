@@ -4,6 +4,7 @@ import com.jeimandei.imanuelbytes.common.exception.ResourceNotFoundException;
 import com.jeimandei.imanuelbytes.common.exception.ValidationException;
 import com.jeimandei.imanuelbytes.user.audit.AuditClientService;
 import com.jeimandei.imanuelbytes.user.dto.AssignRolesRequest;
+import com.jeimandei.imanuelbytes.user.dto.ChangePasswordOtpRequest;
 import com.jeimandei.imanuelbytes.user.dto.ChangePasswordRequest;
 import com.jeimandei.imanuelbytes.user.dto.CreateUserRequest;
 import com.jeimandei.imanuelbytes.user.dto.UpdateUserRequest;
@@ -13,6 +14,8 @@ import com.jeimandei.imanuelbytes.user.entity.Role;
 import com.jeimandei.imanuelbytes.user.entity.User;
 import com.jeimandei.imanuelbytes.user.entity.UserStatus;
 import com.jeimandei.imanuelbytes.user.mapper.UserMapper;
+import com.jeimandei.imanuelbytes.user.otp.OtpEntry;
+import com.jeimandei.imanuelbytes.user.otp.OtpStore;
 import com.jeimandei.imanuelbytes.user.repository.RoleRepository;
 import com.jeimandei.imanuelbytes.user.repository.UserRepository;
 import com.jeimandei.imanuelbytes.user.service.UserService;
@@ -27,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -46,25 +50,30 @@ public class UserServiceImpl implements UserService {
     private static final int TEMP_PASSWORD_LENGTH = 12;
     private static final SecureRandom RANDOM = new SecureRandom();
 
+    private static final int OTP_EXPIRY_SECONDS = 300;
+
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final AuditClientService auditClient;
     private final JavaMailSender mailSender;
+    private final OtpStore otpStore;
 
     public UserServiceImpl(UserRepository userRepository,
                            RoleRepository roleRepository,
                            PasswordEncoder passwordEncoder,
                            UserMapper userMapper,
                            AuditClientService auditClient,
-                           JavaMailSender mailSender) {
+                           JavaMailSender mailSender,
+                           OtpStore otpStore) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
         this.auditClient = auditClient;
         this.mailSender = mailSender;
+        this.otpStore = otpStore;
     }
 
     // -------------------------------------------------------------------------
@@ -310,6 +319,74 @@ public class UserServiceImpl implements UserService {
     // -------------------------------------------------------------------------
     // Internal helpers
     // -------------------------------------------------------------------------
+
+    @Override
+    public void requestPasswordOtp(Long id) {
+        log.debug("Requesting password OTP for user id={}", id);
+        User user = findUserById(id);
+
+        String otp = String.format("%06d", RANDOM.nextInt(1_000_000));
+        otpStore.put(id, new OtpEntry(otp, Instant.now().plusSeconds(OTP_EXPIRY_SECONDS)));
+        log.info("OTP generated for user id={}", id);
+
+        try {
+            SimpleMailMessage mail = new SimpleMailMessage();
+            mail.setTo(user.getEmail());
+            mail.setSubject("Password Change OTP - GMIM Imanuel Jakarta");
+            mail.setText(
+                "Dear " + (user.getFullName() != null ? user.getFullName() : user.getUsername()) + ",\n\n" +
+                "Your OTP code to change your password is:\n\n" +
+                "  " + otp + "\n\n" +
+                "This code expires in 5 minutes.\n\n" +
+                "If you did not request this, please ignore this email.\n\n" +
+                "GMIM Imanuel Jakarta"
+            );
+            mailSender.send(mail);
+            log.info("OTP email sent to {} for user id={}", user.getEmail(), id);
+        } catch (Exception e) {
+            otpStore.remove(id);
+            log.error("Failed to send OTP email to {}: {}", user.getEmail(), e.getMessage());
+            throw new RuntimeException("Failed to send OTP email: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void changePasswordWithOtp(Long id, ChangePasswordOtpRequest request) {
+        log.debug("Processing OTP password change for user id={}", id);
+        User user = findUserById(id);
+
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new ValidationException(
+                    "Passwords do not match",
+                    Map.of("confirmPassword", "New password and confirmation do not match"));
+        }
+
+        OtpEntry entry = otpStore.get(id);
+        if (entry == null || entry.isExpired()) {
+            otpStore.remove(id);
+            throw new ValidationException(
+                    "OTP expired or not requested",
+                    Map.of("otp", "OTP code has expired or was not requested. Please request a new one."));
+        }
+        if (!entry.code().equals(request.getOtp().trim())) {
+            throw new ValidationException(
+                    "Invalid OTP",
+                    Map.of("otp", "The OTP code you entered is incorrect."));
+        }
+
+        otpStore.remove(id);
+        user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
+        user.touchUpdatedAt();
+        userRepository.save(user);
+        log.info("Password changed via OTP for user id={}", id);
+
+        try {
+            auditClient.log(getCurrentActor(), getCurrentActorRole(), "CHANGE_PASSWORD_OTP", "User",
+                    String.valueOf(user.getId()), user.getUsername());
+        } catch (Exception e) {
+            log.warn("Audit log failed for CHANGE_PASSWORD_OTP user {}: {}", id, e.getMessage());
+        }
+    }
 
     private String generateTempPassword() {
         StringBuilder sb = new StringBuilder(TEMP_PASSWORD_LENGTH);
