@@ -3,6 +3,7 @@ package com.jeimandei.imanuelbytes.user.controller;
 import com.jeimandei.imanuelbytes.common.dto.ApiResponse;
 import com.jeimandei.imanuelbytes.common.dto.PageResponse;
 import com.jeimandei.imanuelbytes.user.dto.AssignRolesRequest;
+import com.jeimandei.imanuelbytes.user.dto.ChangePasswordOtpRequest;
 import com.jeimandei.imanuelbytes.user.dto.ChangePasswordRequest;
 import com.jeimandei.imanuelbytes.user.dto.CreateUserRequest;
 import com.jeimandei.imanuelbytes.user.dto.UpdateUserRequest;
@@ -184,6 +185,31 @@ public class UserController {
         log.debug("Changing password for user id={}, requestedBy='{}'", id, currentUsername);
         userService.changePassword(id, request, currentUsername);
         log.info("Password changed for user id={}", id);
+        return ResponseEntity.ok(ApiResponse.success("Password changed successfully"));
+    }
+
+    // -------------------------------------------------------------------------
+    // POST /api/users/{id}/request-password-otp  —  send OTP to user's email (any authenticated)
+    // -------------------------------------------------------------------------
+
+    @PostMapping("/{id}/request-password-otp")
+    public ResponseEntity<ApiResponse<Void>> requestPasswordOtp(@PathVariable Long id) {
+        log.debug("OTP requested for user id={}", id);
+        userService.requestPasswordOtp(id);
+        return ResponseEntity.ok(ApiResponse.success("OTP sent to your email"));
+    }
+
+    // -------------------------------------------------------------------------
+    // PUT /api/users/{id}/change-password-otp  —  change password using OTP (any authenticated)
+    // -------------------------------------------------------------------------
+
+    @PutMapping("/{id}/change-password-otp")
+    public ResponseEntity<ApiResponse<Void>> changePasswordWithOtp(
+            @PathVariable Long id,
+            @Valid @RequestBody ChangePasswordOtpRequest request) {
+        log.debug("OTP password change for user id={}", id);
+        userService.changePasswordWithOtp(id, request);
+        log.info("Password changed via OTP for user id={}", id);
         return ResponseEntity.ok(ApiResponse.success("Password changed successfully"));
     }
 

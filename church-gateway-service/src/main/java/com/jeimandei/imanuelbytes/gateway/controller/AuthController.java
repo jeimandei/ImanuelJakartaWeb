@@ -3,8 +3,10 @@ package com.jeimandei.imanuelbytes.gateway.controller;
 import com.jeimandei.imanuelbytes.gateway.dto.LoginFormDto;
 import com.jeimandei.imanuelbytes.gateway.dto.ProfileFormDto;
 import com.jeimandei.imanuelbytes.gateway.dto.RegisterFormDto;
+import com.jeimandei.imanuelbytes.gateway.dto.UserDto;
 import com.jeimandei.imanuelbytes.gateway.security.GatewayUserDetails;
 import com.jeimandei.imanuelbytes.gateway.service.AuthClientService;
+import com.jeimandei.imanuelbytes.gateway.service.UserClientService;
 import com.jeimandei.imanuelbytes.gateway.util.SecurityUtils;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -19,6 +21,10 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.Map;
 
 @Controller
 public class AuthController {
@@ -27,11 +33,14 @@ public class AuthController {
 
     private final AuthClientService authClientService;
     private final AuthenticationManager authenticationManager;
+    private final UserClientService userClientService;
 
     public AuthController(AuthClientService authClientService,
-                          AuthenticationManager authenticationManager) {
+                          AuthenticationManager authenticationManager,
+                          UserClientService userClientService) {
         this.authClientService = authClientService;
         this.authenticationManager = authenticationManager;
+        this.userClientService = userClientService;
     }
 
     @GetMapping("/login")
@@ -103,8 +112,60 @@ public class AuthController {
     @PreAuthorize("isAuthenticated()")
     public String updateProfile(ProfileFormDto profileForm,
                                 Model model,
-                                org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+                                RedirectAttributes redirectAttributes) {
         redirectAttributes.addFlashAttribute("successMessage", "Profile updated successfully.");
         return "redirect:/profile";
+    }
+
+    @PostMapping("/profile/request-otp")
+    @PreAuthorize("isAuthenticated()")
+    public String requestPasswordOtp(RedirectAttributes redirectAttributes) {
+        GatewayUserDetails currentUser = SecurityUtils.getCurrentUser();
+        String jwt = SecurityUtils.getJwt();
+        try {
+            UserDto user = userClientService.getUserByUsername(currentUser.getUsername(), jwt);
+            if (user == null) {
+                redirectAttributes.addFlashAttribute("pwErrorMessage", "Could not find your account.");
+                return "redirect:/profile#change-password";
+            }
+            userClientService.requestPasswordOtp(user.getId(), jwt);
+            redirectAttributes.addFlashAttribute("otpSent", true);
+            redirectAttributes.addFlashAttribute("infoMessage",
+                    "OTP sent to " + currentUser.getEmail() + ". Enter it below within 5 minutes.");
+        } catch (Exception e) {
+            log.error("Failed to send OTP for user {}: {}", currentUser.getUsername(), e.getMessage());
+            redirectAttributes.addFlashAttribute("pwErrorMessage",
+                    "Failed to send OTP: " + e.getMessage());
+        }
+        return "redirect:/profile#change-password";
+    }
+
+    @PostMapping("/profile/change-password")
+    @PreAuthorize("isAuthenticated()")
+    public String changePasswordWithOtp(@RequestParam String newPassword,
+                                        @RequestParam String confirmPassword,
+                                        @RequestParam String otp,
+                                        RedirectAttributes redirectAttributes) {
+        GatewayUserDetails currentUser = SecurityUtils.getCurrentUser();
+        String jwt = SecurityUtils.getJwt();
+        try {
+            UserDto user = userClientService.getUserByUsername(currentUser.getUsername(), jwt);
+            if (user == null) {
+                redirectAttributes.addFlashAttribute("pwErrorMessage", "Could not find your account.");
+                return "redirect:/profile#change-password";
+            }
+            userClientService.changePasswordWithOtp(user.getId(),
+                    Map.of("newPassword", newPassword,
+                           "confirmPassword", confirmPassword,
+                           "otp", otp),
+                    jwt);
+            redirectAttributes.addFlashAttribute("successMessage", "Password changed successfully.");
+        } catch (Exception e) {
+            log.error("Failed to change password for user {}: {}", currentUser.getUsername(), e.getMessage());
+            redirectAttributes.addFlashAttribute("pwErrorMessage",
+                    "Failed to change password: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("otpSent", true);
+        }
+        return "redirect:/profile#change-password";
     }
 }

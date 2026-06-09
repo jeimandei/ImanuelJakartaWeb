@@ -108,6 +108,33 @@ public class UserClientService {
         restTemplate.exchange(url, HttpMethod.POST, entity, Void.class);
     }
 
+    public UserDto getUserByUsername(String username, String jwt) {
+        try {
+            String url = serviceUrlConfig.userUrl("/api/users/username/" + username);
+            HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
+            ResponseEntity<ApiResponse<UserDto>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity,
+                    new ParameterizedTypeReference<ApiResponse<UserDto>>() {});
+            ApiResponse<UserDto> body = response.getBody();
+            return body != null ? body.getData() : null;
+        } catch (RestClientException e) {
+            log.error("Failed to fetch user by username {}: {}", username, e.getMessage());
+            return null;
+        }
+    }
+
+    public void requestPasswordOtp(Long id, String jwt) {
+        String url = serviceUrlConfig.userUrl("/api/users/" + id + "/request-password-otp");
+        HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
+        restTemplate.exchange(url, HttpMethod.POST, entity, Void.class);
+    }
+
+    public void changePasswordWithOtp(Long id, Map<String, Object> request, String jwt) {
+        String url = serviceUrlConfig.userUrl("/api/users/" + id + "/change-password-otp");
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, createAuthHeaders(jwt));
+        restTemplate.exchange(url, HttpMethod.PUT, entity, Void.class);
+    }
+
     public UserDto updateUser(Long id, Map<String, Object> request, String jwt) {
         String url = serviceUrlConfig.userUrl("/api/users/" + id);
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, createAuthHeaders(jwt));

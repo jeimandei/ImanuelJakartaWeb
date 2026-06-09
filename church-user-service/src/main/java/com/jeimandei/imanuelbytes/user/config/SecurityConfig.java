@@ -81,6 +81,9 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/health").permitAll()
                         // Allow all GET read endpoints for any authenticated user
                         .requestMatchers(HttpMethod.GET, "/api/users/**").authenticated()
+                        // OTP endpoints open to any authenticated user (own account flow)
+                        .requestMatchers(HttpMethod.POST, "/api/users/*/request-password-otp").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/users/*/change-password-otp").authenticated()
                         // Require ADMIN or SUPER_ADMIN for creation, status update, role assignment, deletion
                         // (fine-grained @PreAuthorize on each method handles these)
                         .requestMatchers(HttpMethod.POST, "/api/users/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
