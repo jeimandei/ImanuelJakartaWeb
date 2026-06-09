@@ -35,9 +35,10 @@ public class AdminNewsController {
     public String listNews(@RequestParam(defaultValue = "0") int page, Model model) {
         String jwt = SecurityUtils.getJwt();
         try {
-            model.addAttribute("news", cmsClientService.getAllNews(page, 10, jwt));
+            model.addAttribute("articles", cmsClientService.getAllNews(page, 10, jwt));
         } catch (Exception e) {
             log.error("Failed to load news: {}", e.getMessage());
+            model.addAttribute("articles", com.jeimandei.imanuelbytes.gateway.dto.PageResponse.empty());
         }
         model.addAttribute("currentPage", page);
         return "admin/news/list";
