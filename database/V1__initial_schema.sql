@@ -256,7 +256,7 @@ ON CONFLICT (role_name) DO NOTHING;
 -- Admin user (password: Admin@1234, BCrypt hash)
 INSERT INTO users (username, email, password_hash, full_name, phone_number, status) VALUES
     ('admin', 'admin@gmimimanueljakarta.or.id',
-     '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iKVPOJGpFp5X2jNZ.X.0j5ZlhO/i',
+     '$2a$10$MaY6esYDAkJLAtXMf8QySOtrk1XFFNGJHpVPcN2XqMQ5.Z9aNCcHO',
      'System Administrator', '+62-21-123-4567', 'ACTIVE')
 ON CONFLICT (username) DO NOTHING;
 
@@ -323,5 +323,3 @@ INSERT INTO sermons (title, speaker, sermon_date, description, scripture_referen
      'Hebrews 11:1-6',
      'Faith Foundations')
 ON CONFLICT DO NOTHING;
-
-COMMIT;

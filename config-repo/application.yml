@@ -2,6 +2,9 @@
 # Service-specific overrides live in {service-name}.yml files alongside this one.
 
 spring:
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/imanuelweb_db}
     username: ${DB_USERNAME:church_app}
