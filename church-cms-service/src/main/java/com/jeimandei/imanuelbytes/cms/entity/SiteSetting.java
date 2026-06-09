@@ -5,7 +5,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 
 import java.time.LocalDateTime;
@@ -31,7 +30,6 @@ public class SiteSetting {
     @Column(name = "setting_key", nullable = false, unique = true, length = 100)
     private String settingKey;
 
-    @Lob
     @Column(name = "setting_value", columnDefinition = "TEXT")
     private String settingValue;
 

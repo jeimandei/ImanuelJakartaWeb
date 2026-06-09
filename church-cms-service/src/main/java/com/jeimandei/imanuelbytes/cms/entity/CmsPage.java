@@ -8,7 +8,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.annotation.CreatedDate;
@@ -42,7 +41,6 @@ public class CmsPage {
     @Column(name = "page_type", length = 50)
     private String pageType;
 
-    @Lob
     @Column(name = "content", columnDefinition = "TEXT")
     private String content;
 

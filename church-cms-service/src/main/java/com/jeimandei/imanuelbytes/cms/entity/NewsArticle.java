@@ -8,7 +8,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -38,7 +37,6 @@ public class NewsArticle {
     @Column(name = "slug", nullable = false, unique = true, length = 255)
     private String slug;
 
-    @Lob
     @Column(name = "content", columnDefinition = "TEXT")
     private String content;
 
