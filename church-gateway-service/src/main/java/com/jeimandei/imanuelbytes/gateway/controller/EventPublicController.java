@@ -26,7 +26,7 @@ public class EventPublicController {
     @GetMapping
     public String events(@RequestParam(defaultValue = "0") int page, Model model) {
         try {
-            model.addAttribute("events", eventClientService.getUpcomingEvents());
+            model.addAttribute("events", eventClientService.getUpcomingEventsPage(page, 9));
             log.debug("Event list loaded (page={})", page);
         } catch (Exception e) {
             log.error("Failed to load upcoming events: {}", e.getMessage());

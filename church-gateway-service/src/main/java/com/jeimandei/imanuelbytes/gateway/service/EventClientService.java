@@ -60,6 +60,20 @@ public class EventClientService {
         }
     }
 
+    public PageResponse<EventDto> getUpcomingEventsPage(int page, int size) {
+        try {
+            String url = serviceUrlConfig.eventUrl("/api/events/upcoming?page=" + page + "&size=" + size);
+            ResponseEntity<ApiResponse<PageResponse<EventDto>>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, null,
+                    new ParameterizedTypeReference<ApiResponse<PageResponse<EventDto>>>() {});
+            ApiResponse<PageResponse<EventDto>> body = response.getBody();
+            return (body != null && body.getData() != null) ? body.getData() : PageResponse.empty();
+        } catch (RestClientException e) {
+            log.error("Failed to fetch upcoming events page: {}", e.getMessage());
+            return PageResponse.empty();
+        }
+    }
+
     public List<EventDto> getFeaturedEvents() {
         try {
             String url = serviceUrlConfig.eventUrl("/api/events/featured");
