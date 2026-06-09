@@ -1,5 +1,7 @@
 package com.jeimandei.imanuelbytes.gateway.dto;
 
+import java.time.LocalDateTime;
+
 public class EventDto {
 
     private Long id;
@@ -7,8 +9,8 @@ public class EventDto {
     private String slug;
     private String description;
     private String location;
-    private String eventStart;
-    private String eventEnd;
+    private LocalDateTime eventStart;
+    private LocalDateTime eventEnd;
     private String imageUrl;
     private String status;
     private boolean featured;
@@ -30,11 +32,11 @@ public class EventDto {
     public String getLocation() { return location; }
     public void setLocation(String location) { this.location = location; }
 
-    public String getEventStart() { return eventStart; }
-    public void setEventStart(String eventStart) { this.eventStart = eventStart; }
+    public LocalDateTime getEventStart() { return eventStart; }
+    public void setEventStart(LocalDateTime eventStart) { this.eventStart = eventStart; }
 
-    public String getEventEnd() { return eventEnd; }
-    public void setEventEnd(String eventEnd) { this.eventEnd = eventEnd; }
+    public LocalDateTime getEventEnd() { return eventEnd; }
+    public void setEventEnd(LocalDateTime eventEnd) { this.eventEnd = eventEnd; }
 
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
