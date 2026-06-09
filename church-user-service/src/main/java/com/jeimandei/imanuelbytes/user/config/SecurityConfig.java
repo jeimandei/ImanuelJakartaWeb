@@ -81,12 +81,12 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/health").permitAll()
                         // Allow all GET read endpoints for any authenticated user
                         .requestMatchers(HttpMethod.GET, "/api/users/**").authenticated()
-                        // Require ADMIN for creation, status update, role assignment, deletion
+                        // Require ADMIN or SUPER_ADMIN for creation, status update, role assignment, deletion
                         // (fine-grained @PreAuthorize on each method handles these)
-                        .requestMatchers(HttpMethod.POST, "/api/users/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/users/*/status").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/users/*/roles").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/users/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/users/*/status").hasAnyRole("ADMIN", "SUPER_ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/users/*/roles").hasAnyRole("ADMIN", "SUPER_ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         // Profile update and password change: any authenticated user
                         .requestMatchers(HttpMethod.PUT, "/api/users/**").authenticated()
                         // Deny everything else by default
