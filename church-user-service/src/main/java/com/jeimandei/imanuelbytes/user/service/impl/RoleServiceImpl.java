@@ -116,10 +116,7 @@ public class RoleServiceImpl implements RoleService {
                     "Permission already exists",
                     Map.of("name", "Permission '" + name + "' already exists"));
         }
-        Permission p = new Permission();
-        p.setName(name);
-        p.setDescription(request.getDescription());
-        p.setCategory(request.getCategory().toUpperCase());
+        Permission p = new Permission(name, request.getDescription(), request.getCategory().toUpperCase());
         Permission saved = permissionRepository.save(p);
         log.info("Created permission: {}", saved.getName());
         return toPermissionDto(saved);
