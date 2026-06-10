@@ -98,6 +98,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/roles/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/roles/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/roles/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/permissions/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/permissions/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/permissions/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         // Deny everything else by default
                         .anyRequest().authenticated()
                 )

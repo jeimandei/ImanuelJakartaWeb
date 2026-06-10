@@ -2,9 +2,11 @@ package com.jeimandei.imanuelbytes.user.service.impl;
 
 import com.jeimandei.imanuelbytes.common.exception.ResourceNotFoundException;
 import com.jeimandei.imanuelbytes.common.exception.ValidationException;
+import com.jeimandei.imanuelbytes.user.dto.CreatePermissionRequest;
 import com.jeimandei.imanuelbytes.user.dto.CreateRoleRequest;
 import com.jeimandei.imanuelbytes.user.dto.PermissionDto;
 import com.jeimandei.imanuelbytes.user.dto.RoleDto;
+import com.jeimandei.imanuelbytes.user.dto.UpdatePermissionRequest;
 import com.jeimandei.imanuelbytes.user.dto.UpdateRoleRequest;
 import com.jeimandei.imanuelbytes.user.entity.Permission;
 import com.jeimandei.imanuelbytes.user.entity.Role;
@@ -96,6 +98,54 @@ public class RoleServiceImpl implements RoleService {
         return permissionRepository.findAllByOrderByCategoryAscNameAsc().stream()
                 .map(this::toPermissionDto)
                 .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PermissionDto getPermissionById(Long id) {
+        Permission p = permissionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Permission", id));
+        return toPermissionDto(p);
+    }
+
+    @Override
+    public PermissionDto createPermission(CreatePermissionRequest request) {
+        String name = request.getName().toUpperCase();
+        if (permissionRepository.findByName(name).isPresent()) {
+            throw new ValidationException(
+                    "Permission already exists",
+                    Map.of("name", "Permission '" + name + "' already exists"));
+        }
+        Permission p = new Permission();
+        p.setName(name);
+        p.setDescription(request.getDescription());
+        p.setCategory(request.getCategory().toUpperCase());
+        Permission saved = permissionRepository.save(p);
+        log.info("Created permission: {}", saved.getName());
+        return toPermissionDto(saved);
+    }
+
+    @Override
+    public PermissionDto updatePermission(Long id, UpdatePermissionRequest request) {
+        Permission p = permissionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Permission", id));
+        if (request.getDescription() != null) {
+            p.setDescription(request.getDescription());
+        }
+        if (request.getCategory() != null && !request.getCategory().isBlank()) {
+            p.setCategory(request.getCategory().toUpperCase());
+        }
+        Permission saved = permissionRepository.save(p);
+        log.info("Updated permission: {}", saved.getName());
+        return toPermissionDto(saved);
+    }
+
+    @Override
+    public void deletePermission(Long id) {
+        Permission p = permissionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Permission", id));
+        permissionRepository.delete(p);
+        log.info("Deleted permission: {}", p.getName());
     }
 
     private Role findById(Long id) {

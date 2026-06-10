@@ -120,4 +120,45 @@ public class RoleClientService {
         HttpEntity<Void> entity = new HttpEntity<>(authHeaders(jwt));
         restTemplate.exchange(url, HttpMethod.DELETE, entity, Void.class);
     }
+
+    public PermissionDto getPermissionById(Long id, String jwt) {
+        try {
+            String url = serviceUrlConfig.userUrl("/api/permissions/" + id);
+            HttpEntity<Void> entity = new HttpEntity<>(authHeaders(jwt));
+            ResponseEntity<ApiDataResponse<PermissionDto>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity,
+                    new ParameterizedTypeReference<ApiDataResponse<PermissionDto>>() {});
+            ApiDataResponse<PermissionDto> body = response.getBody();
+            return body != null ? body.getData() : null;
+        } catch (Exception e) {
+            log.error("Failed to fetch permission {}: {}", id, e.getMessage());
+            return null;
+        }
+    }
+
+    public PermissionDto createPermission(Map<String, Object> request, String jwt) {
+        String url = serviceUrlConfig.userUrl("/api/permissions");
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, authHeaders(jwt));
+        ResponseEntity<ApiDataResponse<PermissionDto>> response = restTemplate.exchange(
+                url, HttpMethod.POST, entity,
+                new ParameterizedTypeReference<ApiDataResponse<PermissionDto>>() {});
+        ApiDataResponse<PermissionDto> body = response.getBody();
+        return body != null ? body.getData() : null;
+    }
+
+    public PermissionDto updatePermission(Long id, Map<String, Object> request, String jwt) {
+        String url = serviceUrlConfig.userUrl("/api/permissions/" + id);
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, authHeaders(jwt));
+        ResponseEntity<ApiDataResponse<PermissionDto>> response = restTemplate.exchange(
+                url, HttpMethod.PUT, entity,
+                new ParameterizedTypeReference<ApiDataResponse<PermissionDto>>() {});
+        ApiDataResponse<PermissionDto> body = response.getBody();
+        return body != null ? body.getData() : null;
+    }
+
+    public void deletePermission(Long id, String jwt) {
+        String url = serviceUrlConfig.userUrl("/api/permissions/" + id);
+        HttpEntity<Void> entity = new HttpEntity<>(authHeaders(jwt));
+        restTemplate.exchange(url, HttpMethod.DELETE, entity, Void.class);
+    }
 }
