@@ -103,46 +103,43 @@
                                              class="text-muted small fst-italic">
                                             Permissions could not be loaded from user-service.
                                         </div>
-                                        <div th:if="${permissions != null and !permissions.empty}">
+                                        <div th:if="${permsByCategory != null and !permsByCategory.empty}">
                                             <p class="text-muted small mb-3">
                                                 Check to assign a permission to this role. Use the dropdown to move a permission to a different category.
                                             </p>
-                                            <div th:each="cat : ${categories}" class="mb-4">
-                                                <div th:with="catPerms=${permissions.?[category == cat]}"
-                                                     th:if="${catPerms != null and !catPerms.empty}">
-                                                    <div class="d-flex align-items-center gap-2 mb-2">
-                                                        <span class="badge"
-                                                              style="background:var(--primary);font-size:0.7rem;"
-                                                              th:text="${cat}">CAT</span>
-                                                        <button type="button" class="btn btn-link btn-sm p-0 text-muted"
-                                                                th:attr="data-cat=${cat}"
-                                                                onclick="toggleCategory(this.dataset.cat)"
-                                                                style="font-size:0.75rem;">select all</button>
-                                                    </div>
-                                                    <div class="row g-2 ms-1" th:id="|cat-${cat}|">
-                                                        <div th:each="perm : ${catPerms}" class="col-md-6">
-                                                            <div class="d-flex align-items-center gap-2 p-1 rounded" style="background:#f8f9fa;">
-                                                                <div class="form-check mb-0 flex-grow-1 overflow-hidden">
-                                                                    <input class="form-check-input" type="checkbox"
-                                                                           name="permissionIds"
-                                                                           th:value="${perm.id}"
-                                                                           th:id="|perm-${perm.id}|"
-                                                                           th:checked="${role.permissions != null and role.permissions.?[id == perm.id] != null and !role.permissions.?[id == perm.id].empty}"/>
-                                                                    <label class="form-check-label small d-block text-truncate"
-                                                                           th:for="|perm-${perm.id}|"
-                                                                           th:title="${perm.description}"
-                                                                           th:text="${perm.name}">PERM</label>
-                                                                </div>
-                                                                <select th:name="|permCat_${perm.id}|"
-                                                                        class="form-select form-select-sm flex-shrink-0"
-                                                                        style="width:120px;font-size:0.7rem;">
-                                                                    <option value="">—</option>
-                                                                    <option th:each="c : ${categories}"
-                                                                            th:value="${c}"
-                                                                            th:selected="${c == perm.category}"
-                                                                            th:text="${c}">CAT</option>
-                                                                </select>
+                                            <div th:each="entry : ${permsByCategory}" class="mb-4">
+                                                <div class="d-flex align-items-center gap-2 mb-2">
+                                                    <span class="badge"
+                                                          style="background:var(--primary);font-size:0.7rem;"
+                                                          th:text="${entry.key}">CAT</span>
+                                                    <button type="button" class="btn btn-link btn-sm p-0 text-muted"
+                                                            th:attr="data-cat=${entry.key}"
+                                                            onclick="toggleCategory(this.dataset.cat)"
+                                                            style="font-size:0.75rem;">select all</button>
+                                                </div>
+                                                <div class="row g-2 ms-1" th:id="|cat-${entry.key}|">
+                                                    <div th:each="perm : ${entry.value}" class="col-md-6">
+                                                        <div class="d-flex align-items-center gap-2 p-1 rounded" style="background:#f8f9fa;">
+                                                            <div class="form-check mb-0 flex-grow-1 overflow-hidden">
+                                                                <input class="form-check-input" type="checkbox"
+                                                                       name="permissionIds"
+                                                                       th:value="${perm.id}"
+                                                                       th:id="|perm-${perm.id}|"
+                                                                       th:checked="${rolePermIds != null and rolePermIds.contains(perm.id)}"/>
+                                                                <label class="form-check-label small d-block text-truncate"
+                                                                       th:for="|perm-${perm.id}|"
+                                                                       th:title="${perm.description}"
+                                                                       th:text="${perm.name}">PERM</label>
                                                             </div>
+                                                            <select th:name="|permCat_${perm.id}|"
+                                                                    class="form-select form-select-sm flex-shrink-0"
+                                                                    style="width:120px;font-size:0.7rem;">
+                                                                <option value="">—</option>
+                                                                <option th:each="c : ${categories}"
+                                                                        th:value="${c}"
+                                                                        th:selected="${c == perm.category}"
+                                                                        th:text="${c}">CAT</option>
+                                                            </select>
                                                         </div>
                                                     </div>
                                                 </div>
