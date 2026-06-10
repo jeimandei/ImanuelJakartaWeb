@@ -19,6 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -46,7 +47,7 @@ public class AdminPermissionController {
             log.error("Failed to load permissions: {}", e.getMessage());
         }
         model.addAttribute("permissions", permissions);
-        model.addAttribute("categories", resolveCategories(jwt, permissions));
+        model.addAttribute("permissionsByCategory", groupByCategory(permissions));
         return "admin/permissions/list";
     }
 
@@ -121,6 +122,26 @@ public class AdminPermissionController {
             redirectAttributes.addFlashAttribute("errorMessage", "Failed to delete permission: " + e.getMessage());
         }
         return "redirect:/admin/permissions";
+    }
+
+    private Map<String, List<PermissionDto>> groupByCategory(List<PermissionDto> permissions) {
+        List<String> sortedCats = permissions.stream()
+                .map(PermissionDto::getCategory)
+                .filter(c -> c != null && !c.isBlank())
+                .distinct().sorted()
+                .collect(Collectors.toList());
+        Map<String, List<PermissionDto>> result = new LinkedHashMap<>();
+        for (String cat : sortedCats) {
+            List<PermissionDto> catPerms = permissions.stream()
+                    .filter(p -> cat.equals(p.getCategory()))
+                    .collect(Collectors.toList());
+            if (!catPerms.isEmpty()) result.put(cat, catPerms);
+        }
+        List<PermissionDto> uncategorized = permissions.stream()
+                .filter(p -> p.getCategory() == null || p.getCategory().isBlank())
+                .collect(Collectors.toList());
+        if (!uncategorized.isEmpty()) result.put("(uncategorized)", uncategorized);
+        return result;
     }
 
     private List<String> resolveCategories(String jwt, List<PermissionDto> permissions) {

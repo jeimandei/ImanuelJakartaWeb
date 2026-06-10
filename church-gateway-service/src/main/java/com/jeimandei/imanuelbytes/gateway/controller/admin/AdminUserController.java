@@ -54,9 +54,10 @@ public class AdminUserController {
     }
 
     @GetMapping("/new")
-    public String createForm(Model model) {
+    public String createForm(@RequestParam(required = false) String role, Model model) {
         String jwt = SecurityUtils.getJwt();
         model.addAttribute("userForm", new UserDto());
+        model.addAttribute("preselectedRole", role);
         try {
             model.addAttribute("allRoles", roleClientService.getAllRoles(jwt));
         } catch (Exception e) {
