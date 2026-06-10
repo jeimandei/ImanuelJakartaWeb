@@ -18,9 +18,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin/roles")
@@ -50,12 +52,14 @@ public class AdminRoleController {
     @GetMapping("/new")
     public String createForm(Model model) {
         String jwt = SecurityUtils.getJwt();
+        List<PermissionDto> permissions = Collections.emptyList();
         try {
-            model.addAttribute("permissions", roleClientService.getAllPermissions(jwt));
+            permissions = roleClientService.getAllPermissions(jwt);
         } catch (Exception e) {
             log.error("Failed to load permissions: {}", e.getMessage());
-            model.addAttribute("permissions", Collections.emptyList());
         }
+        model.addAttribute("permissions", permissions);
+        model.addAttribute("categories", deriveCategories(permissions));
         model.addAttribute("role", new RoleDto());
         model.addAttribute("isNew", true);
         return "admin/roles/form";
@@ -84,12 +88,14 @@ public class AdminRoleController {
             log.error("Failed to load role {}: {}", id, e.getMessage());
             model.addAttribute("role", new RoleDto());
         }
+        List<PermissionDto> permissions = Collections.emptyList();
         try {
-            model.addAttribute("permissions", roleClientService.getAllPermissions(jwt));
+            permissions = roleClientService.getAllPermissions(jwt);
         } catch (Exception e) {
             log.error("Failed to load permissions: {}", e.getMessage());
-            model.addAttribute("permissions", Collections.emptyList());
         }
+        model.addAttribute("permissions", permissions);
+        model.addAttribute("categories", deriveCategories(permissions));
         model.addAttribute("isNew", false);
         return "admin/roles/form";
     }
@@ -122,6 +128,15 @@ public class AdminRoleController {
             redirectAttributes.addFlashAttribute("errorMessage", "Failed to delete role: " + e.getMessage());
         }
         return "redirect:/admin/roles";
+    }
+
+    private List<String> deriveCategories(List<PermissionDto> permissions) {
+        return permissions.stream()
+                .map(PermissionDto::getCategory)
+                .filter(c -> c != null && !c.isBlank())
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
     }
 
     private Map<String, Object> buildRoleRequestBody(HttpServletRequest request) {

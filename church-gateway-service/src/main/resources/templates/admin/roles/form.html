@@ -14,7 +14,6 @@
             <li class="nav-item"><a class="nav-link" th:href="@{/admin/users}"><i class="fas fa-users"></i>Users</a></li>
             <li class="nav-item"><a class="nav-link active" th:href="@{/admin/roles}"><i class="fas fa-user-shield"></i>Roles</a></li>
             <li class="nav-item"><a class="nav-link" th:href="@{/admin/permissions}"><i class="fas fa-key"></i>Permissions</a></li>
-            <li class="nav-item"><a class="nav-link" th:href="@{/admin/permission-categories}"><i class="fas fa-tags"></i>Categories</a></li>
             <li class="nav-item"><a class="nav-link" th:href="@{/admin/cms}"><i class="fas fa-file-alt"></i>CMS Pages</a></li>
             <li class="nav-item"><a class="nav-link" th:href="@{/admin/events}"><i class="fas fa-calendar-alt"></i>Events</a></li>
             <li class="nav-item"><a class="nav-link" th:href="@{/admin/sermons}"><i class="fas fa-microphone"></i>Sermons</a></li>
@@ -104,8 +103,7 @@
                                              class="text-muted small fst-italic">
                                             Permissions could not be loaded from user-service.
                                         </div>
-                                        <div th:if="${permissions != null and !permissions.empty}"
-                                             th:with="categories=${ {'USERS','CONTENT','EVENTS','MEDIA','PASTORAL','COMMUNITY','SETTINGS','AUDIT'} }">
+                                        <div th:if="${permissions != null and !permissions.empty}">
                                             <div th:each="cat : ${categories}" class="mb-3">
                                                 <div th:with="catPerms=${permissions.?[category == cat]}"
                                                      th:if="${catPerms != null and !catPerms.empty}">
