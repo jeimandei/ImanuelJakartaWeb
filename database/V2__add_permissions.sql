@@ -120,4 +120,17 @@ WHERE r.role_name = 'ROLE_EVENT_MANAGER'
   )
 ON CONFLICT DO NOTHING;
 
+-- ============================================================
+-- Backfill: assign ROLE_MEMBER to every user with no roles yet
+-- ============================================================
+INSERT INTO user_roles (user_id, role_id)
+SELECT u.id, r.id
+FROM users u
+CROSS JOIN roles r
+WHERE r.role_name = 'ROLE_MEMBER'
+  AND NOT EXISTS (
+      SELECT 1 FROM user_roles ur WHERE ur.user_id = u.id
+  )
+ON CONFLICT DO NOTHING;
+
 COMMIT;
