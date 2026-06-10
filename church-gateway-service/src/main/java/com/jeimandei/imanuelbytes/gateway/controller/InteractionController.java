@@ -102,19 +102,29 @@ public class InteractionController {
                                       @RequestParam(required = false) String name,
                                       RedirectAttributes redirectAttributes) {
         try {
-            boolean success = interactionClientService.subscribeNewsletter(email, name);
-            if (success) {
-                log.info("Newsletter subscription successful for email={}", email);
-                redirectAttributes.addFlashAttribute("successMessage",
-                        "You have been subscribed to our newsletter.");
-            } else {
-                redirectAttributes.addFlashAttribute("errorMessage",
-                        "Newsletter subscription failed. Please try again.");
-            }
+            interactionClientService.subscribeNewsletter(email, name, null);
+            log.info("Newsletter subscription successful for email={}", email);
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "You have been subscribed to our newsletter.");
         } catch (Exception e) {
             log.error("Error subscribing newsletter for {}: {}", email, e.getMessage());
             redirectAttributes.addFlashAttribute("errorMessage",
-                    "An unexpected error occurred. Please try again later.");
+                    "Newsletter subscription failed. Please try again.");
+        }
+        return "redirect:/";
+    }
+
+    @GetMapping("/newsletter/confirm-unsubscribe")
+    public String confirmUnsubscribe(@RequestParam String token,
+                                     RedirectAttributes redirectAttributes) {
+        try {
+            interactionClientService.confirmUnsubscribe(token);
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "You have been successfully unsubscribed from our newsletter.");
+        } catch (Exception e) {
+            log.error("Failed to confirm unsubscribe with token: {}", e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "The unsubscribe link is invalid or has expired.");
         }
         return "redirect:/";
     }

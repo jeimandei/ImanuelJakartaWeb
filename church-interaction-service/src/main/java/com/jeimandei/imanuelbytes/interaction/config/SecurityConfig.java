@@ -40,6 +40,9 @@ public class SecurityConfig {
                 // Public GET endpoints
                 .requestMatchers(HttpMethod.GET, "/api/testimonies").permitAll()
                 .requestMatchers(HttpMethod.DELETE, "/api/newsletter/unsubscribe").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/newsletter/request-unsubscribe").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/newsletter/confirm-unsubscribe").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/newsletter/check").permitAll()
                 // All other requests require authentication
                 .anyRequest().authenticated()
             )

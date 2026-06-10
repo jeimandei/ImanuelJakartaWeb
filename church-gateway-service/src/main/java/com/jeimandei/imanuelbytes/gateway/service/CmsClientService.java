@@ -336,6 +336,16 @@ public class CmsClientService {
         restTemplate.exchange(url, HttpMethod.DELETE, entity, Void.class);
     }
 
+    public NewsArticleDto publishNewsArticle(Long id, String jwt) {
+        String url = serviceUrlConfig.cmsUrl("/api/news/" + id + "/publish");
+        HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
+        ResponseEntity<ApiResponse<NewsArticleDto>> response = restTemplate.exchange(
+                url, HttpMethod.PUT, entity,
+                new ParameterizedTypeReference<ApiResponse<NewsArticleDto>>() {});
+        ApiResponse<NewsArticleDto> body = response.getBody();
+        return body != null ? body.getData() : null;
+    }
+
     // -------------------------------------------------------------------------
     // Service Times
     // -------------------------------------------------------------------------

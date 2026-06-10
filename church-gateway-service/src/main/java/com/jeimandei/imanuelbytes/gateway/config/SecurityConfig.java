@@ -44,7 +44,7 @@ public class SecurityConfig {
                     "/forgot-password", "/forgot-password/reset",
                     "/new-here", "/faq", "/leadership",
                     "/css/**", "/js/**", "/images/**", "/favicon.ico",
-                    "/newsletter/subscribe",
+                    "/newsletter/subscribe", "/newsletter/confirm-unsubscribe",
                     "/actuator/health", "/error"
                 ).permitAll()
                 .requestMatchers("/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN", "EDITOR")

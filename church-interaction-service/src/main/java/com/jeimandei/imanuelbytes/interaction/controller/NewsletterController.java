@@ -16,11 +16,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/newsletter")
@@ -48,8 +51,49 @@ public class NewsletterController {
     public ResponseEntity<ApiResponse<Void>> unsubscribe(@RequestParam String email) {
         log.debug("Newsletter unsubscribe request for email='{}'", email);
         newsletterService.unsubscribe(email);
-        log.info("Newsletter unsubscribed successfully: email='{}'", email);
         return ResponseEntity.ok(ApiResponse.success("Unsubscribed successfully"));
+    }
+
+    @PostMapping("/request-unsubscribe")
+    public ResponseEntity<ApiResponse<Void>> requestUnsubscribe(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        log.debug("Unsubscribe confirmation request for email='{}'", email);
+        newsletterService.requestUnsubscribeConfirmation(email);
+        return ResponseEntity.ok(ApiResponse.success("Confirmation email sent"));
+    }
+
+    @GetMapping("/confirm-unsubscribe")
+    public ResponseEntity<ApiResponse<Void>> confirmUnsubscribe(@RequestParam String token) {
+        log.debug("Confirm unsubscribe with token");
+        newsletterService.confirmUnsubscribe(token);
+        return ResponseEntity.ok(ApiResponse.success("Unsubscribed successfully"));
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    public ResponseEntity<ApiResponse<Void>> deleteSubscriber(@PathVariable Long id) {
+        log.debug("Admin delete subscriber id={}", id);
+        newsletterService.deleteSubscriber(id);
+        return ResponseEntity.ok(ApiResponse.success("Subscriber deleted successfully"));
+    }
+
+    @PostMapping("/notify-news")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'EDITOR')")
+    public ResponseEntity<ApiResponse<Void>> notifyNews(@RequestBody Map<String, String> body) {
+        String title = body.getOrDefault("title", "");
+        String excerpt = body.getOrDefault("excerpt", "");
+        String articleUrl = body.getOrDefault("articleUrl", "");
+        log.info("Sending news notification to subscribers: '{}'", title);
+        newsletterService.sendNewsNotification(title, excerpt, articleUrl);
+        return ResponseEntity.ok(ApiResponse.success("News notification sent"));
+    }
+
+    @GetMapping("/check")
+    public ResponseEntity<ApiResponse<Boolean>> checkSubscription(@RequestParam String email) {
+        boolean subscribed = newsletterService.getAllSubscriptions(Pageable.unpaged())
+                .getContent().stream()
+                .anyMatch(s -> s.getEmail().equalsIgnoreCase(email) && s.isActive());
+        return ResponseEntity.ok(ApiResponse.success(subscribed));
     }
 
     @GetMapping
