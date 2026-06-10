@@ -43,7 +43,7 @@ public class SecurityConfig {
                     "/gallery", "/gallery/**", "/login", "/register",
                     "/new-here", "/faq", "/leadership",
                     "/css/**", "/js/**", "/images/**", "/favicon.ico",
-                    "/newsletter/subscribe",
+                    "/newsletter/subscribe", "/newsletter/confirm-unsubscribe",
                     "/actuator/health", "/error"
                 ).permitAll()
                 .requestMatchers("/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN", "EDITOR")
