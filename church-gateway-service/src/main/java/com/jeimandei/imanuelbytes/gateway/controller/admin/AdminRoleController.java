@@ -22,6 +22,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Controller
@@ -109,7 +110,11 @@ public class AdminRoleController {
             Map<String, Object> body = buildRoleRequestBody(request);
             body.remove("roleName"); // name cannot be changed on update
             roleClientService.updateRole(id, body, jwt);
-            redirectAttributes.addFlashAttribute("successMessage", "Role updated successfully.");
+
+            int catChanged = applyPermissionCategoryChanges(request, jwt);
+            String msg = "Role updated successfully.";
+            if (catChanged > 0) msg += " " + catChanged + " permission categor" + (catChanged == 1 ? "y" : "ies") + " reorganized.";
+            redirectAttributes.addFlashAttribute("successMessage", msg);
         } catch (Exception e) {
             log.error("Failed to update role {}: {}", id, e.getMessage());
             redirectAttributes.addFlashAttribute("errorMessage", "Failed to update role: " + e.getMessage());
@@ -128,6 +133,25 @@ public class AdminRoleController {
             redirectAttributes.addFlashAttribute("errorMessage", "Failed to delete role: " + e.getMessage());
         }
         return "redirect:/admin/roles";
+    }
+
+    private int applyPermissionCategoryChanges(HttpServletRequest request, String jwt) {
+        List<PermissionDto> allPerms = Collections.emptyList();
+        try { allPerms = roleClientService.getAllPermissions(jwt); } catch (Exception ignored) {}
+        int changed = 0;
+        for (PermissionDto perm : allPerms) {
+            String newCat = request.getParameter("permCat_" + perm.getId());
+            String currentCat = perm.getCategory() != null ? perm.getCategory() : "";
+            if (newCat != null && !newCat.equals(currentCat)) {
+                try {
+                    roleClientService.updatePermission(perm.getId(), Map.of("category", newCat), jwt);
+                    changed++;
+                } catch (Exception e) {
+                    log.warn("Failed to update category for permission {}: {}", perm.getId(), e.getMessage());
+                }
+            }
+        }
+        return changed;
     }
 
     private List<String> deriveCategories(List<PermissionDto> permissions) {
