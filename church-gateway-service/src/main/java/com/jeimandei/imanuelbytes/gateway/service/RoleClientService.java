@@ -79,7 +79,7 @@ public class RoleClientService {
                     new ParameterizedTypeReference<ApiDataResponse<List<PermissionDto>>>() {});
             ApiDataResponse<List<PermissionDto>> body = response.getBody();
             return (body != null && body.getData() != null) ? body.getData() : Collections.emptyList();
-        } catch (RestClientException e) {
+        } catch (Exception e) {
             log.error("Failed to fetch permissions: {}", e.getMessage());
             return Collections.emptyList();
         }
