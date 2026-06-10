@@ -235,6 +235,10 @@ jobs:
             podman exec -i church-postgres sh -c \
               'psql -U $POSTGRES_USER -d imanuelweb_db' \
               < database/V4__permission_categories.sql
+            echo "→ Running V5__service_times.sql"
+            podman exec -i church-postgres sh -c \
+              'psql -U $POSTGRES_USER -d imanuelweb_db' \
+              < database/V5__service_times.sql
             echo "✓ Migrations complete"
           EOF
 
