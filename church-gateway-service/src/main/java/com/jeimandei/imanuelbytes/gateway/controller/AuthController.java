@@ -6,6 +6,7 @@ import com.jeimandei.imanuelbytes.gateway.dto.RegisterFormDto;
 import com.jeimandei.imanuelbytes.gateway.dto.UserDto;
 import com.jeimandei.imanuelbytes.gateway.security.GatewayUserDetails;
 import com.jeimandei.imanuelbytes.gateway.service.AuthClientService;
+import com.jeimandei.imanuelbytes.gateway.service.InteractionClientService;
 import com.jeimandei.imanuelbytes.gateway.service.UserClientService;
 import com.jeimandei.imanuelbytes.gateway.util.SecurityUtils;
 import jakarta.validation.Valid;
@@ -34,13 +35,16 @@ public class AuthController {
     private final AuthClientService authClientService;
     private final AuthenticationManager authenticationManager;
     private final UserClientService userClientService;
+    private final InteractionClientService interactionClientService;
 
     public AuthController(AuthClientService authClientService,
                           AuthenticationManager authenticationManager,
-                          UserClientService userClientService) {
+                          UserClientService userClientService,
+                          InteractionClientService interactionClientService) {
         this.authClientService = authClientService;
         this.authenticationManager = authenticationManager;
         this.userClientService = userClientService;
+        this.interactionClientService = interactionClientService;
     }
 
     @GetMapping("/login")
@@ -105,6 +109,17 @@ public class AuthController {
                 "",
                 "");
         model.addAttribute("profileForm", profileForm);
+        if (currentUser != null && currentUser.getEmail() != null) {
+            try {
+                boolean subscribed = interactionClientService.isSubscribedToNewsletter(currentUser.getEmail());
+                model.addAttribute("newsletterSubscribed", subscribed);
+            } catch (Exception e) {
+                log.debug("Could not check newsletter subscription status: {}", e.getMessage());
+                model.addAttribute("newsletterSubscribed", false);
+            }
+        } else {
+            model.addAttribute("newsletterSubscribed", false);
+        }
         return "auth/profile";
     }
 
@@ -167,5 +182,41 @@ public class AuthController {
             redirectAttributes.addFlashAttribute("otpSent", true);
         }
         return "redirect:/profile#change-password";
+    }
+
+    @PostMapping("/profile/newsletter-subscribe")
+    @PreAuthorize("isAuthenticated()")
+    public String newsletterSubscribe(RedirectAttributes redirectAttributes) {
+        GatewayUserDetails currentUser = SecurityUtils.getCurrentUser();
+        String jwt = SecurityUtils.getJwt();
+        try {
+            interactionClientService.subscribeNewsletter(
+                    currentUser.getEmail(), currentUser.getFullName(), jwt);
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "You have been subscribed to our newsletter. Check your email for a welcome message!");
+        } catch (Exception e) {
+            log.error("Failed to subscribe user {} to newsletter: {}", currentUser.getUsername(), e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Failed to subscribe: " + e.getMessage());
+        }
+        return "redirect:/profile#newsletter-section";
+    }
+
+    @PostMapping("/profile/newsletter-unsubscribe")
+    @PreAuthorize("isAuthenticated()")
+    public String newsletterUnsubscribe(RedirectAttributes redirectAttributes) {
+        GatewayUserDetails currentUser = SecurityUtils.getCurrentUser();
+        String jwt = SecurityUtils.getJwt();
+        try {
+            interactionClientService.requestUnsubscribeConfirmation(currentUser.getEmail(), jwt);
+            redirectAttributes.addFlashAttribute("infoMessage",
+                    "A confirmation email has been sent to " + currentUser.getEmail() +
+                    ". Click the link in the email to confirm your unsubscription.");
+        } catch (Exception e) {
+            log.error("Failed to request unsubscribe for user {}: {}", currentUser.getUsername(), e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Failed to send confirmation: " + e.getMessage());
+        }
+        return "redirect:/profile#newsletter-section";
     }
 }

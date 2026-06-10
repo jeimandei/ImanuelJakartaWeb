@@ -2,6 +2,7 @@ package com.jeimandei.imanuelbytes.gateway.controller.admin;
 
 import com.jeimandei.imanuelbytes.gateway.dto.NewsArticleDto;
 import com.jeimandei.imanuelbytes.gateway.service.CmsClientService;
+import com.jeimandei.imanuelbytes.gateway.service.InteractionClientService;
 import com.jeimandei.imanuelbytes.gateway.util.SecurityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,9 +27,12 @@ public class AdminNewsController {
     private static final Logger log = LoggerFactory.getLogger(AdminNewsController.class);
 
     private final CmsClientService cmsClientService;
+    private final InteractionClientService interactionClientService;
 
-    public AdminNewsController(CmsClientService cmsClientService) {
+    public AdminNewsController(CmsClientService cmsClientService,
+                               InteractionClientService interactionClientService) {
         this.cmsClientService = cmsClientService;
+        this.interactionClientService = interactionClientService;
     }
 
     @GetMapping({"", "/"})
@@ -97,6 +101,29 @@ public class AdminNewsController {
         } catch (Exception e) {
             log.error("Failed to update news article {}: {}", id, e.getMessage());
             redirectAttributes.addFlashAttribute("errorMessage", "Failed to update news article.");
+        }
+        return "redirect:/admin/news";
+    }
+
+    @PostMapping("/{id}/publish")
+    public String publishNews(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        String jwt = SecurityUtils.getJwt();
+        try {
+            NewsArticleDto article = cmsClientService.publishNewsArticle(id, jwt);
+            log.info("News article {} published successfully", id);
+            if (article != null) {
+                String articleUrl = "/news/" + article.getSlug();
+                interactionClientService.sendNewsNotification(
+                        article.getTitle(),
+                        article.getExcerpt(),
+                        articleUrl,
+                        jwt);
+            }
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Article published and newsletter notification sent to subscribers.");
+        } catch (Exception e) {
+            log.error("Failed to publish news article {}: {}", id, e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to publish article.");
         }
         return "redirect:/admin/news";
     }

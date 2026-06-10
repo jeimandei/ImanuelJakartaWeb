@@ -11,5 +11,13 @@ public interface NewsletterService {
 
     void unsubscribe(String email);
 
+    void requestUnsubscribeConfirmation(String email);
+
+    void confirmUnsubscribe(String token);
+
+    void deleteSubscriber(Long id);
+
     Page<NewsletterSubscriptionDto> getAllSubscriptions(Pageable pageable);
+
+    void sendNewsNotification(String title, String excerpt, String articleUrl);
 }

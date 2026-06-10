@@ -4,6 +4,7 @@ import com.jeimandei.imanuelbytes.common.dto.ApiResponse;
 import com.jeimandei.imanuelbytes.gateway.config.ServiceUrlConfig;
 import com.jeimandei.imanuelbytes.gateway.dto.ContactFormDto;
 import com.jeimandei.imanuelbytes.gateway.dto.ContactMessageDto;
+import com.jeimandei.imanuelbytes.gateway.dto.NewsletterSubscriptionDto;
 import com.jeimandei.imanuelbytes.gateway.dto.PageResponse;
 import com.jeimandei.imanuelbytes.gateway.dto.PrayerRequestDto;
 import com.jeimandei.imanuelbytes.gateway.dto.PrayerRequestFormDto;
@@ -135,6 +136,96 @@ public class InteractionClientService {
             restTemplate.exchange(url, HttpMethod.PUT, entity, Void.class);
         } catch (RestClientException e) {
             log.error("Failed to update contact message {} status: {}", id, e.getMessage());
+        }
+    }
+
+    public PageResponse<NewsletterSubscriptionDto> getNewsletterSubscriptions(int page, int size, String jwt) {
+        try {
+            String url = serviceUrlConfig.interactionUrl("/api/newsletter?page=" + page + "&size=" + size);
+            HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
+            ResponseEntity<ApiResponse<PageResponse<NewsletterSubscriptionDto>>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity,
+                    new ParameterizedTypeReference<ApiResponse<PageResponse<NewsletterSubscriptionDto>>>() {});
+            ApiResponse<PageResponse<NewsletterSubscriptionDto>> body = response.getBody();
+            return (body != null && body.getData() != null) ? body.getData() : PageResponse.empty();
+        } catch (RestClientException e) {
+            log.error("Failed to fetch newsletter subscriptions: {}", e.getMessage());
+            return PageResponse.empty();
+        }
+    }
+
+    public void deleteNewsletterSubscription(Long id, String jwt) {
+        try {
+            String url = serviceUrlConfig.interactionUrl("/api/newsletter/" + id);
+            HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
+            restTemplate.exchange(url, HttpMethod.DELETE, entity, Void.class);
+        } catch (RestClientException e) {
+            log.error("Failed to delete newsletter subscriber {}: {}", id, e.getMessage());
+            throw new RuntimeException("Failed to delete subscriber: " + e.getMessage());
+        }
+    }
+
+    public void requestUnsubscribeConfirmation(String email, String jwt) {
+        try {
+            String url = serviceUrlConfig.interactionUrl("/api/newsletter/request-unsubscribe");
+            Map<String, String> body = Map.of("email", email);
+            HttpEntity<Map<String, String>> entity = new HttpEntity<>(body, createAuthHeaders(jwt));
+            restTemplate.exchange(url, HttpMethod.POST, entity, Void.class);
+        } catch (RestClientException e) {
+            log.error("Failed to request unsubscribe for {}: {}", email, e.getMessage());
+            throw new RuntimeException("Failed to request unsubscribe: " + e.getMessage());
+        }
+    }
+
+    public void subscribeNewsletter(String email, String name, String jwt) {
+        try {
+            String url = serviceUrlConfig.interactionUrl("/api/newsletter/subscribe");
+            Map<String, String> body = Map.of("email", email, "name", name != null ? name : "");
+            HttpEntity<Map<String, String>> entity = new HttpEntity<>(body, createAuthHeaders(jwt));
+            restTemplate.exchange(url, HttpMethod.POST, entity, Void.class);
+        } catch (RestClientException e) {
+            log.error("Failed to subscribe newsletter for {}: {}", email, e.getMessage());
+            throw new RuntimeException("Failed to subscribe: " + e.getMessage());
+        }
+    }
+
+    public void sendNewsNotification(String title, String excerpt, String articleUrl, String jwt) {
+        try {
+            String url = serviceUrlConfig.interactionUrl("/api/newsletter/notify-news");
+            Map<String, String> body = Map.of(
+                    "title", title,
+                    "excerpt", excerpt != null ? excerpt : "",
+                    "articleUrl", articleUrl != null ? articleUrl : "");
+            HttpEntity<Map<String, String>> entity = new HttpEntity<>(body, createAuthHeaders(jwt));
+            restTemplate.exchange(url, HttpMethod.POST, entity, Void.class);
+        } catch (RestClientException e) {
+            log.error("Failed to send news notification: {}", e.getMessage());
+        }
+    }
+
+    public void confirmUnsubscribe(String token) {
+        String url = serviceUrlConfig.interactionUrl("/api/newsletter/confirm-unsubscribe?token=" +
+                java.net.URLEncoder.encode(token, java.nio.charset.StandardCharsets.UTF_8));
+        ResponseEntity<ApiResponse<Void>> response = restTemplate.exchange(
+                url, HttpMethod.GET, null,
+                new ParameterizedTypeReference<ApiResponse<Void>>() {});
+        if (response.getBody() == null) {
+            throw new RuntimeException("Invalid or expired unsubscribe token.");
+        }
+    }
+
+    public boolean isSubscribedToNewsletter(String email) {
+        try {
+            String url = serviceUrlConfig.interactionUrl("/api/newsletter/check?email=" +
+                    java.net.URLEncoder.encode(email, java.nio.charset.StandardCharsets.UTF_8));
+            ResponseEntity<ApiResponse<Boolean>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, null,
+                    new ParameterizedTypeReference<ApiResponse<Boolean>>() {});
+            ApiResponse<Boolean> body = response.getBody();
+            return body != null && Boolean.TRUE.equals(body.getData());
+        } catch (RestClientException e) {
+            log.debug("Could not check newsletter subscription for {}: {}", email, e.getMessage());
+            return false;
         }
     }
 }
