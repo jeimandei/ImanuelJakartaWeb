@@ -11,7 +11,8 @@ on:
           restart-service   = restart specific service(s) without rebuild,
           restart-all       = restart every running container,
           deploy-config     = sync config-repo/ to server (no restart),
-          deploy-env        = push .env from ENV_FILE secret to server
+          deploy-env        = push .env from ENV_FILE secret to server,
+          run-migrations    = run pending SQL migration scripts on the live database
         required: true
         type: choice
         options:
@@ -21,6 +22,7 @@ on:
           - restart-all
           - deploy-config
           - deploy-env
+          - run-migrations
 
       services:
         description: >
@@ -211,9 +213,26 @@ jobs:
             echo "✓ All containers restarted"
           EOF
 
+      # ══════════════════════════════════════════════════════════════════════
+      # run-migrations — pipe pending SQL scripts into the running postgres
+      # container via podman exec. Safe to re-run: uses IF NOT EXISTS / DO NOTHING.
+      # ══════════════════════════════════════════════════════════════════════
+      - name: "[run-migrations] Run pending SQL migrations"
+        if: inputs.action == 'run-migrations'
+        run: |
+          ssh -p ${{ env.SSH_PORT }} ${{ env.SSH_USER }}@${{ env.SSH_HOST }} << 'EOF'
+            set -e
+            cd ${{ env.DEPLOY_DIR }}
+            echo "→ Running V2__add_permissions.sql"
+            podman exec -i church-postgres sh -c \
+              'psql -U $POSTGRES_USER -d imanuelweb_db' \
+              < database/V2__add_permissions.sql
+            echo "✓ Migrations complete"
+          EOF
+
       # ── Post-deploy: container status ──────────────────────────────────────
       - name: Container status
-        if: inputs.action != 'deploy-env' && inputs.action != 'deploy-config'
+        if: inputs.action != 'deploy-env' && inputs.action != 'deploy-config' && inputs.action != 'run-migrations'
         run: |
           sleep 10
           ssh -p ${{ env.SSH_PORT }} ${{ env.SSH_USER }}@${{ env.SSH_HOST }} \
@@ -221,7 +240,7 @@ jobs:
 
       # ── Post-deploy: API gateway health check ──────────────────────────────
       - name: Health check — API gateway
-        if: inputs.action == 'full-deploy' || inputs.action == 'build-service' && contains(inputs.services, 'church-api-gateway')
+        if: inputs.action == 'full-deploy' || (inputs.action == 'build-service' && contains(inputs.services, 'church-api-gateway'))
         run: |
           ssh -p ${{ env.SSH_PORT }} ${{ env.SSH_USER }}@${{ env.SSH_HOST }} \
             "curl -sf http://localhost:8080/actuator/health | grep -q UP && echo '✓ API gateway healthy' || echo '✗ API gateway not yet healthy (may still be starting)'"

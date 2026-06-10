@@ -12,6 +12,7 @@
         <ul class="nav flex-column">
             <li class="nav-item"><a class="nav-link" th:href="@{/admin}"><i class="fas fa-tachometer-alt"></i>Dashboard</a></li>
             <li class="nav-item"><a class="nav-link active" th:href="@{/admin/users}"><i class="fas fa-users"></i>Users</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/roles}"><i class="fas fa-user-shield"></i>Roles</a></li>
             <li class="nav-item"><a class="nav-link" th:href="@{/admin/cms}"><i class="fas fa-file-alt"></i>CMS Pages</a></li>
             <li class="nav-item"><a class="nav-link" th:href="@{/admin/events}"><i class="fas fa-calendar-alt"></i>Events</a></li>
             <li class="nav-item"><a class="nav-link" th:href="@{/admin/sermons}"><i class="fas fa-microphone"></i>Sermons</a></li>
@@ -44,7 +45,7 @@
 
         <div class="p-4">
             <div class="row justify-content-center">
-                <div class="col-lg-7">
+                <div class="col-lg-8">
                     <div class="card form-card">
                         <div class="card-header bg-white border-bottom py-3 px-4">
                             <h6 class="mb-0 fw-bold" style="color:var(--primary);">
@@ -52,7 +53,7 @@
                             </h6>
                         </div>
                         <div class="card-body p-4">
-                            <form th:action="@{/admin/users}" method="post" th:object="${userForm}" novalidate>
+                            <form th:action="@{/admin/users}" method="post" novalidate>
                                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
                                 <div class="row g-3">
@@ -61,11 +62,8 @@
                                         <label class="form-label fw-medium">Full Name <span class="text-danger">*</span></label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                            <input type="text" th:field="*{fullName}" class="form-control"
-                                                   th:classappend="${#fields.hasErrors('fullName') ? 'is-invalid' : ''}"
+                                            <input type="text" name="fullName" class="form-control"
                                                    placeholder="Full name" required/>
-                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('fullName')}"
-                                                 th:errors="*{fullName}">Name error</div>
                                         </div>
                                     </div>
 
@@ -74,11 +72,8 @@
                                         <label class="form-label fw-medium">Username <span class="text-danger">*</span></label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fas fa-at"></i></span>
-                                            <input type="text" th:field="*{username}" class="form-control"
-                                                   th:classappend="${#fields.hasErrors('username') ? 'is-invalid' : ''}"
+                                            <input type="text" name="username" class="form-control"
                                                    placeholder="username" required/>
-                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('username')}"
-                                                 th:errors="*{username}">Username error</div>
                                         </div>
                                     </div>
 
@@ -87,11 +82,8 @@
                                         <label class="form-label fw-medium">Email <span class="text-danger">*</span></label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                                            <input type="email" th:field="*{email}" class="form-control"
-                                                   th:classappend="${#fields.hasErrors('email') ? 'is-invalid' : ''}"
+                                            <input type="email" name="email" class="form-control"
                                                    placeholder="email@example.com" required/>
-                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}"
-                                                 th:errors="*{email}">Email error</div>
                                         </div>
                                     </div>
 
@@ -100,22 +92,7 @@
                                         <label class="form-label fw-medium">Phone</label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                                            <input type="tel" th:field="*{phone}" class="form-control" placeholder="+62 xxx-xxxx-xxxx"/>
-                                        </div>
-                                    </div>
-
-                                    <!-- Role -->
-                                    <div class="col-md-6">
-                                        <label class="form-label fw-medium">Role <span class="text-danger">*</span></label>
-                                        <div class="input-group">
-                                            <span class="input-group-text"><i class="fas fa-user-tag"></i></span>
-                                            <select th:field="*{role}" class="form-select" required>
-                                                <option value="">-- Select Role --</option>
-                                                <option value="ROLE_MEMBER">Member</option>
-                                                <option value="ROLE_EDITOR">Editor</option>
-                                                <option value="ROLE_ADMIN">Admin</option>
-                                                <option value="ROLE_SUPER_ADMIN">Super Admin</option>
-                                            </select>
+                                            <input type="tel" name="phone" class="form-control" placeholder="+62 xxx-xxxx-xxxx"/>
                                         </div>
                                     </div>
 
@@ -124,25 +101,44 @@
                                         <label class="form-label fw-medium">Password <span class="text-danger">*</span></label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                                            <input type="password" th:field="*{password}" class="form-control"
-                                                   th:classappend="${#fields.hasErrors('password') ? 'is-invalid' : ''}"
+                                            <input type="password" name="password" class="form-control"
                                                    placeholder="Min 8 characters" required/>
-                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('password')}"
-                                                 th:errors="*{password}">Password error</div>
                                         </div>
                                     </div>
 
                                     <!-- Confirm Password -->
-                                    <div class="col-md-6">
+                                    <div class="col-12">
                                         <label class="form-label fw-medium">Confirm Password <span class="text-danger">*</span></label>
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                                            <input type="password" th:field="*{confirmPassword}" class="form-control"
-                                                   th:classappend="${#fields.hasErrors('confirmPassword') ? 'is-invalid' : ''}"
+                                            <input type="password" name="confirmPassword" class="form-control"
                                                    placeholder="Repeat password" required/>
-                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('confirmPassword')}"
-                                                 th:errors="*{confirmPassword}">Confirm password error</div>
                                         </div>
+                                    </div>
+
+                                    <!-- Roles -->
+                                    <div class="col-12">
+                                        <label class="form-label fw-medium">Roles <span class="text-danger">*</span></label>
+                                        <div class="text-muted small mb-2">Select one or more roles for this user.</div>
+                                        <div class="row g-2" th:if="${allRoles != null and !allRoles.empty}">
+                                            <div th:each="role : ${allRoles}" class="col-md-4">
+                                                <div class="form-check p-3 border rounded" style="background:var(--surface);">
+                                                    <input class="form-check-input" type="checkbox"
+                                                           name="roles"
+                                                           th:value="${role.roleName}"
+                                                           th:id="|new-role-${role.id}|"/>
+                                                    <label class="form-check-label" th:for="|new-role-${role.id}|">
+                                                        <span class="fw-medium d-block small"
+                                                              th:text="${role.roleName}">ROLE</span>
+                                                        <span class="text-muted"
+                                                              style="font-size:0.72rem;"
+                                                              th:text="${role.description ?: ''}"></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p th:if="${allRoles == null or allRoles.empty}"
+                                           class="text-muted small fst-italic">No roles available.</p>
                                     </div>
 
                                     <!-- Buttons -->
