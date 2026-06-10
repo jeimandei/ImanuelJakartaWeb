@@ -6,6 +6,7 @@ import com.jeimandei.imanuelbytes.user.dto.AssignRolesRequest;
 import com.jeimandei.imanuelbytes.user.dto.ChangePasswordOtpRequest;
 import com.jeimandei.imanuelbytes.user.dto.ChangePasswordRequest;
 import com.jeimandei.imanuelbytes.user.dto.CreateUserRequest;
+import com.jeimandei.imanuelbytes.user.dto.ResetPasswordPublicRequest;
 import com.jeimandei.imanuelbytes.user.dto.UpdateUserRequest;
 import com.jeimandei.imanuelbytes.user.dto.UpdateUserStatusRequest;
 import com.jeimandei.imanuelbytes.user.dto.UserDto;
@@ -237,6 +238,35 @@ public class UserController {
         userService.deleteUser(id);
         log.info("Deactivated user id={}", id);
         return ResponseEntity.ok(ApiResponse.success("User deactivated successfully"));
+    }
+
+    // -------------------------------------------------------------------------
+    // POST /api/users/forgot-password  —  public: send OTP by email or username
+    // -------------------------------------------------------------------------
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ApiResponse<Void>> forgotPassword(
+            @RequestBody java.util.Map<String, String> body) {
+        String identifier = body.get("identifier");
+        if (identifier == null || identifier.isBlank()) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error("identifier is required"));
+        }
+        log.debug("Forgot password requested for identifier='{}'", identifier);
+        userService.forgotPassword(identifier.trim());
+        return ResponseEntity.ok(ApiResponse.success("OTP sent to your registered email address"));
+    }
+
+    // -------------------------------------------------------------------------
+    // POST /api/users/reset-password-otp  —  public: verify OTP and change password
+    // -------------------------------------------------------------------------
+
+    @PostMapping("/reset-password-otp")
+    public ResponseEntity<ApiResponse<Void>> resetPasswordWithOtp(
+            @Valid @RequestBody ResetPasswordPublicRequest request) {
+        log.debug("Reset password via OTP for identifier='{}'", request.getIdentifier());
+        userService.resetPasswordWithOtp(request);
+        return ResponseEntity.ok(ApiResponse.success("Password reset successfully"));
     }
 
     // -------------------------------------------------------------------------

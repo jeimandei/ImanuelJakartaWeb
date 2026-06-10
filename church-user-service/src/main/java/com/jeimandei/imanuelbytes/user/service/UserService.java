@@ -4,6 +4,7 @@ import com.jeimandei.imanuelbytes.user.dto.AssignRolesRequest;
 import com.jeimandei.imanuelbytes.user.dto.ChangePasswordOtpRequest;
 import com.jeimandei.imanuelbytes.user.dto.ChangePasswordRequest;
 import com.jeimandei.imanuelbytes.user.dto.CreateUserRequest;
+import com.jeimandei.imanuelbytes.user.dto.ResetPasswordPublicRequest;
 import com.jeimandei.imanuelbytes.user.dto.UpdateUserRequest;
 import com.jeimandei.imanuelbytes.user.dto.UpdateUserStatusRequest;
 import com.jeimandei.imanuelbytes.user.dto.UserDto;
@@ -128,6 +129,20 @@ public interface UserService {
      * @param request contains newPassword, confirmPassword, and the OTP code
      */
     void changePasswordWithOtp(Long id, ChangePasswordOtpRequest request);
+
+    /**
+     * Public forgot-password: look up user by email or username, generate OTP, send email.
+     *
+     * @param identifier email address or username
+     */
+    void forgotPassword(String identifier);
+
+    /**
+     * Public reset-password: validate OTP by identifier, change password.
+     *
+     * @param request contains identifier, otp, newPassword, confirmPassword
+     */
+    void resetPasswordWithOtp(ResetPasswordPublicRequest request);
 
     /**
      * Full-text search across username, email, and full name fields.

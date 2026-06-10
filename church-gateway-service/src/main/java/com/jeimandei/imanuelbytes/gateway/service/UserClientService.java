@@ -123,6 +123,19 @@ public class UserClientService {
         }
     }
 
+    public void forgotPassword(String identifier) {
+        String url = serviceUrlConfig.userUrl("/api/users/forgot-password");
+        HttpEntity<Map<String, String>> entity = new HttpEntity<>(
+                Map.of("identifier", identifier), createAuthHeaders(null));
+        restTemplate.exchange(url, HttpMethod.POST, entity, Void.class);
+    }
+
+    public void resetPasswordWithOtp(Map<String, Object> request) {
+        String url = serviceUrlConfig.userUrl("/api/users/reset-password-otp");
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, createAuthHeaders(null));
+        restTemplate.exchange(url, HttpMethod.POST, entity, Void.class);
+    }
+
     public void requestPasswordOtp(Long id, String jwt) {
         String url = serviceUrlConfig.userUrl("/api/users/" + id + "/request-password-otp");
         HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
