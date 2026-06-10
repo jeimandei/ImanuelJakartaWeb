@@ -98,10 +98,15 @@
                                             Select which actions this role can perform in the admin panel.
                                         </div>
 
-                                        <div th:with="categories=${ {'USERS','CONTENT','EVENTS','MEDIA','PASTORAL','COMMUNITY','SETTINGS','AUDIT'} }">
+                                        <div th:if="${permissions == null or permissions.empty}"
+                                             class="text-muted small fst-italic">
+                                            Permissions could not be loaded from user-service.
+                                        </div>
+                                        <div th:if="${permissions != null and !permissions.empty}"
+                                             th:with="categories=${ {'USERS','CONTENT','EVENTS','MEDIA','PASTORAL','COMMUNITY','SETTINGS','AUDIT'} }">
                                             <div th:each="cat : ${categories}" class="mb-3">
                                                 <div th:with="catPerms=${permissions.?[category == cat]}"
-                                                     th:if="${!catPerms.empty}">
+                                                     th:if="${catPerms != null and !catPerms.empty}">
                                                     <div class="d-flex align-items-center gap-2 mb-2">
                                                         <span class="badge"
                                                               style="background:var(--primary);font-size:0.7rem;"

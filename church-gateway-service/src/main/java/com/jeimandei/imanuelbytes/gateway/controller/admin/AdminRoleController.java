@@ -50,8 +50,12 @@ public class AdminRoleController {
     @GetMapping("/new")
     public String createForm(Model model) {
         String jwt = SecurityUtils.getJwt();
-        List<PermissionDto> permissions = roleClientService.getAllPermissions(jwt);
-        model.addAttribute("permissions", permissions);
+        try {
+            model.addAttribute("permissions", roleClientService.getAllPermissions(jwt));
+        } catch (Exception e) {
+            log.error("Failed to load permissions: {}", e.getMessage());
+            model.addAttribute("permissions", Collections.emptyList());
+        }
         model.addAttribute("role", new RoleDto());
         model.addAttribute("isNew", true);
         return "admin/roles/form";
@@ -75,14 +79,18 @@ public class AdminRoleController {
     public String editForm(@PathVariable Long id, Model model) {
         String jwt = SecurityUtils.getJwt();
         try {
-            RoleDto role = roleClientService.getRoleById(id, jwt);
-            List<PermissionDto> permissions = roleClientService.getAllPermissions(jwt);
-            model.addAttribute("role", role);
-            model.addAttribute("permissions", permissions);
-            model.addAttribute("isNew", false);
+            model.addAttribute("role", roleClientService.getRoleById(id, jwt));
         } catch (Exception e) {
             log.error("Failed to load role {}: {}", id, e.getMessage());
+            model.addAttribute("role", new RoleDto());
         }
+        try {
+            model.addAttribute("permissions", roleClientService.getAllPermissions(jwt));
+        } catch (Exception e) {
+            log.error("Failed to load permissions: {}", e.getMessage());
+            model.addAttribute("permissions", Collections.emptyList());
+        }
+        model.addAttribute("isNew", false);
         return "admin/roles/form";
     }
 
