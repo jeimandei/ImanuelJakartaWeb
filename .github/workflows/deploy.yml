@@ -223,6 +223,7 @@ jobs:
           ssh -p ${{ env.SSH_PORT }} ${{ env.SSH_USER }}@${{ env.SSH_HOST }} << 'EOF'
             set -e
             cd ${{ env.DEPLOY_DIR }}
+            git pull origin main
             echo "→ Running V2__add_permissions.sql"
             podman exec -i church-postgres sh -c \
               'psql -U $POSTGRES_USER -d imanuelweb_db' \
