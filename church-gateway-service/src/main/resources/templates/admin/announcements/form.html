@@ -93,7 +93,9 @@
                             <!-- Active -->
                             <div class="col-12">
                                 <div class="form-check form-switch">
-                                    <input type="checkbox" th:field="*{active}" class="form-check-input"
+                                    <input type="checkbox" name="active" value="true"
+                                           th:checked="*{active}"
+                                           class="form-check-input"
                                            id="active" style="width:2.5rem; height:1.25rem;"/>
                                     <label for="active" class="form-check-label fw-medium ms-2">
                                         Active (show on website)
