@@ -8,6 +8,7 @@ import com.jeimandei.imanuelbytes.gateway.security.GatewayUserDetails;
 import com.jeimandei.imanuelbytes.gateway.service.AuthClientService;
 import com.jeimandei.imanuelbytes.gateway.service.UserClientService;
 import com.jeimandei.imanuelbytes.gateway.util.SecurityUtils;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -138,6 +139,64 @@ public class AuthController {
                     "Failed to send OTP: " + e.getMessage());
         }
         return "redirect:/profile#change-password";
+    }
+
+    @GetMapping("/forgot-password")
+    public String forgotPasswordPage() {
+        return "auth/forgot-password";
+    }
+
+    @PostMapping("/forgot-password")
+    public String forgotPasswordSubmit(@RequestParam String identifier,
+                                       HttpSession session,
+                                       RedirectAttributes redirectAttributes) {
+        try {
+            userClientService.forgotPassword(identifier.trim());
+            session.setAttribute("fpIdentifier", identifier.trim());
+            redirectAttributes.addFlashAttribute("infoMessage",
+                    "OTP sent to your registered email address. Enter it below within 5 minutes.");
+        } catch (Exception e) {
+            log.error("Forgot password failed for identifier '{}': {}", identifier, e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Could not find an account with that email or username.");
+        }
+        return "redirect:/forgot-password/reset";
+    }
+
+    @GetMapping("/forgot-password/reset")
+    public String forgotPasswordResetPage(HttpSession session, Model model) {
+        String identifier = (String) session.getAttribute("fpIdentifier");
+        if (identifier != null) {
+            model.addAttribute("fpIdentifier", identifier);
+        }
+        return "auth/forgot-password";
+    }
+
+    @PostMapping("/forgot-password/reset")
+    public String forgotPasswordReset(@RequestParam String identifier,
+                                      @RequestParam String otp,
+                                      @RequestParam String newPassword,
+                                      @RequestParam String confirmPassword,
+                                      HttpSession session,
+                                      RedirectAttributes redirectAttributes) {
+        try {
+            userClientService.resetPasswordWithOtp(Map.of(
+                    "identifier", identifier,
+                    "otp", otp,
+                    "newPassword", newPassword,
+                    "confirmPassword", confirmPassword));
+            session.removeAttribute("fpIdentifier");
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Password reset successfully. Please sign in with your new password.");
+            return "redirect:/login";
+        } catch (Exception e) {
+            log.error("Password reset failed for identifier '{}': {}", identifier, e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Failed to reset password: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("fpIdentifier", identifier);
+            redirectAttributes.addFlashAttribute("otpStep", true);
+            return "redirect:/forgot-password/reset";
+        }
     }
 
     @PostMapping("/profile/change-password")

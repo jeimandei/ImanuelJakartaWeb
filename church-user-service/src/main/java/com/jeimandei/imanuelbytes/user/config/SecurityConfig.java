@@ -79,6 +79,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Healthcheck (unauthenticated — used by container orchestration)
                         .requestMatchers("/actuator/health").permitAll()
+                        // Public forgot/reset password (no JWT required)
+                        .requestMatchers(HttpMethod.POST, "/api/users/forgot-password").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/users/reset-password-otp").permitAll()
                         // Allow all GET read endpoints for any authenticated user
                         .requestMatchers(HttpMethod.GET, "/api/users/**").authenticated()
                         // OTP endpoints open to any authenticated user (own account flow)
