@@ -2,6 +2,7 @@ package com.jeimandei.imanuelbytes.gateway.service;
 
 import com.jeimandei.imanuelbytes.gateway.config.ServiceUrlConfig;
 import com.jeimandei.imanuelbytes.gateway.dto.ApiDataResponse;
+import com.jeimandei.imanuelbytes.gateway.dto.PermissionCategoryDto;
 import com.jeimandei.imanuelbytes.gateway.dto.PermissionDto;
 import com.jeimandei.imanuelbytes.gateway.dto.RoleDto;
 import org.slf4j.Logger;
@@ -158,6 +159,62 @@ public class RoleClientService {
 
     public void deletePermission(Long id, String jwt) {
         String url = serviceUrlConfig.userUrl("/api/permissions/" + id);
+        HttpEntity<Void> entity = new HttpEntity<>(authHeaders(jwt));
+        restTemplate.exchange(url, HttpMethod.DELETE, entity, Void.class);
+    }
+
+    public List<PermissionCategoryDto> getAllCategories(String jwt) {
+        try {
+            String url = serviceUrlConfig.userUrl("/api/permission-categories");
+            HttpEntity<Void> entity = new HttpEntity<>(authHeaders(jwt));
+            ResponseEntity<ApiDataResponse<List<PermissionCategoryDto>>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity,
+                    new ParameterizedTypeReference<ApiDataResponse<List<PermissionCategoryDto>>>() {});
+            ApiDataResponse<List<PermissionCategoryDto>> body = response.getBody();
+            return (body != null && body.getData() != null) ? body.getData() : Collections.emptyList();
+        } catch (Exception e) {
+            log.error("Failed to fetch permission categories: {}", e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+
+    public PermissionCategoryDto getCategoryById(Long id, String jwt) {
+        try {
+            String url = serviceUrlConfig.userUrl("/api/permission-categories/" + id);
+            HttpEntity<Void> entity = new HttpEntity<>(authHeaders(jwt));
+            ResponseEntity<ApiDataResponse<PermissionCategoryDto>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity,
+                    new ParameterizedTypeReference<ApiDataResponse<PermissionCategoryDto>>() {});
+            ApiDataResponse<PermissionCategoryDto> body = response.getBody();
+            return body != null ? body.getData() : null;
+        } catch (Exception e) {
+            log.error("Failed to fetch category {}: {}", id, e.getMessage());
+            return null;
+        }
+    }
+
+    public PermissionCategoryDto createCategory(Map<String, Object> request, String jwt) {
+        String url = serviceUrlConfig.userUrl("/api/permission-categories");
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, authHeaders(jwt));
+        ResponseEntity<ApiDataResponse<PermissionCategoryDto>> response = restTemplate.exchange(
+                url, HttpMethod.POST, entity,
+                new ParameterizedTypeReference<ApiDataResponse<PermissionCategoryDto>>() {});
+        ApiDataResponse<PermissionCategoryDto> body = response.getBody();
+        return body != null ? body.getData() : null;
+    }
+
+    public PermissionCategoryDto updateCategory(Long id, Map<String, Object> request, String jwt) {
+        String url = serviceUrlConfig.userUrl("/api/permission-categories/" + id);
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, authHeaders(jwt));
+        ResponseEntity<ApiDataResponse<PermissionCategoryDto>> response = restTemplate.exchange(
+                url, HttpMethod.PUT, entity,
+                new ParameterizedTypeReference<ApiDataResponse<PermissionCategoryDto>>() {});
+        ApiDataResponse<PermissionCategoryDto> body = response.getBody();
+        return body != null ? body.getData() : null;
+    }
+
+    public void deleteCategory(Long id, String jwt) {
+        String url = serviceUrlConfig.userUrl("/api/permission-categories/" + id);
         HttpEntity<Void> entity = new HttpEntity<>(authHeaders(jwt));
         restTemplate.exchange(url, HttpMethod.DELETE, entity, Void.class);
     }
