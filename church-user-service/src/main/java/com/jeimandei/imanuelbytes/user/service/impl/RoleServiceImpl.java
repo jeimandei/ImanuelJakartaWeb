@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -157,10 +158,10 @@ public class RoleServiceImpl implements RoleService {
         dto.setDescription(role.getDescription());
         dto.setPermissions(role.getPermissions().stream()
                 .map(this::toPermissionDto)
-                .sorted((a, b) -> {
-                    int cat = a.getCategory().compareTo(b.getCategory());
-                    return cat != 0 ? cat : a.getName().compareTo(b.getName());
-                })
+                .sorted(Comparator.comparing(PermissionDto::getCategory,
+                                Comparator.nullsLast(Comparator.naturalOrder()))
+                        .thenComparing(PermissionDto::getName,
+                                Comparator.nullsLast(Comparator.naturalOrder())))
                 .toList());
         return dto;
     }
