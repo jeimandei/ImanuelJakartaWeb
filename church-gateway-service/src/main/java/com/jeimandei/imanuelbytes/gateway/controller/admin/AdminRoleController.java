@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 public class AdminRoleController {
 
     private static final Logger log = LoggerFactory.getLogger(AdminRoleController.class);
+    private static final List<String> ACTION_COLUMNS = List.of("VIEW", "CREATE", "EDIT", "DELETE", "OTHERS");
 
     private final RoleClientService roleClientService;
 
@@ -60,9 +61,8 @@ public class AdminRoleController {
         } catch (Exception e) {
             log.error("Failed to load permissions: {}", e.getMessage());
         }
-        model.addAttribute("permissions", permissions);
-        model.addAttribute("permsByCategory", groupByCategory(permissions));
-        model.addAttribute("categories", deriveCategories(permissions));
+        model.addAttribute("permMatrix", buildPermMatrix(permissions));
+        model.addAttribute("actionColumns", ACTION_COLUMNS);
         model.addAttribute("rolePermIds", Collections.emptySet());
         model.addAttribute("role", new RoleDto());
         model.addAttribute("isNew", true);
@@ -103,9 +103,8 @@ public class AdminRoleController {
         } catch (Exception e) {
             log.error("Failed to load permissions: {}", e.getMessage());
         }
-        model.addAttribute("permissions", permissions);
-        model.addAttribute("permsByCategory", groupByCategory(permissions));
-        model.addAttribute("categories", deriveCategories(permissions));
+        model.addAttribute("permMatrix", buildPermMatrix(permissions));
+        model.addAttribute("actionColumns", ACTION_COLUMNS);
         model.addAttribute("isNew", false);
         return "admin/roles/form";
     }
@@ -119,11 +118,7 @@ public class AdminRoleController {
             Map<String, Object> body = buildRoleRequestBody(request);
             body.remove("roleName"); // name cannot be changed on update
             roleClientService.updateRole(id, body, jwt);
-
-            int catChanged = applyPermissionCategoryChanges(request, jwt);
-            String msg = "Role updated successfully.";
-            if (catChanged > 0) msg += " " + catChanged + " permission categor" + (catChanged == 1 ? "y" : "ies") + " reorganized.";
-            redirectAttributes.addFlashAttribute("successMessage", msg);
+            redirectAttributes.addFlashAttribute("successMessage", "Role updated successfully.");
         } catch (Exception e) {
             log.error("Failed to update role {}: {}", id, e.getMessage());
             redirectAttributes.addFlashAttribute("errorMessage", "Failed to update role: " + e.getMessage());
@@ -144,49 +139,59 @@ public class AdminRoleController {
         return "redirect:/admin/roles";
     }
 
-    private Map<String, List<PermissionDto>> groupByCategory(List<PermissionDto> permissions) {
-        List<String> cats = deriveCategories(permissions);
-        Map<String, List<PermissionDto>> grouped = new LinkedHashMap<>();
-        for (String cat : cats) {
-            List<PermissionDto> group = permissions.stream()
-                    .filter(p -> cat.equals(p.getCategory()))
-                    .collect(Collectors.toList());
-            if (!group.isEmpty()) grouped.put(cat, group);
-        }
-        // Catch permissions with null/blank category so they are never lost
-        List<PermissionDto> uncategorized = permissions.stream()
-                .filter(p -> p.getCategory() == null || p.getCategory().isBlank())
-                .collect(Collectors.toList());
-        if (!uncategorized.isEmpty()) grouped.put("(uncategorized)", uncategorized);
-        return grouped;
-    }
-
-    private int applyPermissionCategoryChanges(HttpServletRequest request, String jwt) {
-        List<PermissionDto> allPerms = Collections.emptyList();
-        try { allPerms = roleClientService.getAllPermissions(jwt); } catch (Exception ignored) {}
-        int changed = 0;
-        for (PermissionDto perm : allPerms) {
-            String newCat = request.getParameter("permCat_" + perm.getId());
-            String currentCat = perm.getCategory() != null ? perm.getCategory() : "";
-            if (newCat != null && !newCat.equals(currentCat)) {
-                try {
-                    roleClientService.updatePermission(perm.getId(), Map.of("category", newCat), jwt);
-                    changed++;
-                } catch (Exception e) {
-                    log.warn("Failed to update category for permission {}: {}", perm.getId(), e.getMessage());
-                }
-            }
-        }
-        return changed;
-    }
-
-    private List<String> deriveCategories(List<PermissionDto> permissions) {
-        return permissions.stream()
+    // category → subject → action → List<PermissionDto>
+    private Map<String, Map<String, Map<String, List<PermissionDto>>>> buildPermMatrix(List<PermissionDto> permissions) {
+        // Collect sorted distinct categories
+        List<String> categories = permissions.stream()
                 .map(PermissionDto::getCategory)
                 .filter(c -> c != null && !c.isBlank())
                 .distinct()
                 .sorted()
                 .collect(Collectors.toList());
+
+        Map<String, Map<String, Map<String, List<PermissionDto>>>> matrix = new LinkedHashMap<>();
+        for (String cat : categories) {
+            Map<String, Map<String, List<PermissionDto>>> catMap = new LinkedHashMap<>();
+            for (PermissionDto perm : permissions) {
+                if (!cat.equals(perm.getCategory())) continue;
+                String action = extractAction(perm.getName());
+                String subject = extractSubject(perm.getName());
+                catMap.computeIfAbsent(subject, k -> new LinkedHashMap<>())
+                      .computeIfAbsent(action, k -> new ArrayList<>())
+                      .add(perm);
+            }
+            if (!catMap.isEmpty()) matrix.put(cat, catMap);
+        }
+        // Catch uncategorised permissions so they are never silently hidden
+        List<PermissionDto> uncategorized = permissions.stream()
+                .filter(p -> p.getCategory() == null || p.getCategory().isBlank())
+                .collect(Collectors.toList());
+        if (!uncategorized.isEmpty()) {
+            Map<String, Map<String, List<PermissionDto>>> catMap = new LinkedHashMap<>();
+            for (PermissionDto perm : uncategorized) {
+                catMap.computeIfAbsent(extractSubject(perm.getName()), k -> new LinkedHashMap<>())
+                      .computeIfAbsent(extractAction(perm.getName()), k -> new ArrayList<>())
+                      .add(perm);
+            }
+            matrix.put("(uncategorized)", catMap);
+        }
+        return matrix;
+    }
+
+    private String extractAction(String name) {
+        if (name.endsWith("_VIEW"))   return "VIEW";
+        if (name.endsWith("_CREATE")) return "CREATE";
+        if (name.endsWith("_EDIT"))   return "EDIT";
+        if (name.endsWith("_DELETE")) return "DELETE";
+        return "OTHERS";
+    }
+
+    private String extractSubject(String name) {
+        for (String suffix : new String[]{"_VIEW", "_CREATE", "_EDIT", "_DELETE",
+                                          "_MANAGE", "_PUBLISH", "_FEATURED"}) {
+            if (name.endsWith(suffix)) return name.substring(0, name.length() - suffix.length());
+        }
+        return name;
     }
 
     private Map<String, Object> buildRoleRequestBody(HttpServletRequest request) {
