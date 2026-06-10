@@ -6,6 +6,7 @@ import com.jeimandei.imanuelbytes.gateway.dto.AnnouncementDto;
 import com.jeimandei.imanuelbytes.gateway.dto.CmsPageDto;
 import com.jeimandei.imanuelbytes.gateway.dto.NewsArticleDto;
 import com.jeimandei.imanuelbytes.gateway.dto.PageResponse;
+import com.jeimandei.imanuelbytes.gateway.dto.ServiceTimeDto;
 import com.jeimandei.imanuelbytes.gateway.dto.SiteSettingDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -331,6 +332,66 @@ public class CmsClientService {
 
     public void deleteNewsArticle(Long id, String jwt) {
         String url = serviceUrlConfig.cmsUrl("/api/news/" + id);
+        HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
+        restTemplate.exchange(url, HttpMethod.DELETE, entity, Void.class);
+    }
+
+    // -------------------------------------------------------------------------
+    // Service Times
+    // -------------------------------------------------------------------------
+
+    public List<ServiceTimeDto> getAllServiceTimes(String jwt) {
+        try {
+            String url = serviceUrlConfig.cmsUrl("/api/service-times");
+            HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
+            ResponseEntity<ApiResponse<List<ServiceTimeDto>>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity,
+                    new ParameterizedTypeReference<ApiResponse<List<ServiceTimeDto>>>() {});
+            ApiResponse<List<ServiceTimeDto>> body = response.getBody();
+            return (body != null && body.getData() != null) ? body.getData() : java.util.Collections.emptyList();
+        } catch (RestClientException e) {
+            log.error("Failed to fetch service times: {}", e.getMessage());
+            return java.util.Collections.emptyList();
+        }
+    }
+
+    public ServiceTimeDto getServiceTimeById(Long id, String jwt) {
+        try {
+            String url = serviceUrlConfig.cmsUrl("/api/service-times/" + id);
+            HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
+            ResponseEntity<ApiResponse<ServiceTimeDto>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity,
+                    new ParameterizedTypeReference<ApiResponse<ServiceTimeDto>>() {});
+            ApiResponse<ServiceTimeDto> body = response.getBody();
+            return body != null ? body.getData() : null;
+        } catch (RestClientException e) {
+            log.error("Failed to fetch service time {}: {}", id, e.getMessage());
+            return null;
+        }
+    }
+
+    public ServiceTimeDto createServiceTime(Map<String, Object> request, String jwt) {
+        String url = serviceUrlConfig.cmsUrl("/api/service-times");
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, createAuthHeaders(jwt));
+        ResponseEntity<ApiResponse<ServiceTimeDto>> response = restTemplate.exchange(
+                url, HttpMethod.POST, entity,
+                new ParameterizedTypeReference<ApiResponse<ServiceTimeDto>>() {});
+        ApiResponse<ServiceTimeDto> body = response.getBody();
+        return body != null ? body.getData() : null;
+    }
+
+    public ServiceTimeDto updateServiceTime(Long id, Map<String, Object> request, String jwt) {
+        String url = serviceUrlConfig.cmsUrl("/api/service-times/" + id);
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, createAuthHeaders(jwt));
+        ResponseEntity<ApiResponse<ServiceTimeDto>> response = restTemplate.exchange(
+                url, HttpMethod.PUT, entity,
+                new ParameterizedTypeReference<ApiResponse<ServiceTimeDto>>() {});
+        ApiResponse<ServiceTimeDto> body = response.getBody();
+        return body != null ? body.getData() : null;
+    }
+
+    public void deleteServiceTime(Long id, String jwt) {
+        String url = serviceUrlConfig.cmsUrl("/api/service-times/" + id);
         HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
         restTemplate.exchange(url, HttpMethod.DELETE, entity, Void.class);
     }

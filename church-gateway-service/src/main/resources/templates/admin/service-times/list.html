@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
-<head th:replace="~{fragments/head :: head('Announcements - Admin')}"></head>
+<head th:replace="~{fragments/head :: head('Service Times - Admin')}"></head>
 <body>
 <div class="d-flex">
 
@@ -18,8 +18,8 @@
             <li class="nav-item"><a class="nav-link" th:href="@{/admin/events}"><i class="fas fa-calendar-alt"></i>Events</a></li>
             <li class="nav-item"><a class="nav-link" th:href="@{/admin/sermons}"><i class="fas fa-microphone"></i>Sermons</a></li>
             <li class="nav-item"><a class="nav-link" th:href="@{/admin/livestreams}"><i class="fas fa-broadcast-tower"></i>Livestreams</a></li>
-            <li class="nav-item"><a class="nav-link active" th:href="@{/admin/announcements}"><i class="fas fa-bullhorn"></i>Announcements</a></li>
-            <li class="nav-item"><a class="nav-link" th:href="@{/admin/service-times}"><i class="fas fa-clock"></i>Service Times</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/admin/announcements}"><i class="fas fa-bullhorn"></i>Announcements</a></li>
+            <li class="nav-item"><a class="nav-link active" th:href="@{/admin/service-times}"><i class="fas fa-clock"></i>Service Times</a></li>
             <li class="nav-item"><a class="nav-link" th:href="@{/admin/news}"><i class="fas fa-newspaper"></i>News</a></li>
             <li class="nav-item"><a class="nav-link" th:href="@{/admin/gallery}"><i class="fas fa-images"></i>Gallery</a></li>
             <li class="nav-item"><a class="nav-link" th:href="@{/admin/prayer-requests}"><i class="fas fa-hands"></i>Prayer Requests</a></li>
@@ -32,7 +32,7 @@
     <div class="admin-content flex-grow-1">
         <div class="admin-topbar">
             <h5 class="mb-0 fw-bold" style="color:var(--primary);">
-                <i class="fas fa-bullhorn me-2" style="color:var(--accent);"></i>Announcements
+                <i class="fas fa-clock me-2" style="color:var(--accent);"></i>Service Times
             </h5>
             <div class="d-flex align-items-center gap-3">
                 <span class="text-muted small"><i class="fas fa-user me-1"></i><span sec:authentication="name">Admin</span></span>
@@ -46,60 +46,59 @@
         <div th:replace="~{fragments/alerts :: alerts}"></div>
 
         <div class="p-4">
-            <div class="d-flex justify-content-end mb-4">
-                <a th:href="@{/admin/announcements/create}" class="btn btn-primary">
-                    <i class="fas fa-plus me-2"></i>New Announcement
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h6 class="mb-0 text-muted">
+                    <span th:text="${serviceTimes != null ? serviceTimes.size() : 0}">0</span> service times defined
+                </h6>
+                <a th:href="@{/admin/service-times/new}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>New Service Time
                 </a>
             </div>
 
             <div class="card">
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover mb-0">
+                        <table class="table table-hover mb-0 align-middle">
                             <thead class="table-light">
                                 <tr>
-                                    <th class="px-4">Title</th>
-                                    <th>Start Date</th>
-                                    <th>End Date</th>
-                                    <th>Priority</th>
+                                    <th class="px-4">Name</th>
+                                    <th>Day</th>
+                                    <th>Start</th>
+                                    <th>End</th>
+                                    <th>Location</th>
+                                    <th>Order</th>
                                     <th>Active</th>
                                     <th class="text-end px-4">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr th:each="ann : ${announcements.content}">
-                                    <td class="px-4 fw-medium" th:text="${ann.title}">Announcement Title</td>
-                                    <td class="small text-muted"
-                                        th:text="${ann.startDate != null ? #temporals.format(ann.startDate, 'dd MMM yyyy') : '-'}">
-                                        01 Jan 2025
+                                <tr th:each="st : ${serviceTimes}">
+                                    <td class="px-4 fw-medium" th:text="${st.name}">Sunday Service</td>
+                                    <td>
+                                        <span class="badge bg-primary"
+                                              th:text="${#strings.capitalize(#strings.toLowerCase(st.dayOfWeek))}">Sunday</span>
                                     </td>
+                                    <td class="small"
+                                        th:text="${st.startTime != null ? #temporals.format(st.startTime, 'HH:mm') : '-'}">09:00</td>
                                     <td class="small text-muted"
-                                        th:text="${ann.endDate != null ? #temporals.format(ann.endDate, 'dd MMM yyyy') : '-'}">
-                                        31 Jan 2025
-                                    </td>
+                                        th:text="${st.endTime != null ? #temporals.format(st.endTime, 'HH:mm') : '-'}">11:00</td>
+                                    <td class="small text-muted" th:text="${st.location ?: '-'}">Main Sanctuary</td>
+                                    <td class="text-center small" th:text="${st.sortOrder}">0</td>
                                     <td>
                                         <span class="badge"
-                                              th:text="${ann.priority}"
-                                              th:classappend="${ann.priority <= 3 ? 'bg-danger' :
-                                                              (ann.priority <= 6 ? 'bg-warning text-dark' : 'bg-secondary')}">
-                                            1
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span class="badge"
-                                              th:text="${ann.active ? 'Active' : 'Inactive'}"
-                                              th:classappend="${ann.active ? 'bg-success' : 'bg-secondary'}">
-                                            Active
-                                        </span>
+                                              th:text="${st.active ? 'Active' : 'Inactive'}"
+                                              th:classappend="${st.active ? 'bg-success' : 'bg-secondary'}">Active</span>
                                     </td>
                                     <td class="text-end px-4">
                                         <div class="d-flex gap-1 justify-content-end">
-                                            <a th:href="@{/admin/announcements/{id}/edit(id=${ann.id})}"
+                                            <a th:href="@{/admin/service-times/{id}/edit(id=${st.id})}"
                                                class="btn btn-sm btn-outline-primary">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <form th:action="@{/admin/announcements/{id}/delete(id=${ann.id})}" method="post" class="d-inline"
-                                                  onsubmit="return confirm('Delete this announcement?')">
+                                            <form th:action="@{/admin/service-times/{id}/delete(id=${st.id})}"
+                                                  method="post" class="d-inline"
+                                                  th:attr="data-name=${st.name}"
+                                                  onsubmit="return confirm('Delete service time: ' + this.dataset.name + '?')">
                                                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                                                 <button type="submit" class="btn btn-sm btn-outline-danger">
                                                     <i class="fas fa-trash"></i>
@@ -108,10 +107,10 @@
                                         </div>
                                     </td>
                                 </tr>
-                                <tr th:if="${announcements == null or #lists.isEmpty(announcements.content)}">
-                                    <td colspan="6" class="text-center text-muted py-4">
-                                        <i class="fas fa-bullhorn fa-2x mb-2 opacity-50 d-block"></i>
-                                        No announcements yet.
+                                <tr th:if="${serviceTimes == null or #lists.isEmpty(serviceTimes)}">
+                                    <td colspan="8" class="text-center text-muted py-4">
+                                        <i class="fas fa-clock fa-2x mb-2 opacity-50 d-block"></i>
+                                        No service times defined yet.
                                     </td>
                                 </tr>
                             </tbody>
