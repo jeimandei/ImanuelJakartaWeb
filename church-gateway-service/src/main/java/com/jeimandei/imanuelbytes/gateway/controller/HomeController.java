@@ -61,7 +61,12 @@ public class HomeController {
     }
 
     @GetMapping("/services")
-    public String services() {
+    public String services(Model model) {
+        try {
+            model.addAttribute("serviceTimes", cmsClientService.getActiveServiceTimes());
+        } catch (Exception e) {
+            log.error("Failed to load service times for services page: {}", e.getMessage());
+        }
         return "public/services";
     }
 
