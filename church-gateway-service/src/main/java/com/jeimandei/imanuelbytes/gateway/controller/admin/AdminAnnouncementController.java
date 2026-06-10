@@ -54,7 +54,7 @@ public class AdminAnnouncementController {
                                      RedirectAttributes redirectAttributes) {
         String jwt = SecurityUtils.getJwt();
         try {
-            Map<String, Object> request = new HashMap<>(params);
+            Map<String, Object> request = buildAnnouncementBody(params);
             cmsClientService.createAnnouncement(request, jwt);
             log.info("Announcement created successfully");
             redirectAttributes.addFlashAttribute("successMessage", "Announcement created successfully.");
@@ -89,7 +89,7 @@ public class AdminAnnouncementController {
                                      RedirectAttributes redirectAttributes) {
         String jwt = SecurityUtils.getJwt();
         try {
-            Map<String, Object> request = new HashMap<>(params);
+            Map<String, Object> request = buildAnnouncementBody(params);
             cmsClientService.updateAnnouncement(id, request, jwt);
             log.info("Announcement {} updated successfully", id);
             redirectAttributes.addFlashAttribute("successMessage", "Announcement updated successfully.");
@@ -98,6 +98,21 @@ public class AdminAnnouncementController {
             redirectAttributes.addFlashAttribute("errorMessage", "Failed to update announcement.");
         }
         return "redirect:/admin/announcements";
+    }
+
+    private Map<String, Object> buildAnnouncementBody(Map<String, String> params) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("title", params.get("title"));
+        body.put("message", params.get("message"));
+        String startDate = params.get("startDate");
+        if (startDate != null && !startDate.isBlank()) body.put("startDate", startDate);
+        String endDate = params.get("endDate");
+        if (endDate != null && !endDate.isBlank()) body.put("endDate", endDate);
+        String priority = params.get("priority");
+        if (priority != null && !priority.isBlank()) body.put("priority", Integer.parseInt(priority));
+        // Thymeleaf adds a hidden field so active is always present: "true" when checked, "false" when not
+        body.put("active", "true".equalsIgnoreCase(params.get("active")));
+        return body;
     }
 
     @PostMapping("/{id}/delete")

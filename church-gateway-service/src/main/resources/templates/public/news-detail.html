@@ -17,10 +17,6 @@
         </div>
         <h1 class="display-5 fw-bold mb-3" th:text="${article.title}">Article Title</h1>
         <div class="d-flex gap-4 justify-content-center" style="opacity:0.85;">
-            <span th:if="${article.author != null and !article.author.empty}">
-                <i class="fas fa-user me-2"></i>
-                <span th:text="${article.author}">Author Name</span>
-            </span>
             <span th:if="${article.publishedAt != null}">
                 <i class="fas fa-calendar me-2"></i>
                 <span th:text="${#temporals.format(article.publishedAt, 'dd MMMM yyyy')}">01 January 2025</span>

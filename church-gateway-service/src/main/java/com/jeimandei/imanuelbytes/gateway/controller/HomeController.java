@@ -52,6 +52,11 @@ public class HomeController {
         } catch (Exception e) {
             log.error("Failed to load active livestream for home: {}", e.getMessage());
         }
+        try {
+            model.addAttribute("serviceTimes", cmsClientService.getActiveServiceTimes());
+        } catch (Exception e) {
+            log.error("Failed to load service times for home: {}", e.getMessage());
+        }
         return "public/home";
     }
 
@@ -61,7 +66,12 @@ public class HomeController {
     }
 
     @GetMapping("/services")
-    public String services() {
+    public String services(Model model) {
+        try {
+            model.addAttribute("serviceTimes", cmsClientService.getActiveServiceTimes());
+        } catch (Exception e) {
+            log.error("Failed to load service times for services page: {}", e.getMessage());
+        }
         return "public/services";
     }
 

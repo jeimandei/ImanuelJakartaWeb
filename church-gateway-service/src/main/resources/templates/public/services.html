@@ -25,102 +25,37 @@
         </div>
 
         <div class="row g-4">
-            <!-- Sunday First Service -->
-            <div class="col-md-6 col-lg-4">
+            <!-- Dynamic service times from database -->
+            <div class="col-md-6 col-lg-4" th:each="st : ${serviceTimes}">
                 <div class="card h-100 p-4 text-center">
                     <div class="ministry-icon mx-auto mb-3" style="background:var(--primary);">
-                        <i class="fas fa-sun"></i>
+                        <i class="fas fa-church"></i>
                     </div>
-                    <h5 class="fw-bold mb-1" style="color:var(--primary);">Sunday First Service</h5>
-                    <p class="text-muted small mb-2">Indonesian Language</p>
+                    <h5 class="fw-bold mb-1" style="color:var(--primary);" th:text="${st.name}">Service</h5>
+                    <p class="text-muted small mb-2" th:text="${st.description}"></p>
                     <div class="service-time-card mt-2" style="background:var(--light-bg);">
-                        <div class="service-type">Sunday</div>
-                        <div class="service-time">08:00 WIB</div>
+                        <div class="service-type"
+                             th:text="${#strings.capitalize(#strings.toLowerCase(st.dayOfWeek))}">Sunday</div>
+                        <div class="service-time"
+                             th:text="${#temporals.format(st.startTime, 'HH:mm')}
+                                      + (${st.endTime != null} ? ' – ' + ${#temporals.format(st.endTime, 'HH:mm')} : '')
+                                      + ' WIB'">09:00 WIB</div>
                     </div>
-                    <p class="text-muted small mt-3 mb-0">
+                    <p class="text-muted small mt-3 mb-0" th:if="${st.location != null and !st.location.isEmpty()}">
                         <i class="fas fa-map-marker-alt me-1" style="color:var(--accent);"></i>
-                        Main Sanctuary
+                        <span th:text="${st.location}">Main Sanctuary</span>
                     </p>
                 </div>
             </div>
 
-            <!-- Sunday Second Service -->
-            <div class="col-md-6 col-lg-4">
-                <div class="card h-100 p-4 text-center">
-                    <div class="ministry-icon mx-auto mb-3" style="background:var(--primary-light);">
-                        <i class="fas fa-globe"></i>
-                    </div>
-                    <h5 class="fw-bold mb-1" style="color:var(--primary);">Sunday Second Service</h5>
-                    <p class="text-muted small mb-2">English / Bilingual</p>
-                    <div class="service-time-card mt-2" style="background:var(--light-bg);">
-                        <div class="service-type">Sunday</div>
-                        <div class="service-time">10:30 WIB</div>
-                    </div>
-                    <p class="text-muted small mt-3 mb-0">
-                        <i class="fas fa-map-marker-alt me-1" style="color:var(--accent);"></i>
-                        Main Sanctuary
-                    </p>
-                </div>
+            <!-- Empty state when no service times in database -->
+            <div class="col-12 text-center text-muted py-4"
+                 th:if="${serviceTimes == null or serviceTimes.isEmpty()}">
+                <i class="fas fa-clock fa-3x mb-3 opacity-50"></i>
+                <p>Service schedule coming soon.</p>
             </div>
 
-            <!-- Wednesday Bible Study -->
-            <div class="col-md-6 col-lg-4">
-                <div class="card h-100 p-4 text-center">
-                    <div class="ministry-icon mx-auto mb-3" style="background:var(--accent);">
-                        <i class="fas fa-book-open" style="color:var(--primary-dark);"></i>
-                    </div>
-                    <h5 class="fw-bold mb-1" style="color:var(--primary);">Bible Study &amp; Prayer</h5>
-                    <p class="text-muted small mb-2">Mid-week discipleship gathering</p>
-                    <div class="service-time-card mt-2" style="background:var(--light-bg);">
-                        <div class="service-type">Wednesday</div>
-                        <div class="service-time">19:00 WIB</div>
-                    </div>
-                    <p class="text-muted small mt-3 mb-0">
-                        <i class="fas fa-map-marker-alt me-1" style="color:var(--accent);"></i>
-                        Fellowship Hall
-                    </p>
-                </div>
-            </div>
-
-            <!-- Thursday Youth Service -->
-            <div class="col-md-6 col-lg-4">
-                <div class="card h-100 p-4 text-center">
-                    <div class="ministry-icon mx-auto mb-3" style="background:#28a745;">
-                        <i class="fas fa-fire"></i>
-                    </div>
-                    <h5 class="fw-bold mb-1" style="color:var(--primary);">Youth Service</h5>
-                    <p class="text-muted small mb-2">For teens and young adults</p>
-                    <div class="service-time-card mt-2" style="background:var(--light-bg);">
-                        <div class="service-type">Thursday</div>
-                        <div class="service-time">19:00 WIB</div>
-                    </div>
-                    <p class="text-muted small mt-3 mb-0">
-                        <i class="fas fa-map-marker-alt me-1" style="color:var(--accent);"></i>
-                        Youth Room
-                    </p>
-                </div>
-            </div>
-
-            <!-- Friday Cell Group -->
-            <div class="col-md-6 col-lg-4">
-                <div class="card h-100 p-4 text-center">
-                    <div class="ministry-icon mx-auto mb-3" style="background:#6f42c1;">
-                        <i class="fas fa-home"></i>
-                    </div>
-                    <h5 class="fw-bold mb-1" style="color:var(--primary);">Cell Group</h5>
-                    <p class="text-muted small mb-2">Small group gatherings in homes</p>
-                    <div class="service-time-card mt-2" style="background:var(--light-bg);">
-                        <div class="service-type">Friday</div>
-                        <div class="service-time">19:00 WIB</div>
-                    </div>
-                    <p class="text-muted small mt-3 mb-0">
-                        <i class="fas fa-map-marker-alt me-1" style="color:var(--accent);"></i>
-                        Various Locations
-                    </p>
-                </div>
-            </div>
-
-            <!-- Online Streaming -->
+            <!-- Online Streaming (always shown) -->
             <div class="col-md-6 col-lg-4">
                 <div class="card h-100 p-4 text-center">
                     <div class="ministry-icon mx-auto mb-3" style="background:#dc3545;">

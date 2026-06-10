@@ -164,6 +164,14 @@ POST   /api/users                           Create user (ADMIN)
 PUT    /api/users/{id}                      Update user
 PUT    /api/users/{id}/status               Change status (ACTIVE / INACTIVE / LOCKED) (ADMIN)
 PUT    /api/users/{id}/roles                Assign roles (ADMIN)
+
+GET    /api/roles                           List all roles with permissions (authenticated)
+GET    /api/roles/{id}                      Get role by ID
+POST   /api/roles                           Create role (ADMIN)
+PUT    /api/roles/{id}                      Update role description and permissions (ADMIN)
+DELETE /api/roles/{id}                      Delete role (ADMIN)
+
+GET    /api/permissions                     List all 28 permissions (ADMIN)
 PUT    /api/users/{id}/password             Change password (requires current password)
 POST   /api/users/{id}/reset-password       Admin resets password — emails temp password (ADMIN)
 POST   /api/users/{id}/request-password-otp Send 6-digit OTP to user's email (authenticated)
@@ -311,26 +319,41 @@ All admin routes require `ROLE_ADMIN` or `ROLE_SUPER_ADMIN`. Content routes also
 | `/admin/audit-logs` | Audit log viewer — filter by actor, action, entity, service, date range |
 | `/admin/settings` | Site settings key-value editor |
 | `/admin/cms` | CMS page management (publish/unpublish) |
+| `/admin/roles` | Role list — permissions grouped by category |
+| `/admin/roles/new` | Create role with permission checkboxes |
+| `/admin/roles/{id}/edit` | Edit role description and permissions |
 
 ## User Roles
 
 | Role | Access |
 |---|---|
-| `ROLE_SUPER_ADMIN` | Full system access |
-| `ROLE_ADMIN` | Manage all content, users, settings |
-| `ROLE_EDITOR` | Manage CMS pages, events, sermons, news, announcements |
-| `ROLE_MEMBER` | Authenticated member — profile, prayer requests |
-| `ROLE_GUEST` | Public visitor — read-only public pages |
+| `ROLE_SUPER_ADMIN` | Full system access — all 28 permissions |
+| `ROLE_ADMIN` | All permissions — manage content, users, roles, settings |
+| `ROLE_EDITOR` | CMS CRUD, event create/edit, media view |
+| `ROLE_PASTOR` | Prayer requests, testimonies, contact messages, volunteer view |
+| `ROLE_MEDIA_MANAGER` | All media (sermons, livestreams, gallery), event view |
+| `ROLE_EVENT_MANAGER` | All events, media view |
+| `ROLE_MEMBER` | Authenticated member — profile, prayer requests (default role) |
+
+Roles are fully manageable via `/admin/roles`. Each role has a set of granular permissions drawn from 8 categories: **USERS**, **CONTENT**, **EVENTS**, **MEDIA**, **PASTORAL**, **COMMUNITY**, **SETTINGS**, **AUDIT**.
 
 ## Database
 
-See `database/V1__initial_schema.sql` for the main PostgreSQL schema:
+### V1 — `database/V1__initial_schema.sql`
 
 - **17 tables**: users, roles, user_roles, cms_pages, cms_content_blocks, events, sermons, livestreams, announcements, news_articles, gallery_items, prayer_requests, contact_messages, site_settings, newsletter_subscriptions, testimony_submissions, volunteer_applications
 - **1 additional table** (`audit_logs`) created by `church-audit-service` via its own Flyway migration (`flyway_schema_history_audit` history table to avoid conflicts)
-- Indexes on all commonly-queried columns
-- CHECK constraints for all status enums
-- Seed data: default roles, admin user (`admin` / `Admin@1234`), and sample site settings
+- Indexes on all commonly-queried columns, CHECK constraints for all status enums
+- Seed data: default roles (MEMBER, EDITOR, ADMIN, SUPER_ADMIN), admin user (`admin` / `Admin@1234`), sample site settings
+
+### V2 — `database/V2__add_permissions.sql`
+
+- **2 new tables**: `permissions` (id, name UNIQUE, description, category), `role_permissions` (role_id, permission_id — composite PK)
+- **3 new roles**: `ROLE_PASTOR`, `ROLE_MEDIA_MANAGER`, `ROLE_EVENT_MANAGER`
+- **28 permissions** seeded across 8 categories with role assignments
+- **Backfill**: assigns `ROLE_MEMBER` to any existing user with no roles
+
+For fresh deployments, both SQL files are bind-mounted into postgres and run automatically. For live databases, use the `run-migrations` workflow action.
 
 ## Package Structure
 
@@ -412,6 +435,7 @@ The platform ships with a `Containerfile` (single multi-stage build) and `compos
 | `restart-all` | Restart every container |
 | `deploy-config` | Rsync `config-repo/` to server + trigger config refresh |
 | `deploy-env` | Push `.env` content from `ENV_FILE` secret to server |
+| `run-migrations` | Run pending SQL migration scripts on the live database via `podman exec` |
 
 ### First-Time Server Setup
 

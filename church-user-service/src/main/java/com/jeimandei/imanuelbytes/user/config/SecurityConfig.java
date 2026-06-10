@@ -79,6 +79,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Healthcheck (unauthenticated — used by container orchestration)
                         .requestMatchers("/actuator/health").permitAll()
+                        // Public forgot/reset password (no JWT required)
+                        .requestMatchers(HttpMethod.POST, "/api/users/forgot-password").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/users/reset-password-otp").permitAll()
                         // Allow all GET read endpoints for any authenticated user
                         .requestMatchers(HttpMethod.GET, "/api/users/**").authenticated()
                         // OTP endpoints open to any authenticated user (own account flow)
@@ -98,6 +101,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/roles/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/roles/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/roles/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/permissions/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/permissions/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/permissions/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         // Deny everything else by default
                         .anyRequest().authenticated()
                 )

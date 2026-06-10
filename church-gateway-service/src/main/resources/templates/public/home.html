@@ -169,33 +169,18 @@
             <p style="color:rgba(255,255,255,0.8);">We'd love to see you this weekend</p>
         </div>
         <div class="row g-4 justify-content-center">
-            <div class="col-md-3">
+            <div class="col-md-3" th:each="st : ${serviceTimes}">
                 <div class="service-time-card">
-                    <div class="service-type">Sunday Morning</div>
-                    <div class="service-time">08:00 WIB</div>
-                    <div class="text-muted small mt-1">Indonesian Service</div>
+                    <div class="service-type"
+                         th:text="${#strings.capitalize(#strings.toLowerCase(st.dayOfWeek))}">Sunday</div>
+                    <div class="service-time"
+                         th:text="${#temporals.format(st.startTime, 'HH:mm')} + ' WIB'">09:00 WIB</div>
+                    <div class="text-muted small mt-1" th:text="${st.name}">Service</div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="service-time-card">
-                    <div class="service-type">Sunday Morning</div>
-                    <div class="service-time">10:30 WIB</div>
-                    <div class="text-muted small mt-1">English Service</div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="service-time-card">
-                    <div class="service-type">Wednesday</div>
-                    <div class="service-time">19:00 WIB</div>
-                    <div class="text-muted small mt-1">Bible Study</div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="service-time-card">
-                    <div class="service-type">Thursday</div>
-                    <div class="service-time">19:00 WIB</div>
-                    <div class="text-muted small mt-1">Youth Service</div>
-                </div>
+            <div class="col-12 text-center" style="color:rgba(255,255,255,0.7);"
+                 th:if="${serviceTimes == null or serviceTimes.isEmpty()}">
+                <p class="mb-0">Service schedule coming soon.</p>
             </div>
         </div>
         <div class="text-center mt-4">

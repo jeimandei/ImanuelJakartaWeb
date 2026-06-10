@@ -61,6 +61,9 @@ services:
       - postgres-data:/var/lib/postgresql/data
       - ./database/V1__initial_schema.sql:/docker-entrypoint-initdb.d/V1__initial_schema.sql:ro
       - ./database/V2__add_permissions.sql:/docker-entrypoint-initdb.d/V2__add_permissions.sql:ro
+      - ./database/V3__extended_permissions.sql:/docker-entrypoint-initdb.d/V3__extended_permissions.sql:ro
+      - ./database/V4__permission_categories.sql:/docker-entrypoint-initdb.d/V4__permission_categories.sql:ro
+      - ./database/V5__service_times.sql:/docker-entrypoint-initdb.d/V5__service_times.sql:ro
     logging: *default-logging
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d imanuelweb_db"]

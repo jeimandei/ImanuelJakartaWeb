@@ -7,6 +7,7 @@ import com.jeimandei.imanuelbytes.user.dto.AssignRolesRequest;
 import com.jeimandei.imanuelbytes.user.dto.ChangePasswordOtpRequest;
 import com.jeimandei.imanuelbytes.user.dto.ChangePasswordRequest;
 import com.jeimandei.imanuelbytes.user.dto.CreateUserRequest;
+import com.jeimandei.imanuelbytes.user.dto.ResetPasswordPublicRequest;
 import com.jeimandei.imanuelbytes.user.dto.UpdateUserRequest;
 import com.jeimandei.imanuelbytes.user.dto.UpdateUserStatusRequest;
 import com.jeimandei.imanuelbytes.user.dto.UserDto;
@@ -385,6 +386,78 @@ public class UserServiceImpl implements UserService {
                     String.valueOf(user.getId()), user.getUsername());
         } catch (Exception e) {
             log.warn("Audit log failed for CHANGE_PASSWORD_OTP user {}: {}", id, e.getMessage());
+        }
+    }
+
+    @Override
+    public void forgotPassword(String identifier) {
+        log.debug("Forgot password requested for identifier='{}'", identifier);
+        User user = userRepository.findByEmail(identifier)
+                .or(() -> userRepository.findByUsername(identifier))
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        String otp = String.format("%06d", RANDOM.nextInt(1_000_000));
+        otpStore.put(user.getId(), new OtpEntry(otp, Instant.now().plusSeconds(OTP_EXPIRY_SECONDS)));
+        log.info("Forgot-password OTP generated for user id={}", user.getId());
+
+        try {
+            SimpleMailMessage mail = new SimpleMailMessage();
+            mail.setTo(user.getEmail());
+            mail.setSubject("Password Reset OTP - GMIM Imanuel Jakarta");
+            mail.setText(
+                "Dear " + (user.getFullName() != null ? user.getFullName() : user.getUsername()) + ",\n\n" +
+                "Your OTP code to reset your password is:\n\n" +
+                "  " + otp + "\n\n" +
+                "This code expires in 5 minutes.\n\n" +
+                "If you did not request this, please ignore this email.\n\n" +
+                "GMIM Imanuel Jakarta"
+            );
+            mailSender.send(mail);
+            log.info("Forgot-password OTP email sent to {} for user id={}", user.getEmail(), user.getId());
+        } catch (Exception e) {
+            otpStore.remove(user.getId());
+            log.error("Failed to send forgot-password OTP email to {}: {}", user.getEmail(), e.getMessage());
+            throw new RuntimeException("Failed to send OTP email: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void resetPasswordWithOtp(ResetPasswordPublicRequest request) {
+        log.debug("Reset-password-with-OTP for identifier='{}'", request.getIdentifier());
+        User user = userRepository.findByEmail(request.getIdentifier())
+                .or(() -> userRepository.findByUsername(request.getIdentifier()))
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new ValidationException(
+                    "Passwords do not match",
+                    Map.of("confirmPassword", "New password and confirmation do not match"));
+        }
+
+        OtpEntry entry = otpStore.get(user.getId());
+        if (entry == null || entry.isExpired()) {
+            otpStore.remove(user.getId());
+            throw new ValidationException(
+                    "OTP expired or not requested",
+                    Map.of("otp", "OTP code has expired or was not requested. Please request a new one."));
+        }
+        if (!entry.code().equals(request.getOtp().trim())) {
+            throw new ValidationException(
+                    "Invalid OTP",
+                    Map.of("otp", "The OTP code you entered is incorrect."));
+        }
+
+        otpStore.remove(user.getId());
+        user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
+        user.touchUpdatedAt();
+        userRepository.save(user);
+        log.info("Password reset via OTP for user id={}", user.getId());
+
+        try {
+            auditClient.log("anonymous", "GUEST", "FORGOT_PASSWORD_RESET", "User",
+                    String.valueOf(user.getId()), user.getUsername());
+        } catch (Exception e) {
+            log.warn("Audit log failed for FORGOT_PASSWORD_RESET user {}: {}", user.getId(), e.getMessage());
         }
     }
 

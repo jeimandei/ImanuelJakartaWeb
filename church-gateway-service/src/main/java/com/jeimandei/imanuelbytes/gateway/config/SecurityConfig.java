@@ -41,6 +41,7 @@ public class SecurityConfig {
                     "/events", "/events/**", "/livestream", "/ministries",
                     "/contact", "/prayer-request", "/giving", "/news", "/news/**",
                     "/gallery", "/gallery/**", "/login", "/register",
+                    "/forgot-password", "/forgot-password/reset",
                     "/new-here", "/faq", "/leadership",
                     "/css/**", "/js/**", "/images/**", "/favicon.ico",
                     "/newsletter/subscribe", "/newsletter/confirm-unsubscribe",

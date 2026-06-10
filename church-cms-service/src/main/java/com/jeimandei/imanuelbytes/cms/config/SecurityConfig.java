@@ -34,6 +34,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/cms/pages/slug/*/published").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/cms/pages/published").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/announcements/active").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/service-times/active").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/news").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/news/{id}", "/api/news/slug/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/settings/{key}").permitAll()
