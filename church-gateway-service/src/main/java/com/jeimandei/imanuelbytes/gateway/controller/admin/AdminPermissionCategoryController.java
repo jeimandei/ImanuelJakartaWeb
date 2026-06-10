@@ -13,10 +13,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin/permission-categories")
@@ -76,16 +78,19 @@ public class AdminPermissionCategoryController {
             log.error("Failed to load category {}: {}", id, e.getMessage());
         }
         List<PermissionDto> allPermissions = Collections.emptyList();
-        List<PermissionCategoryDto> allCategories = Collections.emptyList();
         try {
             allPermissions = roleClientService.getAllPermissions(jwt);
-            allCategories = roleClientService.getAllCategories(jwt);
         } catch (Exception e) {
-            log.error("Failed to load permissions/categories: {}", e.getMessage());
+            log.error("Failed to load permissions: {}", e.getMessage());
         }
+        final String catName = cat != null ? cat.getName() : "";
+        List<PermissionDto> inCategory = allPermissions.stream()
+                .filter(p -> catName.equals(p.getCategory())).collect(Collectors.toList());
+        List<PermissionDto> otherPermissions = allPermissions.stream()
+                .filter(p -> !catName.equals(p.getCategory())).collect(Collectors.toList());
         model.addAttribute("category", cat != null ? cat : new PermissionCategoryDto());
-        model.addAttribute("allPermissions", allPermissions);
-        model.addAttribute("allCategories", allCategories);
+        model.addAttribute("inCategory", inCategory);
+        model.addAttribute("otherPermissions", otherPermissions);
         model.addAttribute("isNew", false);
         return "admin/permission-categories/form";
     }
@@ -97,22 +102,24 @@ public class AdminPermissionCategoryController {
         String jwt = SecurityUtils.getJwt();
         try {
             Map<String, Object> nameBody = new HashMap<>();
-            String name = request.getParameter("name");
-            if (name != null && !name.isBlank()) nameBody.put("name", name.toUpperCase().trim());
-            roleClientService.updateCategory(id, nameBody, jwt);
+            String newName = request.getParameter("name");
+            if (newName != null && !newName.isBlank()) nameBody.put("name", newName.toUpperCase().trim());
+            PermissionCategoryDto updated = roleClientService.updateCategory(id, nameBody, jwt);
+            String categoryName = updated != null && updated.getName() != null
+                    ? updated.getName() : (newName != null ? newName.toUpperCase().trim() : "");
 
-            List<PermissionDto> allPerms = roleClientService.getAllPermissions(jwt);
+            String[] checked = request.getParameterValues("permissionIds");
             int moved = 0;
-            for (PermissionDto perm : allPerms) {
-                String newCategory = request.getParameter("perm_" + perm.getId());
-                if (newCategory != null && !newCategory.equals(perm.getCategory())) {
-                    roleClientService.updatePermission(perm.getId(),
-                            Map.of("category", newCategory.toUpperCase().trim()), jwt);
+            if (checked != null && checked.length > 0) {
+                List<Long> checkedIds = Arrays.stream(checked)
+                        .map(Long::parseLong).collect(Collectors.toList());
+                for (Long permId : checkedIds) {
+                    roleClientService.updatePermission(permId, Map.of("category", categoryName), jwt);
                     moved++;
                 }
             }
             String msg = "Category updated successfully.";
-            if (moved > 0) msg += " " + moved + " permission(s) reassigned.";
+            if (moved > 0) msg += " " + moved + " permission(s) assigned.";
             redirectAttributes.addFlashAttribute("successMessage", msg);
         } catch (Exception e) {
             log.error("Failed to update category {}: {}", id, e.getMessage());

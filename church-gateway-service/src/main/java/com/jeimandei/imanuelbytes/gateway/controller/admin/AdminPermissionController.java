@@ -17,9 +17,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin/permissions")
@@ -37,21 +39,24 @@ public class AdminPermissionController {
     @GetMapping({"", "/"})
     public String listPermissions(Model model) {
         String jwt = SecurityUtils.getJwt();
+        List<PermissionDto> permissions = Collections.emptyList();
         try {
-            model.addAttribute("permissions", roleClientService.getAllPermissions(jwt));
+            permissions = roleClientService.getAllPermissions(jwt);
         } catch (Exception e) {
             log.error("Failed to load permissions: {}", e.getMessage());
-            model.addAttribute("permissions", Collections.emptyList());
         }
-        model.addAttribute("categories", roleClientService.getAllCategories(jwt).stream().map(c -> c.getName()).toList());
+        model.addAttribute("permissions", permissions);
+        model.addAttribute("categories", resolveCategories(jwt, permissions));
         return "admin/permissions/list";
     }
 
     @GetMapping("/new")
     public String createForm(Model model) {
         String jwt = SecurityUtils.getJwt();
+        List<PermissionDto> permissions = Collections.emptyList();
+        try { permissions = roleClientService.getAllPermissions(jwt); } catch (Exception ignored) {}
         model.addAttribute("permission", new PermissionDto());
-        model.addAttribute("categories", roleClientService.getAllCategories(jwt).stream().map(c -> c.getName()).toList());
+        model.addAttribute("categories", resolveCategories(jwt, permissions));
         model.addAttribute("isNew", true);
         return "admin/permissions/form";
     }
@@ -79,8 +84,10 @@ public class AdminPermissionController {
         } catch (Exception e) {
             log.error("Failed to load permission {}: {}", id, e.getMessage());
         }
+        List<PermissionDto> permissions = Collections.emptyList();
+        try { permissions = roleClientService.getAllPermissions(jwt); } catch (Exception ignored) {}
         model.addAttribute("permission", permission != null ? permission : new PermissionDto());
-        model.addAttribute("categories", roleClientService.getAllCategories(jwt).stream().map(c -> c.getName()).toList());
+        model.addAttribute("categories", resolveCategories(jwt, permissions));
         model.addAttribute("isNew", false);
         return "admin/permissions/form";
     }
@@ -114,6 +121,21 @@ public class AdminPermissionController {
             redirectAttributes.addFlashAttribute("errorMessage", "Failed to delete permission: " + e.getMessage());
         }
         return "redirect:/admin/permissions";
+    }
+
+    private List<String> resolveCategories(String jwt, List<PermissionDto> permissions) {
+        try {
+            List<String> cats = roleClientService.getAllCategories(jwt).stream()
+                    .map(PermissionCategoryDto::getName)
+                    .collect(Collectors.toList());
+            if (!cats.isEmpty()) return cats;
+        } catch (Exception ignored) {}
+        return permissions.stream()
+                .map(PermissionDto::getCategory)
+                .filter(c -> c != null && !c.isBlank())
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
     }
 
     private Map<String, Object> buildBody(HttpServletRequest request) {
