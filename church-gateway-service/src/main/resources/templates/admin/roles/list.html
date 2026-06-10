@@ -71,7 +71,8 @@
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 <form th:action="@{/admin/roles/{id}/delete(id=${role.id})}" method="post" class="d-inline"
-                                      th:onsubmit="|return confirm('Delete role ${role.roleName}? Users with this role will lose it.')|">
+                                      th:attr="data-name=${role.roleName}"
+                                      onsubmit="return confirm('Delete role ' + this.dataset.name + '? Users with this role will lose it.')">
                                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                                     <button type="submit" class="btn btn-sm btn-outline-danger">
                                         <i class="fas fa-trash"></i>
@@ -85,7 +86,7 @@
                                 <!-- Group by category -->
                                 <div th:each="cat : ${ {'USERS','CONTENT','EVENTS','MEDIA','PASTORAL','COMMUNITY','SETTINGS','AUDIT'} }">
                                     <div th:with="catPerms=${role.permissions.?[category == cat]}"
-                                         th:if="${!catPerms.empty}" class="mb-2">
+                                         th:if="${catPerms != null and !catPerms.empty}" class="mb-2">
                                         <div class="text-uppercase fw-bold"
                                              style="font-size:0.65rem;color:var(--primary);letter-spacing:.05em;"
                                              th:text="${cat}">CAT</div>
