@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Controller
@@ -83,14 +84,15 @@ public class AdminPermissionCategoryController {
         } catch (Exception e) {
             log.error("Failed to load permissions: {}", e.getMessage());
         }
-        final String catName = cat != null ? cat.getName() : "";
-        List<PermissionDto> inCategory = allPermissions.stream()
-                .filter(p -> catName.equals(p.getCategory())).collect(Collectors.toList());
-        List<PermissionDto> otherPermissions = allPermissions.stream()
-                .filter(p -> !catName.equals(p.getCategory())).collect(Collectors.toList());
+        List<String> allCategories = allPermissions.stream()
+                .map(PermissionDto::getCategory)
+                .filter(c -> c != null && !c.isBlank())
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
         model.addAttribute("category", cat != null ? cat : new PermissionCategoryDto());
-        model.addAttribute("inCategory", inCategory);
-        model.addAttribute("otherPermissions", otherPermissions);
+        model.addAttribute("allPermissions", allPermissions);
+        model.addAttribute("allCategories", allCategories);
         model.addAttribute("isNew", false);
         return "admin/permission-categories/form";
     }
@@ -101,25 +103,54 @@ public class AdminPermissionCategoryController {
                          RedirectAttributes redirectAttributes) {
         String jwt = SecurityUtils.getJwt();
         try {
+            // Get old name before renaming so we can find previously-assigned permissions
+            String oldName = "";
+            try {
+                PermissionCategoryDto current = roleClientService.getCategoryById(id, jwt);
+                if (current != null && current.getName() != null) oldName = current.getName();
+            } catch (Exception ignored) {}
+
             Map<String, Object> nameBody = new HashMap<>();
             String newName = request.getParameter("name");
             if (newName != null && !newName.isBlank()) nameBody.put("name", newName.toUpperCase().trim());
             PermissionCategoryDto updated = roleClientService.updateCategory(id, nameBody, jwt);
             String categoryName = updated != null && updated.getName() != null
-                    ? updated.getName() : (newName != null ? newName.toUpperCase().trim() : "");
+                    ? updated.getName() : (newName != null ? newName.toUpperCase().trim() : oldName);
+
+            List<PermissionDto> allPermissions = Collections.emptyList();
+            try { allPermissions = roleClientService.getAllPermissions(jwt); } catch (Exception ignored) {}
+
+            final String oldNameFinal = oldName;
+            Set<Long> previousIds = allPermissions.stream()
+                    .filter(p -> oldNameFinal.equals(p.getCategory()))
+                    .map(PermissionDto::getId)
+                    .collect(Collectors.toSet());
 
             String[] checked = request.getParameterValues("permissionIds");
-            int moved = 0;
-            if (checked != null && checked.length > 0) {
-                List<Long> checkedIds = Arrays.stream(checked)
-                        .map(Long::parseLong).collect(Collectors.toList());
-                for (Long permId : checkedIds) {
-                    roleClientService.updatePermission(permId, Map.of("category", categoryName), jwt);
-                    moved++;
+            Set<Long> checkedIds = checked != null
+                    ? Arrays.stream(checked).map(Long::parseLong).collect(Collectors.toSet())
+                    : Collections.emptySet();
+
+            boolean nameChanged = !oldName.equals(categoryName);
+            int added = 0, removed = 0;
+
+            for (PermissionDto p : allPermissions) {
+                Long pid = p.getId();
+                boolean wasIn = previousIds.contains(pid);
+                boolean isChecked = checkedIds.contains(pid);
+
+                if (isChecked && (!wasIn || nameChanged)) {
+                    roleClientService.updatePermission(pid, Map.of("category", categoryName), jwt);
+                    if (!wasIn) added++;
+                } else if (!isChecked && wasIn) {
+                    roleClientService.updatePermission(pid, Map.of("category", ""), jwt);
+                    removed++;
                 }
             }
+
             String msg = "Category updated successfully.";
-            if (moved > 0) msg += " " + moved + " permission(s) assigned.";
+            if (added > 0) msg += " " + added + " permission(s) added.";
+            if (removed > 0) msg += " " + removed + " permission(s) removed.";
             redirectAttributes.addFlashAttribute("successMessage", msg);
         } catch (Exception e) {
             log.error("Failed to update category {}: {}", id, e.getMessage());
