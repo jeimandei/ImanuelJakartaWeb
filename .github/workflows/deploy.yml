@@ -108,16 +108,17 @@ jobs:
             ${{ env.SSH_USER }}@${{ env.SSH_HOST }}:${{ env.DEPLOY_DIR }}/config-repo/
           echo "✓ config-repo synced"
 
-      - name: "[deploy-config] Reload config server"
+      - name: "[deploy-config] Reload config server & restart API gateway"
         if: inputs.action == 'deploy-config'
         run: |
           ssh -p ${{ env.SSH_PORT }} ${{ env.SSH_USER }}@${{ env.SSH_HOST }} << 'EOF'
-            # Give the config server a moment if it just restarted
             sleep 2
-            # Trigger Spring Cloud config server environment refresh
             curl -sf -X POST http://localhost:8888/actuator/refresh \
               -H "Content-Type: application/json" || true
             echo "✓ config server refresh triggered"
+            cd ${{ env.DEPLOY_DIR }}
+            podman compose --env-file .env restart church-api-gateway
+            echo "✓ church-api-gateway restarted"
           EOF
 
       # ══════════════════════════════════════════════════════════════════════

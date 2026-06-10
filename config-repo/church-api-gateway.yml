@@ -18,7 +18,7 @@ spring:
         - id: cms-service
           uri: ${CMS_SERVICE_URI:http://localhost:8083}
           predicates:
-            - Path=/api/cms/**,/api/announcements/**,/api/news/**,/api/settings/**
+            - Path=/api/cms/**,/api/announcements/**,/api/news/**,/api/settings/**,/api/service-times/**
 
         - id: event-service
           uri: ${EVENT_SERVICE_URI:http://localhost:8084}
