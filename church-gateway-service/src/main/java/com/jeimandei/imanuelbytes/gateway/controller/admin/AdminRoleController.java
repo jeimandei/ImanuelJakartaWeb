@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -60,7 +61,9 @@ public class AdminRoleController {
             log.error("Failed to load permissions: {}", e.getMessage());
         }
         model.addAttribute("permissions", permissions);
+        model.addAttribute("permsByCategory", groupByCategory(permissions));
         model.addAttribute("categories", deriveCategories(permissions));
+        model.addAttribute("rolePermIds", Collections.emptySet());
         model.addAttribute("role", new RoleDto());
         model.addAttribute("isNew", true);
         return "admin/roles/form";
@@ -83,12 +86,17 @@ public class AdminRoleController {
     @GetMapping("/{id}/edit")
     public String editForm(@PathVariable Long id, Model model) {
         String jwt = SecurityUtils.getJwt();
+        RoleDto role = new RoleDto();
         try {
-            model.addAttribute("role", roleClientService.getRoleById(id, jwt));
+            role = roleClientService.getRoleById(id, jwt);
         } catch (Exception e) {
             log.error("Failed to load role {}: {}", id, e.getMessage());
-            model.addAttribute("role", new RoleDto());
         }
+        model.addAttribute("role", role);
+        Set<Long> rolePermIds = role != null && role.getPermissions() != null
+                ? role.getPermissions().stream().map(PermissionDto::getId).collect(Collectors.toSet())
+                : Collections.emptySet();
+        model.addAttribute("rolePermIds", rolePermIds);
         List<PermissionDto> permissions = Collections.emptyList();
         try {
             permissions = roleClientService.getAllPermissions(jwt);
@@ -96,6 +104,7 @@ public class AdminRoleController {
             log.error("Failed to load permissions: {}", e.getMessage());
         }
         model.addAttribute("permissions", permissions);
+        model.addAttribute("permsByCategory", groupByCategory(permissions));
         model.addAttribute("categories", deriveCategories(permissions));
         model.addAttribute("isNew", false);
         return "admin/roles/form";
@@ -133,6 +142,23 @@ public class AdminRoleController {
             redirectAttributes.addFlashAttribute("errorMessage", "Failed to delete role: " + e.getMessage());
         }
         return "redirect:/admin/roles";
+    }
+
+    private Map<String, List<PermissionDto>> groupByCategory(List<PermissionDto> permissions) {
+        List<String> cats = deriveCategories(permissions);
+        Map<String, List<PermissionDto>> grouped = new LinkedHashMap<>();
+        for (String cat : cats) {
+            List<PermissionDto> group = permissions.stream()
+                    .filter(p -> cat.equals(p.getCategory()))
+                    .collect(Collectors.toList());
+            if (!group.isEmpty()) grouped.put(cat, group);
+        }
+        // Catch permissions with null/blank category so they are never lost
+        List<PermissionDto> uncategorized = permissions.stream()
+                .filter(p -> p.getCategory() == null || p.getCategory().isBlank())
+                .collect(Collectors.toList());
+        if (!uncategorized.isEmpty()) grouped.put("(uncategorized)", uncategorized);
+        return grouped;
     }
 
     private int applyPermissionCategoryChanges(HttpServletRequest request, String jwt) {
