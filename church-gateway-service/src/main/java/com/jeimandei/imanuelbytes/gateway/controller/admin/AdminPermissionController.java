@@ -1,5 +1,6 @@
 package com.jeimandei.imanuelbytes.gateway.controller.admin;
 
+import com.jeimandei.imanuelbytes.gateway.dto.PermissionCategoryDto;
 import com.jeimandei.imanuelbytes.gateway.dto.PermissionDto;
 import com.jeimandei.imanuelbytes.gateway.service.RoleClientService;
 import com.jeimandei.imanuelbytes.gateway.util.SecurityUtils;
