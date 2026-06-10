@@ -28,9 +28,6 @@ public class AdminPermissionController {
 
     private static final Logger log = LoggerFactory.getLogger(AdminPermissionController.class);
 
-    private static final List<String> CATEGORIES =
-            List.of("USERS", "CONTENT", "EVENTS", "MEDIA", "PASTORAL", "COMMUNITY", "SETTINGS", "AUDIT");
-
     private final RoleClientService roleClientService;
 
     public AdminPermissionController(RoleClientService roleClientService) {
@@ -46,14 +43,15 @@ public class AdminPermissionController {
             log.error("Failed to load permissions: {}", e.getMessage());
             model.addAttribute("permissions", Collections.emptyList());
         }
-        model.addAttribute("categories", CATEGORIES);
+        model.addAttribute("categories", roleClientService.getAllCategories(jwt).stream().map(c -> c.getName()).toList());
         return "admin/permissions/list";
     }
 
     @GetMapping("/new")
     public String createForm(Model model) {
+        String jwt = SecurityUtils.getJwt();
         model.addAttribute("permission", new PermissionDto());
-        model.addAttribute("categories", CATEGORIES);
+        model.addAttribute("categories", roleClientService.getAllCategories(jwt).stream().map(c -> c.getName()).toList());
         model.addAttribute("isNew", true);
         return "admin/permissions/form";
     }
@@ -82,7 +80,7 @@ public class AdminPermissionController {
             log.error("Failed to load permission {}: {}", id, e.getMessage());
         }
         model.addAttribute("permission", permission != null ? permission : new PermissionDto());
-        model.addAttribute("categories", CATEGORIES);
+        model.addAttribute("categories", roleClientService.getAllCategories(jwt).stream().map(c -> c.getName()).toList());
         model.addAttribute("isNew", false);
         return "admin/permissions/form";
     }

@@ -13,7 +13,7 @@ spring:
         - id: user-service
           uri: ${USER_SERVICE_URI:http://localhost:8082}
           predicates:
-            - Path=/api/users/**,/api/roles/**,/api/permissions/**
+            - Path=/api/users/**,/api/roles/**,/api/permissions/**,/api/permission-categories/**
 
         - id: cms-service
           uri: ${CMS_SERVICE_URI:http://localhost:8083}
