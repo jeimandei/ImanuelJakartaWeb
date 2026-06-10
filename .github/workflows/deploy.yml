@@ -227,6 +227,10 @@ jobs:
             podman exec -i church-postgres sh -c \
               'psql -U $POSTGRES_USER -d imanuelweb_db' \
               < database/V2__add_permissions.sql
+            echo "→ Running V3__extended_permissions.sql"
+            podman exec -i church-postgres sh -c \
+              'psql -U $POSTGRES_USER -d imanuelweb_db' \
+              < database/V3__extended_permissions.sql
             echo "✓ Migrations complete"
           EOF
 
