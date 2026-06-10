@@ -66,6 +66,10 @@
                                 <small class="text-muted" th:text="${role.description ?: 'No description'}">desc</small>
                             </div>
                             <div class="d-flex gap-2">
+                                <a th:href="@{/admin/users/new(role=${role.roleName})}"
+                                   class="btn btn-sm btn-outline-success" title="Add user with this role">
+                                    <i class="fas fa-user-plus"></i>
+                                </a>
                                 <a th:href="@{/admin/roles/{id}/edit(id=${role.id})}"
                                    class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-edit"></i>

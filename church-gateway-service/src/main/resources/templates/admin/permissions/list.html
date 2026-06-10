@@ -54,57 +54,56 @@
                 </a>
             </div>
 
-            <!-- Group by category -->
-            <div th:each="cat : ${categories}">
-                <div th:with="catPerms=${permissions != null ? permissions.?[category == cat] : null}"
-                     th:if="${catPerms != null and !catPerms.empty}" class="mb-4">
-                    <h6 class="fw-bold text-uppercase mb-2"
-                        style="font-size:0.7rem;letter-spacing:.08em;color:var(--primary);">
-                        <i class="fas fa-tag me-1" style="color:var(--accent);"></i>
-                        <span th:text="${cat}">CATEGORY</span>
-                    </h6>
-                    <div class="card">
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0 align-middle">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th style="width:220px;">Name</th>
-                                        <th>Description</th>
-                                        <th style="width:120px;">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr th:each="perm : ${catPerms}">
-                                        <td>
-                                            <code class="small fw-bold" th:text="${perm.name}">PERM_NAME</code>
-                                        </td>
-                                        <td class="text-muted small" th:text="${perm.description ?: '—'}">desc</td>
-                                        <td>
-                                            <div class="d-flex gap-1">
-                                                <a th:href="@{/admin/permissions/{id}/edit(id=${perm.id})}"
-                                                   class="btn btn-sm btn-outline-primary">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <form th:action="@{/admin/permissions/{id}/delete(id=${perm.id})}"
-                                                      method="post" class="d-inline"
-                                                      th:attr="data-name=${perm.name}"
-                                                      onsubmit="return confirm('Delete permission ' + this.dataset.name + '? Roles using it will lose this permission.')">
-                                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+            <!-- Group by category (pre-grouped in Java to avoid SpEL scope issues) -->
+            <div th:each="entry : ${permissionsByCategory.entrySet()}" class="mb-4">
+                <h6 class="fw-bold text-uppercase mb-2"
+                    style="font-size:0.7rem;letter-spacing:.08em;color:var(--primary);">
+                    <i class="fas fa-tag me-1" style="color:var(--accent);"></i>
+                    <span th:text="${entry.key}">CATEGORY</span>
+                    <span class="text-muted fw-normal ms-1" style="font-size:0.65rem;"
+                          th:text="'(' + ${entry.value.size()} + ')'"></span>
+                </h6>
+                <div class="card">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0 align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width:220px;">Name</th>
+                                    <th>Description</th>
+                                    <th style="width:120px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="perm : ${entry.value}">
+                                    <td>
+                                        <code class="small fw-bold" th:text="${perm.name}">PERM_NAME</code>
+                                    </td>
+                                    <td class="text-muted small" th:text="${perm.description ?: '—'}">desc</td>
+                                    <td>
+                                        <div class="d-flex gap-1">
+                                            <a th:href="@{/admin/permissions/{id}/edit(id=${perm.id})}"
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form th:action="@{/admin/permissions/{id}/delete(id=${perm.id})}"
+                                                  method="post" class="d-inline"
+                                                  th:attr="data-name=${perm.name}"
+                                                  onsubmit="return confirm('Delete permission ' + this.dataset.name + '? Roles using it will lose this permission.')">
+                                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
 
-            <div th:if="${permissions == null or permissions.empty}" class="text-center text-muted py-5">
+            <div th:if="${permissionsByCategory == null or permissionsByCategory.empty}" class="text-center text-muted py-5">
                 <i class="fas fa-key fa-3x mb-3 opacity-25 d-block"></i>
                 No permissions found.
                 <a th:href="@{/admin/permissions/new}" class="d-block mt-2">Create the first permission</a>
