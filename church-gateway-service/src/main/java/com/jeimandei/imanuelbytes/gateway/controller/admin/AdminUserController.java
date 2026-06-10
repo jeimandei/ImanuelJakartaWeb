@@ -1,8 +1,10 @@
 package com.jeimandei.imanuelbytes.gateway.controller.admin;
 
 import com.jeimandei.imanuelbytes.gateway.dto.UserDto;
+import com.jeimandei.imanuelbytes.gateway.service.RoleClientService;
 import com.jeimandei.imanuelbytes.gateway.service.UserClientService;
 import com.jeimandei.imanuelbytes.gateway.util.SecurityUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,9 +31,11 @@ public class AdminUserController {
     private static final Logger log = LoggerFactory.getLogger(AdminUserController.class);
 
     private final UserClientService userClientService;
+    private final RoleClientService roleClientService;
 
-    public AdminUserController(UserClientService userClientService) {
+    public AdminUserController(UserClientService userClientService, RoleClientService roleClientService) {
         this.userClientService = userClientService;
+        this.roleClientService = roleClientService;
     }
 
     @GetMapping({"", "/"})
@@ -49,17 +55,33 @@ public class AdminUserController {
 
     @GetMapping("/new")
     public String createForm(Model model) {
+        String jwt = SecurityUtils.getJwt();
         model.addAttribute("userForm", new UserDto());
+        try {
+            model.addAttribute("allRoles", roleClientService.getAllRoles(jwt));
+        } catch (Exception e) {
+            log.error("Failed to load roles: {}", e.getMessage());
+            model.addAttribute("allRoles", Collections.emptyList());
+        }
         return "admin/users/create";
     }
 
     @PostMapping
-    public String createUser(@RequestParam Map<String, String> params,
-                             RedirectAttributes redirectAttributes) {
+    public String createUser(HttpServletRequest request, RedirectAttributes redirectAttributes) {
         String jwt = SecurityUtils.getJwt();
         try {
-            Map<String, Object> request = new HashMap<>(params);
-            userClientService.createUser(request, jwt);
+            Map<String, Object> body = new HashMap<>();
+            body.put("fullName", request.getParameter("fullName"));
+            body.put("username", request.getParameter("username"));
+            body.put("email", request.getParameter("email"));
+            body.put("phone", request.getParameter("phone"));
+            body.put("password", request.getParameter("password"));
+            body.put("confirmPassword", request.getParameter("confirmPassword"));
+            String[] roleValues = request.getParameterValues("roles");
+            body.put("roles", roleValues != null
+                    ? Arrays.stream(roleValues).toList()
+                    : Collections.emptyList());
+            userClientService.createUser(body, jwt);
             log.info("User created successfully");
             redirectAttributes.addFlashAttribute("successMessage", "User created successfully.");
         } catch (Exception e) {
@@ -77,6 +99,12 @@ public class AdminUserController {
             model.addAttribute("user", user);
         } catch (Exception e) {
             log.error("Failed to load user {}: {}", id, e.getMessage());
+        }
+        try {
+            model.addAttribute("allRoles", roleClientService.getAllRoles(jwt));
+        } catch (Exception e) {
+            log.error("Failed to load roles: {}", e.getMessage());
+            model.addAttribute("allRoles", Collections.emptyList());
         }
         return "admin/users/edit";
     }
@@ -115,10 +143,14 @@ public class AdminUserController {
 
     @PostMapping("/{id}/roles")
     public String assignRoles(@PathVariable Long id,
-                              @RequestParam List<String> roles,
+                              HttpServletRequest request,
                               RedirectAttributes redirectAttributes) {
         String jwt = SecurityUtils.getJwt();
         try {
+            String[] roleValues = request.getParameterValues("roles");
+            List<String> roles = roleValues != null
+                    ? Arrays.stream(roleValues).toList()
+                    : Collections.emptyList();
             userClientService.assignRoles(id, roles, jwt);
             log.info("Roles assigned to user {}: {}", id, roles);
             redirectAttributes.addFlashAttribute("successMessage", "User roles updated successfully.");
@@ -126,7 +158,7 @@ public class AdminUserController {
             log.error("Failed to assign roles for user {}: {}", id, e.getMessage());
             redirectAttributes.addFlashAttribute("errorMessage", "Failed to update user roles.");
         }
-        return "redirect:/admin/users";
+        return "redirect:/admin/users/" + id + "/edit";
     }
 
     @PostMapping("/{id}/reset-password")
