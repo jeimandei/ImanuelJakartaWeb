@@ -225,13 +225,12 @@ jobs:
             cd ${{ env.DEPLOY_DIR }}
             git fetch origin
             git reset --hard origin/${{ inputs.branch }}
+            PGUSER=$(podman exec church-postgres printenv POSTGRES_USER)
             echo "→ Running V2__add_permissions.sql"
-            podman exec -i church-postgres sh -c \
-              'psql -U $POSTGRES_USER -d imanuelweb_db' \
+            podman exec -i church-postgres psql -U "$PGUSER" -d imanuelweb_db \
               < database/V2__add_permissions.sql
             echo "→ Running V3__extended_permissions.sql"
-            podman exec -i church-postgres sh -c \
-              'psql -U $POSTGRES_USER -d imanuelweb_db' \
+            podman exec -i church-postgres psql -U "$PGUSER" -d imanuelweb_db \
               < database/V3__extended_permissions.sql
             echo "✓ Migrations complete"
           EOF
