@@ -1,6 +1,7 @@
 package com.jeimandei.imanuelbytes.gateway.controller.admin;
 
 import com.jeimandei.imanuelbytes.gateway.dto.PermissionCategoryDto;
+import com.jeimandei.imanuelbytes.gateway.dto.PermissionDto;
 import com.jeimandei.imanuelbytes.gateway.service.RoleClientService;
 import com.jeimandei.imanuelbytes.gateway.util.SecurityUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,6 +15,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -73,7 +75,17 @@ public class AdminPermissionCategoryController {
         } catch (Exception e) {
             log.error("Failed to load category {}: {}", id, e.getMessage());
         }
+        List<PermissionDto> allPermissions = Collections.emptyList();
+        List<PermissionCategoryDto> allCategories = Collections.emptyList();
+        try {
+            allPermissions = roleClientService.getAllPermissions(jwt);
+            allCategories = roleClientService.getAllCategories(jwt);
+        } catch (Exception e) {
+            log.error("Failed to load permissions/categories: {}", e.getMessage());
+        }
         model.addAttribute("category", cat != null ? cat : new PermissionCategoryDto());
+        model.addAttribute("allPermissions", allPermissions);
+        model.addAttribute("allCategories", allCategories);
         model.addAttribute("isNew", false);
         return "admin/permission-categories/form";
     }
@@ -84,14 +96,27 @@ public class AdminPermissionCategoryController {
                          RedirectAttributes redirectAttributes) {
         String jwt = SecurityUtils.getJwt();
         try {
-            Map<String, Object> body = new HashMap<>();
+            Map<String, Object> nameBody = new HashMap<>();
             String name = request.getParameter("name");
-            if (name != null && !name.isBlank()) body.put("name", name.toUpperCase().trim());
-            roleClientService.updateCategory(id, body, jwt);
-            redirectAttributes.addFlashAttribute("successMessage", "Category updated successfully.");
+            if (name != null && !name.isBlank()) nameBody.put("name", name.toUpperCase().trim());
+            roleClientService.updateCategory(id, nameBody, jwt);
+
+            List<PermissionDto> allPerms = roleClientService.getAllPermissions(jwt);
+            int moved = 0;
+            for (PermissionDto perm : allPerms) {
+                String newCategory = request.getParameter("perm_" + perm.getId());
+                if (newCategory != null && !newCategory.equals(perm.getCategory())) {
+                    roleClientService.updatePermission(perm.getId(),
+                            Map.of("category", newCategory.toUpperCase().trim()), jwt);
+                    moved++;
+                }
+            }
+            String msg = "Category updated successfully.";
+            if (moved > 0) msg += " " + moved + " permission(s) reassigned.";
+            redirectAttributes.addFlashAttribute("successMessage", msg);
         } catch (Exception e) {
             log.error("Failed to update category {}: {}", id, e.getMessage());
-            redirectAttributes.addFlashAttribute("errorMessage", "Failed to update category: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to update: " + e.getMessage());
         }
         return "redirect:/admin/permission-categories";
     }
