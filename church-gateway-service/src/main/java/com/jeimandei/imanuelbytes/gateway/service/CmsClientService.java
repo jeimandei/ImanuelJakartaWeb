@@ -340,6 +340,20 @@ public class CmsClientService {
     // Service Times
     // -------------------------------------------------------------------------
 
+    public List<ServiceTimeDto> getActiveServiceTimes() {
+        try {
+            String url = serviceUrlConfig.cmsUrl("/api/service-times/active");
+            ResponseEntity<ApiResponse<List<ServiceTimeDto>>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, null,
+                    new ParameterizedTypeReference<ApiResponse<List<ServiceTimeDto>>>() {});
+            ApiResponse<List<ServiceTimeDto>> body = response.getBody();
+            return (body != null && body.getData() != null) ? body.getData() : Collections.emptyList();
+        } catch (RestClientException e) {
+            log.error("Failed to fetch active service times: {}", e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+
     public List<ServiceTimeDto> getAllServiceTimes(String jwt) {
         try {
             String url = serviceUrlConfig.cmsUrl("/api/service-times");
