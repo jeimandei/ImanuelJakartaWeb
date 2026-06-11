@@ -240,6 +240,10 @@ jobs:
             podman exec -i church-postgres sh -c \
               'psql -U $POSTGRES_USER -d imanuelweb_db' \
               < database/V5__service_times.sql
+            echo "→ Running V6__add_birthday_to_users.sql"
+            podman exec -i church-postgres sh -c \
+              'psql -U $POSTGRES_USER -d imanuelweb_db' \
+              < database/V6__add_birthday_to_users.sql
             echo "✓ Migrations complete"
           EOF
 

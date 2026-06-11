@@ -38,7 +38,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     "/", "/about", "/services", "/sermons", "/sermons/**",
-                    "/events", "/events/**", "/livestream", "/ministries",
+                    "/events", "/events/**", "/calendar", "/calendar/**",
+                    "/livestream", "/ministries",
                     "/contact", "/prayer-request", "/giving", "/news", "/news/**",
                     "/gallery", "/gallery/**", "/login", "/register",
                     "/forgot-password", "/forgot-password/reset",

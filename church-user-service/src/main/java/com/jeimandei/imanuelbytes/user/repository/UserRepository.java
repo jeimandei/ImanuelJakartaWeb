@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -78,4 +79,21 @@ public interface UserRepository extends JpaRepository<User, Long> {
                OR LOWER(u.fullName)  LIKE LOWER(CONCAT('%', :query, '%'))
             """)
     Page<User> searchUsers(@Param("query") String query, Pageable pageable);
+
+    /**
+     * Returns all users whose {@code birthday} falls in the given calendar month,
+     * ordered by day of month ascending.  Users with a {@code null} birthday are
+     * excluded.  Uses Hibernate's {@code month(...)} / {@code day(...)} HQL
+     * extraction functions so the comparison is year-agnostic.
+     *
+     * @param month the calendar month (1–12)
+     * @return matching users ordered by day of month
+     */
+    @Query("""
+            SELECT u FROM User u
+            WHERE u.birthday IS NOT NULL
+              AND MONTH(u.birthday) = :month
+            ORDER BY DAY(u.birthday) ASC
+            """)
+    List<User> findByBirthdayMonth(@Param("month") int month);
 }

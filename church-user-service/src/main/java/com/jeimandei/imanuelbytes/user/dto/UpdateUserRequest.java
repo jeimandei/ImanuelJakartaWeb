@@ -2,6 +2,8 @@ package com.jeimandei.imanuelbytes.user.dto;
 
 import jakarta.validation.constraints.Size;
 
+import java.time.LocalDate;
+
 /**
  * Request body for updating an existing user's editable profile fields.
  *
@@ -18,6 +20,12 @@ public class UpdateUserRequest {
 
     @Size(max = 512, message = "Profile image URL must not exceed 512 characters")
     private String profileImageUrl;
+
+    /**
+     * Optional date of birth.  Accepts an ISO-8601 date string (e.g. {@code 1990-05-20})
+     * that Jackson parses into a {@link LocalDate}.
+     */
+    private LocalDate birthday;
 
     // -------------------------------------------------------------------------
     // Constructors
@@ -58,5 +66,13 @@ public class UpdateUserRequest {
 
     public void setProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
+    }
+
+    public LocalDate getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(LocalDate birthday) {
+        this.birthday = birthday;
     }
 }

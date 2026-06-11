@@ -5,6 +5,7 @@ public class ProfileFormDto {
     private String fullName;
     private String phoneNumber;
     private String profileImageUrl;
+    private String birthday;
 
     public ProfileFormDto() {}
 
@@ -22,4 +23,7 @@ public class ProfileFormDto {
 
     public String getProfileImageUrl() { return profileImageUrl; }
     public void setProfileImageUrl(String profileImageUrl) { this.profileImageUrl = profileImageUrl; }
+
+    public String getBirthday() { return birthday; }
+    public void setBirthday(String birthday) { this.birthday = birthday; }
 }

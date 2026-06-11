@@ -136,10 +136,27 @@ footer .social-icons a:hover { background: var(--accent); color: var(--primary-d
 .form-page-header { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; padding: 60px 0; text-align: center; }
 .form-card { border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); border: none; }
 
+/* ---- Calendar (FullCalendar) ---- */
+:root {
+    --fc-button-bg-color: var(--primary);
+    --fc-button-border-color: var(--primary);
+    --fc-button-hover-bg-color: var(--primary-dark);
+    --fc-button-hover-border-color: var(--primary-dark);
+    --fc-button-active-bg-color: var(--primary-dark);
+    --fc-button-active-border-color: var(--primary-dark);
+    --fc-event-bg-color: var(--primary);
+    --fc-event-border-color: var(--primary);
+    --fc-today-bg-color: rgba(212, 175, 55, 0.12);
+}
+#calendar .fc .fc-toolbar-title { color: var(--primary); font-weight: 700; }
+#calendar .fc-event { cursor: pointer; }
+#calendar .fc-daygrid-event { padding: 2px 4px; }
+
 /* ---- Responsive ---- */
 @media (max-width: 768px) {
     .hero-section h1 { font-size: 2rem; }
     .hero-section { padding: 60px 0; }
     .admin-sidebar { display: none; }
     .admin-content { margin-left: 0; }
+    #calendar .fc-toolbar { flex-direction: column; gap: 0.5rem; }
 }

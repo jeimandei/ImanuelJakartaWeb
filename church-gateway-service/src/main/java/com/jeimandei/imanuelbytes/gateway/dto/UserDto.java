@@ -10,6 +10,7 @@ public class UserDto {
     private String fullName;
     private String phoneNumber;
     private String profileImageUrl;
+    private String birthday;
     private String status;
     private List<String> roles;
     private String createdAt;
@@ -34,6 +35,9 @@ public class UserDto {
 
     public String getProfileImageUrl() { return profileImageUrl; }
     public void setProfileImageUrl(String profileImageUrl) { this.profileImageUrl = profileImageUrl; }
+
+    public String getBirthday() { return birthday; }
+    public void setBirthday(String birthday) { this.birthday = birthday; }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
