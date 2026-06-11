@@ -1,6 +1,9 @@
 server:
   port: 8086
 
+app:
+  base-url: ${APP_BASE_URL:https://gmimimanueljakarta.or.id}
+
 spring:
   data:
     jpa:
