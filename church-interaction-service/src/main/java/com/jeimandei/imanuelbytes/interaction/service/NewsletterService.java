@@ -19,5 +19,7 @@ public interface NewsletterService {
 
     Page<NewsletterSubscriptionDto> getAllSubscriptions(Pageable pageable);
 
+    boolean isSubscribed(String email);
+
     void sendNewsNotification(String title, String excerpt, String articleUrl);
 }

@@ -158,6 +158,14 @@ public class NewsletterServiceImpl implements NewsletterService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public boolean isSubscribed(String email) {
+        return newsletterSubscriptionRepository.findByEmail(email)
+                .map(NewsletterSubscription::isActive)
+                .orElse(false);
+    }
+
+    @Override
     public void sendNewsNotification(String title, String excerpt, String articleUrl) {
         List<NewsletterSubscription> subscribers = newsletterSubscriptionRepository.findByActive(true, Pageable.unpaged())
                 .getContent();

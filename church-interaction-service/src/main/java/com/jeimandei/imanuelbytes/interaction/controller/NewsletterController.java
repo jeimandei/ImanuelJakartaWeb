@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -90,9 +91,7 @@ public class NewsletterController {
 
     @GetMapping("/check")
     public ResponseEntity<ApiResponse<Boolean>> checkSubscription(@RequestParam String email) {
-        boolean subscribed = newsletterService.getAllSubscriptions(Pageable.unpaged())
-                .getContent().stream()
-                .anyMatch(s -> s.getEmail().equalsIgnoreCase(email) && s.isActive());
+        boolean subscribed = newsletterService.isSubscribed(email);
         return ResponseEntity.ok(ApiResponse.success(subscribed));
     }
 
