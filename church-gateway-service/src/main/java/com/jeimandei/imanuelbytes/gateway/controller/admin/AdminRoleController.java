@@ -91,6 +91,13 @@ public class AdminRoleController {
             role = roleClientService.getRoleById(id, jwt);
         } catch (Exception e) {
             log.error("Failed to load role {}: {}", id, e.getMessage());
+            model.addAttribute("role", new RoleDto());
+        }
+        try {
+            model.addAttribute("permissions", roleClientService.getAllPermissions(jwt));
+        } catch (Exception e) {
+            log.error("Failed to load permissions: {}", e.getMessage());
+            model.addAttribute("permissions", Collections.emptyList());
         }
         model.addAttribute("role", role);
         Set<Long> rolePermIds = role != null && role.getPermissions() != null
