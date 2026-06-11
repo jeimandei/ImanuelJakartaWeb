@@ -90,9 +90,8 @@ public class NewsletterController {
     }
 
     @GetMapping("/check")
-    public ResponseEntity<ApiResponse<Boolean>> checkSubscription(@RequestParam String email) {
-        boolean subscribed = newsletterService.isSubscribed(email);
-        return ResponseEntity.ok(ApiResponse.success(subscribed));
+    public ResponseEntity<Boolean> checkSubscription(@RequestParam String email) {
+        return ResponseEntity.ok(newsletterService.isSubscribed(email));
     }
 
     @GetMapping

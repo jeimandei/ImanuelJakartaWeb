@@ -218,13 +218,11 @@ public class InteractionClientService {
         try {
             String url = serviceUrlConfig.interactionUrl("/api/newsletter/check?email=" +
                     java.net.URLEncoder.encode(email, java.nio.charset.StandardCharsets.UTF_8));
-            ResponseEntity<ApiResponse<Boolean>> response = restTemplate.exchange(
-                    url, HttpMethod.GET, null,
-                    new ParameterizedTypeReference<ApiResponse<Boolean>>() {});
-            ApiResponse<Boolean> body = response.getBody();
-            return body != null && Boolean.TRUE.equals(body.getData());
-        } catch (RestClientException e) {
-            log.debug("Could not check newsletter subscription for {}: {}", email, e.getMessage());
+            ResponseEntity<Boolean> response = restTemplate.exchange(
+                    url, HttpMethod.GET, null, Boolean.class);
+            return Boolean.TRUE.equals(response.getBody());
+        } catch (Exception e) {
+            log.warn("Could not check newsletter subscription for {}: {}", email, e.getMessage());
             return false;
         }
     }
