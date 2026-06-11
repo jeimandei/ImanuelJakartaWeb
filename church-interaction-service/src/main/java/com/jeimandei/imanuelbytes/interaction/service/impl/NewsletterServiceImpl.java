@@ -33,8 +33,8 @@ public class NewsletterServiceImpl implements NewsletterService {
     private final JavaMailSender mailSender;
     private final UnsubscribeTokenStore tokenStore;
 
-    @Value("${app.base-url:http://localhost:8080}")
-    private String baseUrl;
+    @Value("${app.public-url:https://gmimimanueljakarta.or.id}")
+    private String publicUrl;
 
     public NewsletterServiceImpl(NewsletterSubscriptionRepository newsletterSubscriptionRepository,
                                  AuditClientService auditClient,
@@ -103,7 +103,7 @@ public class NewsletterServiceImpl implements NewsletterService {
         String token = UUID.randomUUID().toString();
         tokenStore.put(token, email);
 
-        String confirmUrl = baseUrl + "/newsletter/confirm-unsubscribe?token=" + token;
+        String confirmUrl = publicUrl + "/newsletter/confirm-unsubscribe?token=" + token;
         try {
             SimpleMailMessage mail = new SimpleMailMessage();
             mail.setTo(subscription.getEmail());
