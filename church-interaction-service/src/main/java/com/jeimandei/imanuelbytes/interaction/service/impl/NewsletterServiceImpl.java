@@ -151,30 +151,6 @@ public class NewsletterServiceImpl implements NewsletterService {
     }
 
     @Override
-    public void confirmUnsubscribe(String token) {
-        String email = tokenStore.getEmail(token);
-        if (email == null) {
-            throw new IllegalArgumentException("Invalid or expired unsubscribe token.");
-        }
-        tokenStore.remove(token);
-        newsletterSubscriptionRepository.findByEmail(email).ifPresent(sub -> {
-            sub.setActive(false);
-            newsletterSubscriptionRepository.save(sub);
-            log.info("Newsletter unsubscribed via token confirmation: email='{}'", email);
-            auditSafe("UNSUBSCRIBE", sub.getId(), email);
-        });
-    }
-
-    @Override
-    public void deleteSubscriber(Long id) {
-        NewsletterSubscription subscription = newsletterSubscriptionRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("NewsletterSubscription", "id", id));
-        newsletterSubscriptionRepository.delete(subscription);
-        log.info("Newsletter subscriber hard-deleted: id={}, email='{}'", id, subscription.getEmail());
-        auditSafe("DELETE_SUBSCRIBER", id, subscription.getEmail());
-    }
-
-    @Override
     @Transactional(readOnly = true)
     public Page<NewsletterSubscriptionDto> getAllSubscriptions(Pageable pageable) {
         return newsletterSubscriptionRepository.findAll(pageable)
