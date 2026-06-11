@@ -31,10 +31,9 @@
                             <i class="fas fa-map-marker-alt me-3 mt-1" style="color:var(--accent); width:16px;"></i>
                             <div>
                                 <strong class="d-block mb-1">Address</strong>
-                                <span class="text-muted small">
-                                    Jl. Imanuel No. 1<br/>
-                                    Jakarta Pusat<br/>
-                                    DKI Jakarta 10110
+                                <span class="text-muted small"
+                                      th:text="${siteSettings['church_address'] ?: 'Jl. Imanuel No. 1, Jakarta Pusat, DKI Jakarta 10110'}">
+                                    Jl. Imanuel No. 1, Jakarta Pusat, DKI Jakarta 10110
                                 </span>
                             </div>
                         </li>
@@ -42,16 +41,17 @@
                             <i class="fas fa-phone me-3 mt-1" style="color:var(--accent); width:16px;"></i>
                             <div>
                                 <strong class="d-block mb-1">Phone</strong>
-                                <span class="text-muted small">+62 21 123-4567</span>
+                                <span class="text-muted small"
+                                      th:text="${siteSettings['church_phone'] ?: '+62 21 123-4567'}">+62 21 123-4567</span>
                             </div>
                         </li>
                         <li class="d-flex align-items-start mb-3">
                             <i class="fas fa-envelope me-3 mt-1" style="color:var(--accent); width:16px;"></i>
                             <div>
                                 <strong class="d-block mb-1">Email</strong>
-                                <a href="mailto:info@imanueljakarta.org" class="text-muted small">
-                                    info@imanueljakarta.org
-                                </a>
+                                <a th:href="'mailto:' + (${siteSettings['church_email'] ?: 'info@gmimimanueljakarta.or.id'})"
+                                   th:text="${siteSettings['church_email'] ?: 'info@gmimimanueljakarta.or.id'}"
+                                   class="text-muted small">info@gmimimanueljakarta.or.id</a>
                             </div>
                         </li>
                         <li class="d-flex align-items-start">
@@ -80,9 +80,9 @@
                     <div class="mt-4">
                         <h6 class="fw-bold mb-3" style="color:var(--primary);">Follow Us</h6>
                         <div class="d-flex gap-2 flex-wrap">
-                            <a href="#" class="btn btn-outline-primary btn-sm"><i class="fab fa-facebook-f me-1"></i>Facebook</a>
-                            <a href="#" class="btn btn-outline-danger btn-sm"><i class="fab fa-youtube me-1"></i>YouTube</a>
-                            <a href="#" class="btn btn-outline-secondary btn-sm"><i class="fab fa-instagram me-1"></i>Instagram</a>
+                            <a th:href="${siteSettings['facebook_url'] ?: '#'}" class="btn btn-outline-primary btn-sm"><i class="fab fa-facebook-f me-1"></i>Facebook</a>
+                            <a th:href="${siteSettings['church_youtube_channel'] ?: '#'}" class="btn btn-outline-danger btn-sm"><i class="fab fa-youtube me-1"></i>YouTube</a>
+                            <a th:href="${siteSettings['instagram_url'] ?: '#'}" class="btn btn-outline-secondary btn-sm"><i class="fab fa-instagram me-1"></i>Instagram</a>
                         </div>
                     </div>
                 </div>

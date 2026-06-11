@@ -228,6 +228,20 @@ public class CmsClientService {
         }
     }
 
+    public Map<String, String> getPublicSettings() {
+        try {
+            String url = serviceUrlConfig.cmsUrl("/api/settings/public");
+            ResponseEntity<ApiResponse<Map<String, String>>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, null,
+                    new ParameterizedTypeReference<ApiResponse<Map<String, String>>>() {});
+            ApiResponse<Map<String, String>> body = response.getBody();
+            return (body != null && body.getData() != null) ? body.getData() : Collections.emptyMap();
+        } catch (RestClientException e) {
+            log.error("Failed to fetch public settings: {}", e.getMessage());
+            return Collections.emptyMap();
+        }
+    }
+
     public List<SiteSettingDto> getAllSettings(String jwt) {
         try {
             String url = serviceUrlConfig.cmsUrl("/api/settings");

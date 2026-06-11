@@ -23,8 +23,8 @@
 <!-- Hero Section -->
 <section class="hero-section">
     <div class="container text-center">
-        <h1 class="mb-3">Welcome to Imanuel Jakarta Church</h1>
-        <p class="lead mb-4">A community of faith, hope, and love. Everyone is welcome here.</p>
+        <h1 class="mb-3" th:text="'Welcome to ' + (${siteSettings['church_name'] ?: 'Imanuel Jakarta Church'})">Welcome to Imanuel Jakarta Church</h1>
+        <p class="lead mb-4" th:text="${siteSettings['church_tagline'] ?: 'A community of faith, hope, and love. Everyone is welcome here.'}">A community of faith, hope, and love. Everyone is welcome here.</p>
         <div class="d-flex gap-3 justify-content-center flex-wrap">
             <a th:href="@{/new-here}" class="btn btn-gold btn-lg px-4">
                 <i class="fas fa-heart me-2"></i>New Here?
