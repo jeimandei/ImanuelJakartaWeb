@@ -19,7 +19,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.util.Map;
 
 @Service
@@ -216,10 +218,12 @@ public class InteractionClientService {
 
     public boolean isSubscribedToNewsletter(String email) {
         try {
-            String url = serviceUrlConfig.interactionUrl("/api/newsletter/check?email=" +
-                    java.net.URLEncoder.encode(email, java.nio.charset.StandardCharsets.UTF_8));
-            ResponseEntity<Boolean> response = restTemplate.exchange(
-                    url, HttpMethod.GET, null, Boolean.class);
+            URI uri = UriComponentsBuilder
+                    .fromUriString(serviceUrlConfig.interactionUrl("/api/newsletter/check"))
+                    .queryParam("email", "{email}")
+                    .buildAndExpand(email)
+                    .toUri();
+            ResponseEntity<Boolean> response = restTemplate.exchange(uri, HttpMethod.GET, null, Boolean.class);
             return Boolean.TRUE.equals(response.getBody());
         } catch (Exception e) {
             log.warn("Could not check newsletter subscription for {}: {}", email, e.getMessage());
