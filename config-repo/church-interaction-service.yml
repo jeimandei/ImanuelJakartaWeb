@@ -2,7 +2,7 @@ server:
   port: 8086
 
 app:
-  base-url: ${APP_BASE_URL:http://localhost:8080}
+  public-url: https://gmimimanueljakarta.or.id
 
 spring:
   data:
