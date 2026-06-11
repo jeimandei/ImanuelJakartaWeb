@@ -185,7 +185,7 @@ public class NewsletterServiceImpl implements NewsletterService {
                     "A new article has been published on GMIM Imanuel Jakarta:\n\n" +
                     "  " + title + "\n\n" +
                     (excerpt != null && !excerpt.isBlank() ? excerpt + "\n\n" : "") +
-                    "Read the full article here:\n  " + articleUrl + "\n\n" +
+                    "Read the full article here:\n  " + publicUrl + articleUrl + "\n\n" +
                     "To unsubscribe from our newsletter, visit your profile settings.\n\n" +
                     "GMIM Imanuel Jakarta"
                 );
