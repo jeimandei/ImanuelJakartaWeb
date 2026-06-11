@@ -115,7 +115,8 @@ public class AuthController {
                 boolean subscribed = interactionClientService.isSubscribedToNewsletter(currentUser.getEmail());
                 model.addAttribute("newsletterSubscribed", subscribed);
             } catch (Exception e) {
-                log.debug("Could not check newsletter subscription status: {}", e.getMessage());
+                log.warn("Could not check newsletter subscription status for {}: {}",
+                        currentUser.getEmail(), e.getMessage());
                 model.addAttribute("newsletterSubscribed", false);
             }
         } else {
