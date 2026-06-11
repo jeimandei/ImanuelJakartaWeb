@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @ControllerAdvice
 public class GlobalModelAttributes {
@@ -28,6 +29,16 @@ public class GlobalModelAttributes {
         } catch (Exception e) {
             log.warn("Could not load service times for footer: {}", e.getMessage());
             return Collections.emptyList();
+        }
+    }
+
+    @ModelAttribute("siteSettings")
+    public Map<String, String> siteSettings() {
+        try {
+            return cmsClientService.getPublicSettings();
+        } catch (Exception e) {
+            log.warn("Could not load site settings: {}", e.getMessage());
+            return Collections.emptyMap();
         }
     }
 }

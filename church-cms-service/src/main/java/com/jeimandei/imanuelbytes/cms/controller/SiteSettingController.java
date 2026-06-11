@@ -12,6 +12,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/settings")
@@ -29,6 +31,15 @@ public class SiteSettingController {
     @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<List<SiteSettingDto>>> getAllSettings() {
         return ResponseEntity.ok(ApiResponse.success(siteSettingService.getAllSettings()));
+    }
+
+    @GetMapping("/public")
+    public ResponseEntity<ApiResponse<Map<String, String>>> getPublicSettings() {
+        Map<String, String> result = siteSettingService.getAllSettings().stream()
+                .collect(Collectors.toMap(
+                        SiteSettingDto::getSettingKey,
+                        dto -> dto.getSettingValue() != null ? dto.getSettingValue() : ""));
+        return ResponseEntity.ok(ApiResponse.success(result));
     }
 
     @GetMapping("/{key}")

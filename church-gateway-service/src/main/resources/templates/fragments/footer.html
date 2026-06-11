@@ -5,14 +5,15 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-4 mb-4">
-                <h5><i class="fas fa-church me-2"></i>Imanuel Jakarta Church</h5>
-                <p style="color:rgba(255,255,255,0.65); font-size:0.9rem;">
+                <h5><i class="fas fa-church me-2"></i><span th:text="${siteSettings['church_name'] ?: 'Imanuel Jakarta Church'}">Imanuel Jakarta Church</span></h5>
+                <p style="color:rgba(255,255,255,0.65); font-size:0.9rem;"
+                   th:text="${siteSettings['church_tagline'] ?: 'A community of faith, worship, and service. Building God\'s Kingdom together in Jakarta.'}">
                     A community of faith, worship, and service. Building God's Kingdom together in Jakarta.
                 </p>
                 <div class="social-icons mt-3">
-                    <a href="#" title="Facebook"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
-                    <a href="#" title="YouTube"><i class="fab fa-youtube"></i></a>
+                    <a th:href="${siteSettings['facebook_url'] ?: '#'}" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a th:href="${siteSettings['instagram_url'] ?: '#'}" title="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a th:href="${siteSettings['church_youtube_channel'] ?: '#'}" title="YouTube"><i class="fab fa-youtube"></i></a>
                     <a href="#" title="TikTok"><i class="fab fa-tiktok"></i></a>
                 </div>
             </div>
@@ -44,9 +45,20 @@
             <div class="col-lg-3 col-md-4 mb-4">
                 <h5>Contact Us</h5>
                 <ul class="list-unstyled" style="font-size:0.9rem; color:rgba(255,255,255,0.75);">
-                    <li class="mb-2"><i class="fas fa-map-marker-alt me-2" style="color:var(--accent);"></i>Jl. Imanuel No. 1, Jakarta Pusat</li>
-                    <li class="mb-2"><i class="fas fa-phone me-2" style="color:var(--accent);"></i>+62 21 123-4567</li>
-                    <li class="mb-2"><i class="fas fa-envelope me-2" style="color:var(--accent);"></i>info@imanueljakarta.org</li>
+                    <li class="mb-2">
+                        <i class="fas fa-map-marker-alt me-2" style="color:var(--accent);"></i>
+                        <span th:text="${siteSettings['church_address'] ?: 'Jl. Imanuel No. 1, Jakarta Pusat'}">Jl. Imanuel No. 1, Jakarta Pusat</span>
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-phone me-2" style="color:var(--accent);"></i>
+                        <span th:text="${siteSettings['church_phone'] ?: '+62 21 123-4567'}">+62 21 123-4567</span>
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-envelope me-2" style="color:var(--accent);"></i>
+                        <a th:href="'mailto:' + (${siteSettings['church_email'] ?: 'info@imanueljakarta.org'})"
+                           th:text="${siteSettings['church_email'] ?: 'info@imanueljakarta.org'}"
+                           style="color:rgba(255,255,255,0.75);">info@imanueljakarta.org</a>
+                    </li>
                 </ul>
                 <a class="btn btn-sm btn-outline-gold mt-2" th:href="@{/contact}">Contact Us</a>
             </div>

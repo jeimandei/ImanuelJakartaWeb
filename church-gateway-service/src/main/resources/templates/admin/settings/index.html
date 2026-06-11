@@ -64,13 +64,18 @@
                                  th:classappend="${iterStat.last ? '' : 'border-bottom'}">
                                 <div class="row align-items-start g-3">
                                     <div class="col-md-4">
-                                        <code class="fs-6 fw-bold" style="color:var(--primary);" th:text="${setting.settingKey}">setting.key</code>
-                                        <p class="text-muted small mb-0 mt-1"
-                                           th:if="${setting.description != null and !setting.description.empty}"
-                                           th:text="${setting.description}">Setting description</p>
+                                        <p class="fw-semibold mb-0" style="color:var(--primary);"
+                                           th:text="${setting.description != null and !setting.description.empty ? setting.description : setting.settingKey}">Setting Name</p>
+                                        <code class="text-muted small" th:text="${setting.settingKey}">key</code>
                                     </div>
                                     <div class="col-md-8">
-                                        <input type="text"
+                                        <textarea th:if="${setting.settingKey == 'about_us_text' or setting.settingKey == 'vision_statement' or setting.settingKey == 'mission_statement'}"
+                                                  th:name="${setting.settingKey}"
+                                                  th:text="${setting.settingValue}"
+                                                  rows="4"
+                                                  class="form-control font-monospace"></textarea>
+                                        <input th:unless="${setting.settingKey == 'about_us_text' or setting.settingKey == 'vision_statement' or setting.settingKey == 'mission_statement'}"
+                                               type="text"
                                                th:name="${setting.settingKey}"
                                                th:value="${setting.settingValue}"
                                                class="form-control font-monospace"
