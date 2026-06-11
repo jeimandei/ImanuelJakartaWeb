@@ -53,6 +53,22 @@ public class AdminUserController {
         return "admin/users/list";
     }
 
+    @GetMapping("/birthdays")
+    public String birthdays(@RequestParam(required = false) Integer month, Model model) {
+        String jwt = SecurityUtils.getJwt();
+        int targetMonth = (month != null && month >= 1 && month <= 12)
+                ? month
+                : java.time.LocalDate.now().getMonthValue();
+        try {
+            model.addAttribute("birthdays", userClientService.getBirthdays(targetMonth, jwt));
+        } catch (Exception e) {
+            log.error("Failed to load birthdays for month {}: {}", targetMonth, e.getMessage());
+            model.addAttribute("birthdays", Collections.emptyList());
+        }
+        model.addAttribute("selectedMonth", targetMonth);
+        return "admin/users/birthdays";
+    }
+
     @GetMapping("/new")
     public String createForm(@RequestParam(required = false) String role, Model model) {
         String jwt = SecurityUtils.getJwt();
@@ -117,6 +133,11 @@ public class AdminUserController {
         String jwt = SecurityUtils.getJwt();
         try {
             Map<String, Object> request = new HashMap<>(params);
+            // An empty birthday field must not be sent — it is not a parseable date.
+            Object birthday = request.get("birthday");
+            if (birthday == null || birthday.toString().isBlank()) {
+                request.remove("birthday");
+            }
             userClientService.updateUser(id, request, jwt);
             redirectAttributes.addFlashAttribute("successMessage", "User updated successfully.");
         } catch (Exception e) {

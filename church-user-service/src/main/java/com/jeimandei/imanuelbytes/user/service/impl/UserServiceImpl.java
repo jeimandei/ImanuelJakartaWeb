@@ -114,6 +114,15 @@ public class UserServiceImpl implements UserService {
                 .map(userMapper::userToDto);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<UserDto> getBirthdaysByMonth(int month) {
+        log.debug("Fetching birthdays for month={}", month);
+        return userRepository.findByBirthdayMonth(month).stream()
+                .map(userMapper::userToDto)
+                .toList();
+    }
+
     // -------------------------------------------------------------------------
     // Write operations
     // -------------------------------------------------------------------------
@@ -146,6 +155,9 @@ public class UserServiceImpl implements UserService {
         if (request.getPhoneNumber() != null) {
             user.setPhoneNumber(request.getPhoneNumber());
         }
+        if (request.getBirthday() != null) {
+            user.setBirthday(request.getBirthday());
+        }
 
         // Resolve and assign roles
         if (request.getRoles() != null && !request.getRoles().isEmpty()) {
@@ -177,6 +189,9 @@ public class UserServiceImpl implements UserService {
         }
         if (request.getProfileImageUrl() != null) {
             user.setProfileImageUrl(request.getProfileImageUrl());
+        }
+        if (request.getBirthday() != null) {
+            user.setBirthday(request.getBirthday());
         }
 
         user.touchUpdatedAt();

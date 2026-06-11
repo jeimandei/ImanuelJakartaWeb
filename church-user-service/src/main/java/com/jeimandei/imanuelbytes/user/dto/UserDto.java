@@ -2,6 +2,7 @@ package com.jeimandei.imanuelbytes.user.dto;
 
 import com.jeimandei.imanuelbytes.user.entity.UserStatus;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -19,6 +20,7 @@ public class UserDto {
     private String fullName;
     private String phoneNumber;
     private String profileImageUrl;
+    private LocalDate birthday;
     private UserStatus status;
     private List<String> roles;
     private LocalDateTime createdAt;
@@ -106,6 +108,14 @@ public class UserDto {
 
     public void setProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
+    }
+
+    public LocalDate getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(LocalDate birthday) {
+        this.birthday = birthday;
     }
 
     public UserStatus getStatus() {

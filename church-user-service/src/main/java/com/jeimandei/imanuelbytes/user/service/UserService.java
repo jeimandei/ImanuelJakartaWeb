@@ -11,6 +11,8 @@ import com.jeimandei.imanuelbytes.user.dto.UserDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 /**
  * Service contract for user lifecycle management.
  *
@@ -152,4 +154,14 @@ public interface UserService {
      * @return a page of {@link UserDto}s matching the query
      */
     Page<UserDto> searchUsers(String query, Pageable pageable);
+
+    /**
+     * Returns all users whose birthday falls in the given calendar month,
+     * ordered by day of month ascending.  Users without a recorded birthday
+     * are excluded.
+     *
+     * @param month the calendar month (1 = January … 12 = December)
+     * @return the matching users as {@link UserDto}s
+     */
+    List<UserDto> getBirthdaysByMonth(int month);
 }

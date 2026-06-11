@@ -60,6 +60,24 @@ public class UserClientService {
         }
     }
 
+    public List<UserDto> getBirthdays(int month, String jwt) {
+        try {
+            String url = serviceUrlConfig.userUrl("/api/users/birthdays?month=" + month);
+            HttpEntity<Void> entity = new HttpEntity<>(createAuthHeaders(jwt));
+            ResponseEntity<ApiResponse<List<UserDto>>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity,
+                    new ParameterizedTypeReference<ApiResponse<List<UserDto>>>() {});
+            ApiResponse<List<UserDto>> body = response.getBody();
+            if (body != null && body.getData() != null) {
+                return body.getData();
+            }
+            return Collections.emptyList();
+        } catch (RestClientException e) {
+            log.error("Failed to fetch birthdays for month {}: {}", month, e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+
     public UserDto getUserById(Long id, String jwt) {
         try {
             String url = serviceUrlConfig.userUrl("/api/users/" + id);

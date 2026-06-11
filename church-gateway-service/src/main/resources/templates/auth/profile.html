@@ -57,10 +57,15 @@
                         <strong>Email:</strong>
                         <span th:text="${user.email}">email</span>
                     </p>
-                    <p class="mb-0" th:if="${user.phoneNumber != null and !user.phoneNumber.empty}">
+                    <p class="mb-1" th:if="${user.phoneNumber != null and !user.phoneNumber.empty}">
                         <i class="fas fa-phone me-2" style="color:var(--accent);"></i>
                         <strong>Phone:</strong>
                         <span th:text="${user.phoneNumber}">phone</span>
+                    </p>
+                    <p class="mb-0" th:if="${birthday != null and !birthday.empty}">
+                        <i class="fas fa-birthday-cake me-2" style="color:var(--accent);"></i>
+                        <strong>Birthday:</strong>
+                        <span th:text="${birthday}">2000-01-01</span>
                     </p>
                 </div>
             </div>
@@ -97,6 +102,15 @@
                                 <input type="tel" th:field="*{phoneNumber}" class="form-control"
                                        placeholder="+62 xxx-xxxx-xxxx"/>
                             </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-medium">Birthday</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-birthday-cake"></i></span>
+                                <input type="date" th:field="*{birthday}" class="form-control"/>
+                            </div>
+                            <div class="form-text">Let us celebrate your special day with you.</div>
                         </div>
 
                         <div class="mb-4">

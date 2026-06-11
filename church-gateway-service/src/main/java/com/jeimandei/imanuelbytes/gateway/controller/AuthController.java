@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Controller
@@ -105,10 +106,24 @@ public class AuthController {
     public String profile(Model model) {
         GatewayUserDetails currentUser = SecurityUtils.getCurrentUser();
         model.addAttribute("user", currentUser);
-        ProfileFormDto profileForm = new ProfileFormDto(
-                currentUser != null ? currentUser.getFullName() : "",
-                "",
-                "");
+        ProfileFormDto profileForm = new ProfileFormDto();
+        profileForm.setFullName(currentUser != null ? currentUser.getFullName() : "");
+        if (currentUser != null) {
+            try {
+                UserDto fullUser = userClientService.getUserByUsername(
+                        currentUser.getUsername(), SecurityUtils.getJwt());
+                if (fullUser != null) {
+                    profileForm.setFullName(fullUser.getFullName());
+                    profileForm.setPhoneNumber(fullUser.getPhoneNumber());
+                    profileForm.setProfileImageUrl(fullUser.getProfileImageUrl());
+                    profileForm.setBirthday(fullUser.getBirthday());
+                    model.addAttribute("birthday", fullUser.getBirthday());
+                }
+            } catch (Exception e) {
+                log.warn("Could not load full profile for {}: {}",
+                        currentUser.getUsername(), e.getMessage());
+            }
+        }
         model.addAttribute("profileForm", profileForm);
         if (currentUser != null && currentUser.getEmail() != null) {
             try {
@@ -128,9 +143,30 @@ public class AuthController {
     @PostMapping("/profile")
     @PreAuthorize("isAuthenticated()")
     public String updateProfile(ProfileFormDto profileForm,
-                                Model model,
                                 RedirectAttributes redirectAttributes) {
-        redirectAttributes.addFlashAttribute("successMessage", "Profile updated successfully.");
+        GatewayUserDetails currentUser = SecurityUtils.getCurrentUser();
+        String jwt = SecurityUtils.getJwt();
+        try {
+            UserDto user = userClientService.getUserByUsername(currentUser.getUsername(), jwt);
+            if (user == null) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Could not find your account.");
+                return "redirect:/profile";
+            }
+            Map<String, Object> body = new HashMap<>();
+            body.put("fullName", profileForm.getFullName());
+            body.put("phoneNumber", profileForm.getPhoneNumber());
+            body.put("profileImageUrl", profileForm.getProfileImageUrl());
+            // Only send birthday when provided — an empty string is not a valid date.
+            if (profileForm.getBirthday() != null && !profileForm.getBirthday().isBlank()) {
+                body.put("birthday", profileForm.getBirthday());
+            }
+            userClientService.updateUser(user.getId(), body, jwt);
+            redirectAttributes.addFlashAttribute("successMessage", "Profile updated successfully.");
+        } catch (Exception e) {
+            log.error("Failed to update profile for user {}: {}", currentUser.getUsername(), e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Failed to update profile: " + e.getMessage());
+        }
         return "redirect:/profile";
     }
 

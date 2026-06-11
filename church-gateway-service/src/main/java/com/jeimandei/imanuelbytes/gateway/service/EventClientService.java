@@ -74,6 +74,28 @@ public class EventClientService {
         }
     }
 
+    /**
+     * Fetches a single (large) page of published events for the public calendar feed.
+     * FullCalendar renders only the events that fall within the visible date range,
+     * so returning the full published set client-side is sufficient.
+     */
+    public List<EventDto> getPublishedEvents(int size) {
+        try {
+            String url = serviceUrlConfig.eventUrl("/api/events?page=0&size=" + size);
+            ResponseEntity<ApiResponse<PageResponse<EventDto>>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, null,
+                    new ParameterizedTypeReference<ApiResponse<PageResponse<EventDto>>>() {});
+            ApiResponse<PageResponse<EventDto>> body = response.getBody();
+            if (body != null && body.getData() != null && body.getData().getContent() != null) {
+                return body.getData().getContent();
+            }
+            return Collections.emptyList();
+        } catch (RestClientException e) {
+            log.error("Failed to fetch published events: {}", e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+
     public List<EventDto> getFeaturedEvents() {
         try {
             String url = serviceUrlConfig.eventUrl("/api/events/featured");

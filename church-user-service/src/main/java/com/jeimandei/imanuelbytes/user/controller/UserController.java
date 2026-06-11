@@ -91,6 +91,23 @@ public class UserController {
     }
 
     // -------------------------------------------------------------------------
+    // GET /api/users/birthdays  —  members with a birthday in the given month (ROLE_ADMIN)
+    // -------------------------------------------------------------------------
+
+    @GetMapping("/birthdays")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    public ResponseEntity<ApiResponse<java.util.List<UserDto>>> getBirthdays(
+            @RequestParam(required = false) Integer month) {
+        int targetMonth = (month != null && month >= 1 && month <= 12)
+                ? month
+                : java.time.LocalDate.now().getMonthValue();
+        log.debug("Fetching birthdays for month={}", targetMonth);
+        java.util.List<UserDto> birthdays = userService.getBirthdaysByMonth(targetMonth);
+        log.info("Retrieved {} birthdays for month={}", birthdays.size(), targetMonth);
+        return ResponseEntity.ok(ApiResponse.success("Birthdays retrieved successfully", birthdays));
+    }
+
+    // -------------------------------------------------------------------------
     // GET /api/users/{id}  —  get user by ID (authenticated)
     // -------------------------------------------------------------------------
 

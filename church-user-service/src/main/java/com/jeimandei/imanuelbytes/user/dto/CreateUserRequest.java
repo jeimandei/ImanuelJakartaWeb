@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -29,6 +30,8 @@ public class CreateUserRequest {
 
     @Size(max = 20, message = "Phone number must not exceed 20 characters")
     private String phoneNumber;
+
+    private LocalDate birthday;
 
     private List<String> roles;
 
@@ -95,6 +98,14 @@ public class CreateUserRequest {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public LocalDate getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(LocalDate birthday) {
+        this.birthday = birthday;
     }
 
     public List<String> getRoles() {
