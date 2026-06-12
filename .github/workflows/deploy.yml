@@ -244,6 +244,10 @@ jobs:
             podman exec -i church-postgres sh -c \
               'psql -U $POSTGRES_USER -d imanuelweb_db' \
               < database/V6__add_birthday_to_users.sql
+            echo "→ Running V7__add_map_settings.sql"
+            podman exec -i church-postgres sh -c \
+              'psql -U $POSTGRES_USER -d imanuelweb_db' \
+              < database/V7__add_map_settings.sql
             echo "✓ Migrations complete"
           EOF
 

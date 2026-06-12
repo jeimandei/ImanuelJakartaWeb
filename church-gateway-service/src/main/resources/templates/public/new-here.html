@@ -185,7 +185,8 @@
                         Jakarta Pusat, DKI Jakarta 10110
                     </address>
                     <div class="d-grid gap-2">
-                        <a href="https://maps.google.com" target="_blank" class="btn btn-outline-primary">
+                        <a th:href="${siteSettings['church_map_link_url'] ?: 'https://maps.google.com'}"
+                           target="_blank" class="btn btn-outline-primary">
                             <i class="fas fa-map me-2"></i>Get Directions
                         </a>
                         <a th:href="@{/contact}" class="btn btn-outline-secondary">
