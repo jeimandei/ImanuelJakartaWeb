@@ -65,6 +65,7 @@ services:
       - ./database/V4__permission_categories.sql:/docker-entrypoint-initdb.d/V4__permission_categories.sql:ro
       - ./database/V5__service_times.sql:/docker-entrypoint-initdb.d/V5__service_times.sql:ro
       - ./database/V6__add_birthday_to_users.sql:/docker-entrypoint-initdb.d/V6__add_birthday_to_users.sql:ro
+      - ./database/V7__add_map_settings.sql:/docker-entrypoint-initdb.d/V7__add_map_settings.sql:ro
     logging: *default-logging
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d imanuelweb_db"]
