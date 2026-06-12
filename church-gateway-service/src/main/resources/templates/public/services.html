@@ -65,10 +65,8 @@
                     <p class="text-muted small mb-2">Worship from wherever you are</p>
                     <div class="service-time-card mt-2" style="background:var(--light-bg);">
                         <div class="service-type">Live on YouTube</div>
-                        <div class="service-time"
-                             th:if="${footerServiceTimes != null and !footerServiceTimes.isEmpty()}"
-                             th:text="${#strings.arrayJoin(#arrays.toStringArray(#lists.toList(footerServiceTimes.stream().map(st -> #temporals.format(st.startTime, 'HH:mm')).toList())), ' &amp; ')}">
-                            08:00 &amp; 10:30
+                        <div class="service-time" th:if="${footerServiceTimes != null and !footerServiceTimes.isEmpty()}">
+                            <th:block th:each="st, iterStat : ${footerServiceTimes}"><span th:text="${#temporals.format(st.startTime, 'HH:mm')}">08:00</span><span th:unless="${iterStat.last}"> &amp; </span></th:block>
                         </div>
                         <div class="service-time" th:unless="${footerServiceTimes != null and !footerServiceTimes.isEmpty()}">
                             See schedule above
