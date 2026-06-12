@@ -65,7 +65,14 @@
                     <p class="text-muted small mb-2">Worship from wherever you are</p>
                     <div class="service-time-card mt-2" style="background:var(--light-bg);">
                         <div class="service-type">Live on YouTube</div>
-                        <div class="service-time">08:00 &amp; 10:30</div>
+                        <div class="service-time"
+                             th:if="${footerServiceTimes != null and !footerServiceTimes.isEmpty()}"
+                             th:text="${#strings.arrayJoin(#arrays.toStringArray(#lists.toList(footerServiceTimes.stream().map(st -> #temporals.format(st.startTime, 'HH:mm')).toList())), ' &amp; ')}">
+                            08:00 &amp; 10:30
+                        </div>
+                        <div class="service-time" th:unless="${footerServiceTimes != null and !footerServiceTimes.isEmpty()}">
+                            See schedule above
+                        </div>
                     </div>
                     <a th:href="@{/livestream}" class="btn btn-sm btn-outline-primary mt-3">
                         <i class="fas fa-broadcast-tower me-1"></i>Watch Live
@@ -94,17 +101,20 @@
                         <li class="d-flex align-items-start mb-3">
                             <i class="fas fa-building me-3 mt-1" style="color:var(--primary); width:20px;"></i>
                             <div>
-                                <strong>GKJ Imanuel Jakarta</strong><br/>
-                                <span class="text-muted">Jl. Imanuel No. 1, Jakarta Pusat<br/>DKI Jakarta 10110</span>
+                                <strong th:text="${siteSettings['church_name'] ?: 'Imanuel Jakarta Church'}">Imanuel Jakarta Church</strong><br/>
+                                <span class="text-muted"
+                                      th:text="${siteSettings['church_address'] ?: 'Jl. Imanuel No. 1, Jakarta Pusat'}">Jl. Imanuel No. 1, Jakarta Pusat</span>
                             </div>
                         </li>
                         <li class="d-flex align-items-center mb-3">
                             <i class="fas fa-phone me-3" style="color:var(--primary); width:20px;"></i>
-                            <span class="text-muted">+62 21 123-4567</span>
+                            <span class="text-muted" th:text="${siteSettings['church_phone'] ?: '+62 21 123-4567'}">+62 21 123-4567</span>
                         </li>
                         <li class="d-flex align-items-center mb-3">
                             <i class="fas fa-envelope me-3" style="color:var(--primary); width:20px;"></i>
-                            <span class="text-muted">info@imanueljakarta.org</span>
+                            <a th:href="'mailto:' + (${siteSettings['church_email'] ?: 'info@gmimimanueljakarta.or.id'})"
+                               th:text="${siteSettings['church_email'] ?: 'info@gmimimanueljakarta.or.id'}"
+                               class="text-muted">info@gmimimanueljakarta.or.id</a>
                         </li>
                         <li class="d-flex align-items-start mb-3">
                             <i class="fas fa-clock me-3 mt-1" style="color:var(--primary); width:20px;"></i>
@@ -133,7 +143,7 @@
                      style="height:350px; border:2px dashed #dee2e6;">
                     <i class="fas fa-map fa-4x mb-3 text-muted opacity-50"></i>
                     <p class="text-muted mb-1 fw-semibold">Interactive Map</p>
-                    <p class="text-muted small">Jl. Imanuel No. 1, Jakarta Pusat</p>
+                    <p class="text-muted small" th:text="${siteSettings['church_address'] ?: 'Jl. Imanuel No. 1, Jakarta Pusat'}">Jl. Imanuel No. 1, Jakarta Pusat</p>
                     <a href="https://maps.google.com" target="_blank" class="btn btn-outline-primary btn-sm mt-2">
                         <i class="fas fa-external-link-alt me-1"></i>Open in Google Maps
                     </a>
