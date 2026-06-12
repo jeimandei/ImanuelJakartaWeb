@@ -64,14 +64,9 @@
                 <p class="lead mb-2" style="opacity:0.85;">No livestream is active at this time.</p>
                 <p style="opacity:0.7; font-size:0.95rem;">
                     <i class="fas fa-clock me-2" style="color:var(--accent);"></i>
-                    Check back on <strong th:if="${footerServiceTimes != null and !footerServiceTimes.isEmpty()}">
-                        <span th:text="'Sundays at ' + ${#strings.arrayJoin(#arrays.toStringArray(#lists.toList(footerServiceTimes.stream().map(st -> #temporals.format(st.startTime, 'HH:mm')).toList())), ' and ')} + ' WIB'">
-                            Sundays at 08:00 and 10:30 WIB
-                        </span>
-                    </strong>
-                    <strong th:unless="${footerServiceTimes != null and !footerServiceTimes.isEmpty()}">
-                        Sundays for our live worship services
-                    </strong>
+                    Check back on
+                    <strong th:if="${footerServiceTimes != null and !footerServiceTimes.isEmpty()}">Sundays at <th:block th:each="st, iterStat : ${footerServiceTimes}"><span th:text="${#temporals.format(st.startTime, 'HH:mm')}">08:00</span><span th:unless="${iterStat.last}"> and </span></th:block> WIB</strong>
+                    <strong th:unless="${footerServiceTimes != null and !footerServiceTimes.isEmpty()}">Sundays</strong>
                     for our live worship services.
                 </p>
                 <hr style="border-color:rgba(255,255,255,0.2); margin:1.5rem 0;"/>
